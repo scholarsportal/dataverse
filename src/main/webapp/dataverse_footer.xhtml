@@ -14,6 +14,10 @@
             <div class="row">
                 <div class="col-sm-8 small" jsf:rendered="#{!widgetView}">
                     <p>
+                        <h:outputText value="#{bundle['footer.dataScienceIQSS']}" escape="false"/> &#160;|&#160; #{bundle['footer.dataverseProjectOn']} <a href="https://twitter.com/dataverseorg" target="_blank" title="#{bundle['footer.dataverseProjectOn']} #{bundle['footer.Twitter']}"><span class="socicon socicon-twitter" title="#{bundle['footer.dataverseProjectOn']} #{bundle['footer.Twitter']}"/></a> &#160;|&#160; #{bundle['footer.codeAvailable']} <a href="https://github.com/scholarsportal/SP-dataverse" target="_blank" title="#{bundle['footer.dataverseOnGitHub']}"><span class="socicon socicon-github" title="#{bundle['footer.dataverseOnGitHub']}"/></a>
+                    </p>
+                    <p>
+
                         <h:outputText value="#{systemConfig.footerCopyrightAndYear}#{settingsWrapper.get(':FooterCopyright')}" escape="false"/> <ui:fragment rendered="#{!empty settingsWrapper.get(':ApplicationPrivacyPolicyUrl')}">&#160;|&#160; <h:outputLink value="#{settingsWrapper.get(':ApplicationPrivacyPolicyUrl')}" target="_blank">#{bundle['footer.privacyPolicy']}</h:outputLink></ui:fragment>
                     </p>
                 </div>
@@ -33,10 +37,15 @@
                     </span>
                 </div>
                 <div class="#{widgetView ? 'col-xs-5' : 'col-sm-4'} text-right">
-                    <div class="poweredbylogo">
+                    <div class="poweredbylogo bottom_logo">
                         <span>#{bundle['footer.poweredby']}</span>
                         <a href="http://dataverse.org/" title="#{bundle['footer.dataverseProject']}" target="_blank"><img src="/resources/images/dataverseproject_logo.png" alt="#{bundle['footer.dataverseProject']}" /></a>
                         <h:outputText class="version" value="v. #{systemConfig.getVersion(true)}" rendered="#{!widgetView}"/>
+                    </div>
+                     <div class="bottom_logo" >
+                    <a href="http://ocul.on.ca" title="http://ocul.on.ca" target="_blank">
+                        <img id="ocul_image" src="/resources/images/ocul#{dataverseLocale.locale.language}.png" alt="OCUL" class="img-responsive" />
+                    </a>
                     </div>
                 </div>
             </div>

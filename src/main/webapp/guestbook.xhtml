@@ -11,6 +11,7 @@
     </h:head>
 
     <h:body>
+    <f:view locale="#{dataverseLocale.locale.language}">
         <ui:composition template="/dataverse_template.xhtml">
             <ui:param name="pageTitle" value="#{GuestbookPage.editMode == 'CREATE' ? bundle['dataset.manageGuestbooks.createBtn'] : GuestbookPage.guestbook.name} - #{GuestbookPage.guestbook.dataverse.name} Dataverse"/>
             <ui:param name="dataverse" value="#{GuestbookPage.guestbook.dataverse}"/>
@@ -198,6 +199,7 @@
                 </h:form>
             </ui:define>
         </ui:composition>
+        </f:view>
     </h:body>
 </html>
 

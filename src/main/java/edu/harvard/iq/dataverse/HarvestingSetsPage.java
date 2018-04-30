@@ -33,6 +33,7 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 import org.apache.commons.lang.StringUtils;
+import edu.harvard.iq.dataverse.util.BundleUtil;
 
 /**
  *
@@ -158,7 +159,7 @@ public class HarvestingSetsPage implements java.io.Serializable {
             systemConfig.disableOAIServer();
         } else {
             systemConfig.enableOAIServer();
-            JsfHelper.addSuccessMessage(JH.localize("harvestserver.service.enable.success"));
+            JsfHelper.addSuccessMessage(BundleUtil.getStringFromBundle("harvestserver.service.enable.success"));
         }
     }
     
@@ -233,7 +234,7 @@ public class HarvestingSetsPage implements java.io.Serializable {
         try {
             oaiSetService.save(newOaiSet);
             configuredHarvestingSets = oaiSetService.findAll();  
-            String successMessage = JH.localize("harvestserver.newSetDialog.success");
+            String successMessage = BundleUtil.getStringFromBundle("harvestserver.newSetDialog.success");
             successMessage = successMessage.replace("{0}", newOaiSet.getSpec());
             JsfHelper.addSuccessMessage(successMessage);
             success = true;
@@ -276,8 +277,11 @@ public class HarvestingSetsPage implements java.io.Serializable {
         try {
             oaiSetService.save(oaiSet);
             configuredHarvestingSets = oaiSetService.findAll(); 
+            
+            String successMessage = BundleUtil.getStringFromBundle("harvestserver.updateDialog.success");
+            successMessage = successMessage.replace("{0}",oaiSet.getSpec());
                         
-            JsfHelper.addSuccessMessage("Succesfully updated OAI set &#34;" + oaiSet.getSpec() + "&#34;.");
+            JsfHelper.addSuccessMessage(successMessage);
             success = true;
 
         } catch (Exception ex) {
@@ -524,7 +528,7 @@ public class HarvestingSetsPage implements java.io.Serializable {
             return;
         } 
                 
-        String successMessage = JH.localize("harvestserver.actions.runreexport.success");
+        String successMessage = BundleUtil.getStringFromBundle("harvestserver.actions.runreexport.success");
         successMessage = successMessage.replace("{0}", oaiSet.getSpec());
         JsfHelper.addSuccessMessage(successMessage);
         configuredHarvestingSets = oaiSetService.findAll(); 

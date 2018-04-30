@@ -52,7 +52,7 @@ public class FileMetadata implements Serializable {
     @Expose
     @Pattern(regexp="^[^:<>;#/\"\\*\\|\\?\\\\]*$", 
             message = "File Name cannot contain any of the following characters: \\ / : * ? \" < > | ; # .")    
-    @NotBlank(message = "Please specify a file name.")
+    @NotBlank(message = "{filemetadata.filename}")
     @Column( nullable=false )
     private String label = "";
     

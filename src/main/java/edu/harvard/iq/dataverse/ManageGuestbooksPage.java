@@ -4,12 +4,15 @@ import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.impl.DeleteGuestbookCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDataverseCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDataverseGuestbookRootCommand;
+import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.JsfHelper;
 import static edu.harvard.iq.dataverse.util.JsfHelper.JH;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
@@ -262,9 +265,9 @@ public class ManageGuestbooksPage implements java.io.Serializable {
         }
         try {
             engineService.submit(new UpdateDataverseCommand(getDataverse(), null, null, dvRequestService.getDataverseRequest(), null));
-            JsfHelper.addSuccessMessage(JH.localize(successMessage));
+            JsfHelper.addSuccessMessage(BundleUtil.getStringFromBundle(successMessage));
         } catch (CommandException ex) {
-            JH.addMessage(FacesMessage.SEVERITY_FATAL, JH.localize(failureMessage));
+            JH.addMessage(FacesMessage.SEVERITY_FATAL, BundleUtil.getStringFromBundle(failureMessage));
         }
 
     }

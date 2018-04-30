@@ -11,6 +11,7 @@
     </h:head>
 
     <h:body>
+    <f:view locale="#{dataverseLocale.locale.language}">
         <ui:composition template="/dataverse_template.xhtml">
             <ui:param name="pageTitle" value="#{TemplatePage.editMode == 'CREATE' ? bundle['dataset.manageTemplates.createBtn'] : TemplatePage.template.name} - #{TemplatePage.template.dataverse.name}"/>
             <ui:param name="dataverse" value="#{TemplatePage.template.dataverse}"/>
@@ -136,6 +137,7 @@
                 </h:form>
             </ui:define>
         </ui:composition>
+        </f:view>
     </h:body>
 </html>
 

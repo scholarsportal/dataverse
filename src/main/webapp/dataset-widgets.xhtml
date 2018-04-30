@@ -10,6 +10,7 @@
     </h:head>
 
     <h:body>
+     
         <ui:composition template="/dataverse_template.xhtml">
             <ui:param name="pageTitle" value="#{bundle['dataset.widgets.title']} - #{DatasetWidgetsPage.dataset.latestVersion.title}"/>
             <ui:param name="dataverse" value="#{DatasetWidgetsPage.dataset.owner}"/>
@@ -181,5 +182,6 @@
                 </p:tabView>
             </ui:define>
         </ui:composition>
+       
     </h:body>
 </html>

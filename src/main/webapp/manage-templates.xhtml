@@ -8,6 +8,7 @@
     <h:head>
     </h:head>
     <h:body>
+    <f:view locale="#{dataverseLocale.locale.language}">
         <f:metadata>
             <f:viewParam name="dataverseId" value="#{manageTemplatesPage.dataverseId}"/>
             <f:viewAction action="#{manageTemplatesPage.init}"/>
@@ -191,5 +192,6 @@
                 </h:form>
             </ui:define>
         </ui:composition>
+      </f:view>
     </h:body>
 </html>

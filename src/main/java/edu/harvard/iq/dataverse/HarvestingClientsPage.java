@@ -37,7 +37,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang.StringUtils;
-
+import edu.harvard.iq.dataverse.util.BundleUtil;
 /**
  *
  * @author Leonid Andreev
@@ -215,7 +215,7 @@ public class HarvestingClientsPage implements java.io.Serializable {
             return;
         } 
                 
-        String successMessage = JH.localize("harvestclients.actions.runharvest.success");
+        String successMessage = BundleUtil.getStringFromBundle("harvestclients.actions.runharvest.success");
         successMessage = successMessage.replace("{0}", harvestingClient.getName());
         JsfHelper.addSuccessMessage(successMessage);
         
@@ -378,7 +378,7 @@ public class HarvestingClientsPage implements java.io.Serializable {
             // NO, we no longer create timers here. It is the job of the Mother Timer!
             //dataverseTimerService.createHarvestTimer(newHarvestingClient);
             
-            String successMessage = JH.localize("harvestclients.newClientDialog.success");
+            String successMessage = BundleUtil.getStringFromBundle("harvestclients.newClientDialog.success");
             successMessage = successMessage.replace("{0}", newHarvestingClient.getName());
             JsfHelper.addSuccessMessage(successMessage);
 
@@ -456,7 +456,12 @@ public class HarvestingClientsPage implements java.io.Serializable {
             if (!harvestingClient.isScheduled()) {
                 dataverseTimerService.removeHarvestTimer(harvestingClient);
             }
-            JsfHelper.addSuccessMessage("Succesfully updated harvesting client " + harvestingClient.getName());
+            //JsfHelper.addSuccessMessage("Succesfully updated harvesting client " + harvestingClient.getName());
+            
+            List<String> args = Arrays.asList(harvestingClient.getName());
+            JsfHelper.addSuccessMessage(BundleUtil.getStringFromBundle("harvestclients.updateClientDialog.success", args));
+
+            
 
         } catch (CommandException ex) {
             logger.log(Level.WARNING, "Failed to save harvesting client", ex);

@@ -20,15 +20,6 @@
 
 package edu.harvard.iq.dataverse.dataaccess;
 
-import edu.harvard.iq.dataverse.DataFile;
-import java.io.IOException;
-
-// javaswift imports
-import org.javaswift.joss.model.Container;
-import org.javaswift.joss.model.StoredObject;
-
-
-
 import edu.harvard.iq.dataverse.DvObject;
 import java.io.IOException;
 /**
@@ -37,12 +28,12 @@ import java.io.IOException;
  */
 
 public class DataAccess {
-
     public DataAccess() {
 
-    };
+    }
 
-
+    // set by the user in glassfish-setup.sh if DEFFAULT_STORAGE_DRIVER_IDENTIFIER = swift
+    // or DEFFAULT_STORAGE_DRIVER_IDENTIFIER = s3
     public static final String DEFAULT_STORAGE_DRIVER_IDENTIFIER = System.getProperty("dataverse.files.storage-driver-id");
     
     // The getStorageIO() methods initialize StorageIO objects for
@@ -79,7 +70,6 @@ public class DataAccess {
         // "storage identifier". 
         // -- L.A. 4.0.2
         
-
         throw new IOException("getDataAccessObject: Unsupported storage method.");
     }
 

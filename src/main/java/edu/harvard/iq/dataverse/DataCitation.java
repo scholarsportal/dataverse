@@ -90,7 +90,7 @@ public class DataCitation {
             distributors = dsv.getDistributorName();
             //remove += [distributor] SEK 8-18-2016
         }
-
+ 
         // version
         if (!dsv.getDataset().isHarvested()) {
             if (dsv.isDraft()) {

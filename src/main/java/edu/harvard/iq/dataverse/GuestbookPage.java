@@ -24,7 +24,7 @@ import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 import org.apache.commons.lang.StringUtils;
-
+import edu.harvard.iq.dataverse.util.BundleUtil;
 /**
  *
  * @author skraffmiller
@@ -160,7 +160,7 @@ public class GuestbookPage implements java.io.Serializable {
             editMode = EditMode.CLONE;
             sourceGB = guestbookService.find(sourceId);
             guestbook = sourceGB.copyGuestbook(sourceGB, dataverse);
-            String name = "Copy of " + sourceGB.getName();
+            String name = BundleUtil.getStringFromBundle("page.copy") +" "+ sourceGB.getName();
             guestbook.setName(name);
             guestbook.setUsageCount(new Long(0));
             guestbook.setCreateTime(new Timestamp(new Date().getTime()));
@@ -322,7 +322,7 @@ public class GuestbookPage implements java.io.Serializable {
             //logger.severe(ex.getMessage());
         }
         editMode = null;
-        String msg = (create)? "The guestbook has been created.": "The guestbook has been edited and saved.";
+        String msg = (create)? BundleUtil.getStringFromBundle("dataset.manageGuestbooks.message.createdSuccess"): BundleUtil.getStringFromBundle("dataset.manageGuestbooks.message.editsavedSuccess");
         JsfHelper.addFlashMessage(msg);
         return "/manage-guestbooks.xhtml?dataverseId=" + dataverse.getId() + "&faces-redirect=true";
     }

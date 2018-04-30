@@ -14,6 +14,7 @@
     </h:head>
 
     <h:body>
+    
         <ui:composition template="/dataverse_template.xhtml">
             <ui:param name="pageTitle" value="#{FilePage.fileMetadata.dataFile.displayName} - #{FilePage.file.owner.owner.displayName}"/>
             <ui:param name="dataverse" value="#{FilePage.file.owner.owner}"/>
@@ -49,7 +50,7 @@
                                         <f:setPropertyActionListener target="#{sendFeedbackDialog.userMessage}" value=""/>
                                         <f:setPropertyActionListener target="#{sendFeedbackDialog.userEmail}" value=""/>
                                         <f:setPropertyActionListener target="#{sendFeedbackDialog.messageSubject}" value=""/>
-                                        <f:setPropertyActionListener target="#{sendFeedbackDialog.recipient}" value="#{FilePage.fileMetadata.dataFile}"/>
+                                        <f:setPropertyActionListener target="#{sendFeedbackDialog.recipient}" value="#{FilePage.fileMetadata.datasetVersion.dataset}"/>
                                         <span class="glyphicon glyphicon-envelope"/> #{bundle['contact.contact']}
                                     </p:commandLink>
                                     <p:commandLink styleClass="text-button bootstrap-button-tooltip" rendered="#{!FilePage.fileMetadata.datasetVersion.deaccessioned}"
@@ -109,7 +110,7 @@
                                         <ul class="dropdown-menu pull-right text-left" role="menu">
                                             <li>
                                                 <h:outputLink value="/editdatafiles.xhtml?selectedFileIds=#{FilePage.fileMetadata.dataFile.id}&#38;datasetId=#{FilePage.fileMetadata.datasetVersion.dataset.id}&#38;mode=SINGLE&#38;version=#{FilePage.version}">
-                                                    <h:outputText id="editFile-Multi-Link" value="Metadata"/>
+                                                    <h:outputText id="editFile-Multi-Link" value="#{bundle['file.metadata']}"/>
                                                 </h:outputLink>
                                             </li>
                                             <ui:fragment rendered="#{!settingsWrapper.publicInstall}">
@@ -551,14 +552,16 @@
                             <p:commandButton value="#{bundle.close}" onclick="PF('fileAlreadyReplacedPrevious').hide();"/>
                         </div>
                     </p:dialog>
-                    <p:dialog styleClass="smallPopUp" header="#{bundle['dataset.compute.computeBtn']}" widgetVar="computeAccessDeniedPopup" modal="true">
+                 
+                    <p:dialog styleClass="smallPopUp" header="#{bundle['file.compute.fileRestricted']}" widgetVar="computeAccessDeniedPopup" modal="true">
                         <p class="text-danger"><span class="glyphicon glyphicon-exclamation-sign"/> #{bundle['file.compute.fileAccessDenied']}</p>
                         <div class="button-block">
-                            <p:commandButton value="#{bundle.close}" onclick="PF('computeAccessDeniedPopup').hide();" type="button" />
+                            <p:commandButton value="#{bundle.cancel}" onclick="PF('computeAccessDeniedPopup').hide();" type="button" />
                         </div>
                     </p:dialog>
                 </h:form>
             </ui:define>
         </ui:composition>
+        
     </h:body>
 </html>

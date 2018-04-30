@@ -10,6 +10,7 @@
     </h:head>
 
     <h:body>
+    
         <ui:composition template="/dataverse_template.xhtml">
             <ui:param name="thisPageTitle" value="#{bundle['dataverse.search.advancedSearch']} - #{AdvancedSearchPage.dataverse.name}"/>
             <ui:param name="pageTitle" value="#{thisPageTitle}"/>
@@ -91,7 +92,7 @@
                                         <div class="form-group">
                                             <label class="col-sm-4 control-label">
                                                 <span data-toggle="tooltip" data-placement="auto right" class="tooltiplabel text-info" data-original-title="#{item.description}">
-                                                    #{item.displayName}
+                                                    #{(bundle[item.displayName].startsWith("???")) ? item.displayName : bundle[item.displayName]} <!-- Hack to translate values from the database -->
                                                 </span>
                                             </label>
                                             <div class="col-sm-6">
@@ -196,5 +197,6 @@
                 </div>
             </ui:define>
         </ui:composition>
+      
     </h:body>
 </html>

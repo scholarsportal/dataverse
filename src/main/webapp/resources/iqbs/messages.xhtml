@@ -15,6 +15,7 @@
     <cc:implementation>
         <ui:fragment rendered="#{not empty flash['successMsg']}">
             <div class="alert alert-success">
+
                 <span class="glyphicon glyphicon glyphicon-ok-sign"></span>&#160;<strong>#{bundle['messages.success']}</strong> – <h:outputText escape="false" value="#{flash['successMsg']}"/>
             </div>
         </ui:fragment>
@@ -43,6 +44,7 @@
         </ui:fragment>
         <ui:fragment rendered="#{not empty flash['warningMsg']}">
             <div class="alert alert-warning">
+
                 <span class="glyphicon glyphicon-exclamation-sign"></span>&#160;<strong>#{bundle['messages.info']}</strong> – <h:outputText escape="false" value="#{flash['warningMsg']} "/>
             </div>
         </ui:fragment>

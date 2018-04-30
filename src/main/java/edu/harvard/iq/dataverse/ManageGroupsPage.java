@@ -12,14 +12,18 @@ import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.impl.CreateExplicitGroupCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.DeleteExplicitGroupCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateExplicitGroupCommand;
+import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.JsfHelper;
 import static edu.harvard.iq.dataverse.util.JsfHelper.JH;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+
 import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
@@ -31,6 +35,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -298,7 +303,10 @@ public class ManageGroupsPage implements java.io.Serializable {
         try {
             eg = engineService.submit( new CreateExplicitGroupCommand(dvRequestService.getDataverseRequest(), this.dataverse, eg));
             explicitGroups.add(eg);
-            JsfHelper.addSuccessMessage("Succesfully created group " + eg.getDisplayName() + ". Refresh to update your page.");
+            
+            List<String> args = Arrays.asList(eg.getDisplayName());
+            JsfHelper.addSuccessMessage(BundleUtil.getStringFromBundle("dataverse.manageGroups.create.success", args));
+            //JsfHelper.addSuccessMessage("Succesfully created group " + eg.getDisplayName() + ". Refresh to update your page.");
 
         } catch ( CreateExplicitGroupCommand.GroupAliasExistsException gaee ) {
             explicitGroupIdentifierField.setValid( false );
@@ -335,7 +343,9 @@ public class ManageGroupsPage implements java.io.Serializable {
 
         try {
             eg = engineService.submit( new UpdateExplicitGroupCommand(dvRequestService.getDataverseRequest(), eg));
-            JsfHelper.addSuccessMessage("Succesfully saved group " + eg.getDisplayName());
+            List<String> args = Arrays.asList(eg.getDisplayName());
+            JsfHelper.addSuccessMessage(BundleUtil.getStringFromBundle("dataverse.manageGroups.save.success", args));
+            //JsfHelper.addSuccessMessage("Succesfully saved group " + eg.getDisplayName());
 
         } catch (CommandException ex) {
             JsfHelper.JH.addMessage(FacesMessage.SEVERITY_ERROR,

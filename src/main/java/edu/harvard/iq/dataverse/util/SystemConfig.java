@@ -25,6 +25,8 @@ import javax.ejb.Stateless;
 import javax.inject.Named;
 import org.passay.CharacterRule;
 
+
+
 /**
  * System-wide configuration
  */
@@ -489,13 +491,13 @@ public class SystemConfig {
     }
     
     public String getApplicationTermsOfUse() {
-        String saneDefaultForAppTermsOfUse = "There are no Terms of Use for this Dataverse installation.";
+	String saneDefaultForAppTermsOfUse = ResourceBundle.getBundle("Bundle").getString("system.app.terms");
         String appTermsOfUse = settingsService.getValueForKey(SettingsServiceBean.Key.ApplicationTermsOfUse, saneDefaultForAppTermsOfUse);
         return appTermsOfUse;
     }
 
     public String getApiTermsOfUse() {
-        String saneDefaultForApiTermsOfUse = "There are no API Terms of Use for this Dataverse installation.";
+        String saneDefaultForApiTermsOfUse = ResourceBundle.getBundle("Bundle").getString("system.api.terms");
         String apiTermsOfUse = settingsService.getValueForKey(SettingsServiceBean.Key.ApiTermsOfUse, saneDefaultForApiTermsOfUse);
         return apiTermsOfUse;
     }

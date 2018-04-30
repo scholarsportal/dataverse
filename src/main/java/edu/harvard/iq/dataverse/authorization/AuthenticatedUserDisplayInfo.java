@@ -8,7 +8,8 @@ import org.hibernate.validator.constraints.NotBlank;
  * @author gdurand
  */
 public class AuthenticatedUserDisplayInfo extends RoleAssigneeDisplayInfo {
-
+    @NotBlank(message = "Please enter your affiliation.")
+    private String affiliation;
     @NotBlank(message = "Please enter your last name.")
     private String lastName;
     @NotBlank(message = "Please enter your first name.")
@@ -23,7 +24,8 @@ public class AuthenticatedUserDisplayInfo extends RoleAssigneeDisplayInfo {
         super(firstName + " " + lastName,emailAddress,affiliation);
         this.firstName = firstName;
         this.lastName = lastName;
-        this.position = position;        
+        this.position = position;  
+        this.affiliation = affiliation;   
     }
 
     public AuthenticatedUserDisplayInfo() {
@@ -31,6 +33,7 @@ public class AuthenticatedUserDisplayInfo extends RoleAssigneeDisplayInfo {
         firstName="";
         lastName="";
         position="";
+        affiliation="";
     }
 
     

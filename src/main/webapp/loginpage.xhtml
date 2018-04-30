@@ -12,6 +12,7 @@
     </h:head>
 
     <h:body>
+   
         <f:metadata>
             <f:viewParam name="redirectPage" value="#{LoginPage.redirectPage}"/>
             <f:viewAction action="#{LoginPage.init}"/>
@@ -62,8 +63,8 @@
                                     </ui:remove>
                                     <ui:repeat id="credentialsContainer" value="#{LoginPage.filledCredentials}" var="fc">
                                         <div class="form-group text-left">
-                                            <label class="col-sm-4 control-label" for="credValue">
-                                                #{fc.credential.title}
+                                            <label class="col-sm-4 control-label" for="credValue">                                                
+                                                #{bundle[fc.credential.title]}
                                             </label>
                                             <div class="col-sm-8">
                                                 <h:inputText rendered="#{not fc.credential.secret}" value="#{fc.value}" id="credValue" styleClass="form-control"/>
@@ -231,5 +232,6 @@
                 </div>
             </ui:define>
         </ui:composition>
+  
     </h:body>
 </html>

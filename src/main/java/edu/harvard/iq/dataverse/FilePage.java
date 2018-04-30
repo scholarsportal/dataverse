@@ -42,6 +42,7 @@ import javax.inject.Named;
 import javax.validation.ConstraintViolation;
 import org.primefaces.component.tabview.TabView;
 import org.primefaces.event.TabChangeEvent;
+import edu.harvard.iq.dataverse.util.BundleUtil;
 
 /**
  *
@@ -501,12 +502,12 @@ public class FilePage implements java.io.Serializable {
 
 
         if (fileDeleteInProgress) {
-            JsfHelper.addSuccessMessage(JH.localize("file.message.deleteSuccess"));
+            JsfHelper.addSuccessMessage(BundleUtil.getStringFromBundle("file.message.deleteSuccess"));
             fileDeleteInProgress = false;
         } else {
-            JsfHelper.addSuccessMessage(JH.localize("file.message.editSuccess"));
+            JsfHelper.addSuccessMessage(BundleUtil.getStringFromBundle("file.message.editSuccess"));
         }
-        
+
         setVersion("DRAFT");
         return "";
     }
@@ -632,9 +633,9 @@ public class FilePage implements java.io.Serializable {
             swiftObject.open();
             //generate a temp url for a file
             if (settingsService.isTrueForKey(SettingsServiceBean.Key.PublicInstall, false)) {
-                return settingsService.getValueForKey(SettingsServiceBean.Key.ComputeBaseUrl) + "?" + this.getFile().getOwner().getGlobalId() + "=" + swiftObject.getSwiftFileName();
+                return settingsService.getValueForKey(SettingsServiceBean.Key.ComputeBaseUrl) + "?containerName=" + swiftObject.getSwiftContainerName() + "&objectName=" + swiftObject.getSwiftFileName();
             }
-            return settingsService.getValueForKey(SettingsServiceBean.Key.ComputeBaseUrl) + "?" + this.getFile().getOwner().getGlobalId() + "=" + swiftObject.getSwiftFileName() + "&temp_url_sig=" + swiftObject.getTempUrlSignature() + "&temp_url_expires=" + swiftObject.getTempUrlExpiry();
+            return settingsService.getValueForKey(SettingsServiceBean.Key.ComputeBaseUrl) + "?containerName=" + swiftObject.getSwiftContainerName() + "&objectName=" + swiftObject.getSwiftFileName() + "&temp_url_sig=" + swiftObject.getTempUrlSignature() + "&temp_url_expires=" + swiftObject.getTempUrlExpiry();
         }
         return "";
         }

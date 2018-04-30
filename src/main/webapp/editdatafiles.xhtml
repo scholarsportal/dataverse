@@ -15,6 +15,7 @@
     </h:head>
 
     <h:body>
+    
         <ui:composition template="/dataverse_template.xhtml">
             <ui:param name="pageTitle" value="#{datasetPage || EditDatafilesPage.showFileUploadFragment() ? (EditDatafilesPage.mode == 'SINGLE_REPLACE' ? bundle['file.replaceFile'] : bundle['file.uploadFiles']) : bundle['file.editFiles']} - #{EditDatafilesPage.workingVersion.title}"/>
             <ui:param name="dataverse" value="#{EditDatafilesPage.dataset.owner}"/>
@@ -118,5 +119,6 @@
 
             </ui:define>
         </ui:composition>
+       
     </h:body>
 </html>

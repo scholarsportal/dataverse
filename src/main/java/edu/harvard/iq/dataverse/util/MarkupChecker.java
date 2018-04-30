@@ -10,6 +10,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.safety.Whitelist;
 
+import java.util.logging.Logger;
 /**
  * Wrapper for Jsoup clean
  * 
@@ -17,7 +18,7 @@ import org.jsoup.safety.Whitelist;
  */
 public class MarkupChecker {
     
-    
+	private static final Logger logger = Logger.getLogger(MarkupChecker.class.getCanonicalName());
     
     /**
      * Wrapper around Jsoup clean method with the basic White list
@@ -36,7 +37,8 @@ public class MarkupChecker {
         Whitelist wl = Whitelist.basicWithImages().addTags( "h1", "h2", "h3", "kbd", "hr", "s", "del","map","area").addAttributes("img", "usemap")
                 .addAttributes("map", "name").addAttributes("area", "shape","coords","href","title","alt")
                 .addEnforcedAttribute("a", "target", "_blank");
-
+        logger.info("unsafe string " + unsafe);
+        logger.info("clean output "+ Jsoup.clean(unsafe, wl));
         return Jsoup.clean(unsafe, wl);
         
     }

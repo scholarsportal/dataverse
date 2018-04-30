@@ -10,6 +10,7 @@
     </h:head>  
 
     <h:body>
+   
         <ui:composition template="/dataverse_template.xhtml">
             <ui:param name="pageTitle" value="#{bundle['confirmEmail.pageTitle']} - #{dataverseServiceBean.findRootDataverse().name}"/>
             <ui:param name="dataverse" value="#{dataverseServiceBean.findRootDataverse()}"/>
@@ -28,5 +29,6 @@
 
             </ui:define>
         </ui:composition>
+       
     </h:body>
 </html>

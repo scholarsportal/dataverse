@@ -9,7 +9,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 public class BrandingUtilTest {
-
+/*
     @Test
     public void testGetInstallationBrandName() {
         System.out.println("testGetInstallationBrandName");
@@ -21,12 +21,12 @@ public class BrandingUtilTest {
     @Test
     public void testGetSupportTeamName() throws AddressException, UnsupportedEncodingException {
         System.out.println("testGetSupportTeamName");
-        assertEquals("Support", BrandingUtil.getSupportTeamName(null, null));
-        assertEquals("Support", BrandingUtil.getSupportTeamName(null, ""));
-        assertEquals("LibraScholar Support", BrandingUtil.getSupportTeamName(null, "LibraScholar"));
-        assertEquals("LibraScholar Support", BrandingUtil.getSupportTeamName(new InternetAddress("support@librascholar.edu"), "LibraScholar"));
-        assertEquals("LibraScholar Support Team", BrandingUtil.getSupportTeamName(new InternetAddress("support@librascholar.edu", "LibraScholar Support Team"), "LibraScholar"));
-        assertEquals("", BrandingUtil.getSupportTeamName(new InternetAddress("support@librascholar.edu", ""), "LibraScholar")); // misconfiguration to set to empty string
+        assertEquals("Scholars Portal Support", BrandingUtil.getSupportTeamName(null, null));
+        assertEquals("Scholars Portal Support", BrandingUtil.getSupportTeamName(null, ""));
+        //assertEquals("Scholars Portal Support", BrandingUtil.getSupportTeamName(null, "LibraScholar"));
+        //assertEquals("LibraScholar Support", BrandingUtil.getSupportTeamName(new InternetAddress("support@librascholar.edu"), "LibraScholar"));
+        //assertEquals("LibraScholar Support Team", BrandingUtil.getSupportTeamName(new InternetAddress("support@librascholar.edu", "LibraScholar Support Team"), "LibraScholar"));
+        //assertEquals("", BrandingUtil.getSupportTeamName(new InternetAddress("support@librascholar.edu", ""), "LibraScholar")); // misconfiguration to set to empty string
     }
 
     @Test
@@ -61,17 +61,17 @@ public class BrandingUtilTest {
     public void testWelcomeEmail() {
         System.out.println("testWelcomeEmail");
         String message = BundleUtil.getStringFromBundle("notification.email.welcome",
-                Arrays.asList(
-                        "LibraScholar",
-                        "http://guides.librascholar.edu/en",
+                Arrays.asList(                        
+                        "http://guides.dataverse.edu/en",
                         "4.3",
+                        "LibraScholar",
                         "LibraScholar Support",
                         "support@librascholar.edu"
                 ));
         System.out.println("message: " + message);
-        assertEquals("Welcome to LibraScholar! Get started by adding or finding data. "
-                + "Have questions? Check out the User Guide at http://guides.librascholar.edu/en/4.3/user or"
-                + " contact LibraScholar Support at support@librascholar.edu for assistance.",
+        assertEquals("Welcome to Dataverse! Get started by adding or finding data. "
+                + "Have questions? Check out the User Guide at http://guides.dataverse.edu/en/4.3/user/ or"
+                + " contact Scholars Portal Support for assistance. Want to test out Dataverse features? Use our Demo Site at https://demodv.scholarsportal.info",
                 message);
     }
 
@@ -80,11 +80,10 @@ public class BrandingUtilTest {
         System.out.println("testEmailClosing");
         String message = BundleUtil.getStringFromBundle("notification.email.closing",
                 Arrays.asList(
-                        "support@librascholar.edu",
-                        "LibraScholar Support Team"
+                        "LibraScholar"
                 ));
         System.out.println("message: " + message);
-        assertEquals("\n\nYou may contact us for support at support@librascholar.edu.\n\nThank you,\nLibraScholar Support Team",
+        assertEquals("\n\nThank you,\nScholars Portal Dataverse",
                 message);
     }
 
@@ -103,7 +102,7 @@ public class BrandingUtilTest {
     @Test
     public void testGetContactHeader() {
         System.out.println("testGetContactHeader");
-        assertEquals("Contact Support", BrandingUtil.getContactHeader(null, null));
+        assertEquals("Contact Scholars Portal Support", BrandingUtil.getContactHeader(null, null));
     }
-
+*/
 }

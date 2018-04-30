@@ -8,8 +8,10 @@ package edu.harvard.iq.dataverse;
 import edu.harvard.iq.dataverse.authorization.Permission;
 import edu.harvard.iq.dataverse.engine.command.Command;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDataverseThemeCommand;
+import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.JsfHelper;
 import static edu.harvard.iq.dataverse.util.JsfHelper.JH;
+
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -19,6 +21,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.annotation.PreDestroy;
 import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
@@ -33,7 +36,6 @@ import javax.inject.Named;
 
 import org.apache.commons.lang.StringUtils;
 import org.primefaces.context.RequestContext;
-
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
 
@@ -284,8 +286,8 @@ public class ThemeWidgetFragment implements java.io.Serializable {
         } finally {
               this.cleanupTempDirectory(); 
         }
-        JsfHelper.addSuccessMessage(JH.localize("dataverse.theme.success"));    
-        return "dataverse.xhtml?faces-redirect=true&alias="+editDv.getAlias();  // go to dataverse page 
+        JsfHelper.addSuccessMessage(BundleUtil.getStringFromBundle("dataverse.theme.success"));    
+        return "dataverse?faces-redirect=true&alias="+editDv.getAlias();  // go to dataverse page
     }
       
  }

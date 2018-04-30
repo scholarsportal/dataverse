@@ -9,6 +9,9 @@
       xmlns:jsf="http://xmlns.jcp.org/jsf"
       xmlns:c="http://java.sun.com/jsp/jstl/core"      
       lang="en">
+ 
+    <f:view locale="#{dataverseLocale.locale.language}">
+ 
     <h:head>
         <f:facet name="first">
             <title><h:outputText value="#{pageTitle}"/></title>
@@ -23,13 +26,15 @@
         </f:facet>
         <link type="image/png" rel="icon" href="#{resource['images/favicondataverse.png']}" />
         <link type="image/png" rel="image_src" href="#{resource['images/dataverseproject.png']}" />
-        <link type="text/css" rel="stylesheet" href="#{resource['bs/css/bootstrap.min.css']}?version=#{systemConfig.getVersion()}" />
+        <link type="text/css" rel="stylesheet" href="#{resource['bs/css/bootstrap.css']}?version=#{systemConfig.getVersion()}" />
         <link type="text/css" rel="stylesheet" href="#{resource['bs/css/bootstrap-theme.min.css']}?version=#{systemConfig.getVersion()}" />
         <link type="text/css" rel="stylesheet" href="#{resource['css/ie-compat.css']}?version=#{systemConfig.getVersion()}" />
         <link type="text/css" rel="stylesheet" href="#{resource['css/owl.carousel.css']}?version=#{systemConfig.getVersion()}" />
         <link type="text/css" rel="stylesheet" href="#{resource['css/fontcustom.css']}?version=#{systemConfig.getVersion()}" />
         <link type="text/css" rel="stylesheet" href="#{resource['css/socicon.css']}?version=#{systemConfig.getVersion()}" />
         <link type="text/css" rel="stylesheet" href="#{resource['css/structure.css']}?version=#{systemConfig.getVersion()}" />
+        <link type="text/css" rel="stylesheet" href="#{resource['css/main.css']}?version=#{systemConfig.getVersion()}" />
+        <link type="text/css" rel="stylesheet" href="#{resource['css/selectize.default.css']}?version=#{systemConfig.getVersion()}" />
         <ui:fragment rendered="#{!widgetWrapper.widgetView}">
             <script>
                 // Break out of iframe
@@ -46,7 +51,9 @@
     <h:body styleClass="#{widgetWrapper.widgetView ? 'widget-view' : ''}">
         <f:loadBundle basename="Bundle" var="bundle"/>
 	<a href="#content" class="sr-only">#{bundle['body.skip']}</a>                
+
         <ui:include src="dataverse_header.xhtml">
+
             <ui:param name="dataverse" value="#{dataverse != null ? dataverse : dataverseServiceBean.findRootDataverse()}"/>
             <ui:param name="showDataverseHeader" value="#{showDataverseHeader != null ? showDataverseHeader : true}"/>
             <ui:param name="showMessagePanel" value="#{showMessagePanel != null ? showMessagePanel : true}"/>
@@ -55,11 +62,13 @@
         <div class="container" id="content">
             <ui:insert name="body">Default Body</ui:insert>
         </div>
+
         <!-- FOOTER BLOCK -->
         <ui:include src="dataverse_footer.xhtml">
             <ui:param name="widgetView" value="#{widgetWrapper.widgetView}"/>
             <ui:param name="loginRedirectPage" value="#{loginRedirectPage != null ? '?redirectPage='.concat(loginRedirectPage) : navigationWrapper.redirectPage}"/>
         </ui:include>
+
         <p:ajaxStatus id="ajaxStatusPanel">
             <f:facet name="start">
                 <h:graphicImage value="/resources/images/ajax-loading.gif" alt="Loading" />
@@ -90,29 +99,73 @@
             <script type="text/javascript" language="javascript" src="#{resource['js/shib/isPassive.js']}"></script>
         </ui:fragment>
         <script>
-            //<![CDATA[
-            $(document).ready(function () {
-                // Navbar Search Toggle
-                $(document).on('click', '#navbar-search-toggle', function (e) {
-                    $(this).parent("li").hide();
-                    $("form.navbar-form[role='search']").show();
-                });
-                $('body').click(function (e) {
-                    if (!$(e.target).closest("form.navbar-form[role='search']").length) {
-                        $("form.navbar-form[role='search']").hide();
-                        $("#navbar-search-toggle").parent("li").show();
-                    }
-                    ;
-                });
 
-                // Rebind bootstrap UI components
-                bind_bsui_components();
-            });
 
-            
-            //]]>
+                    $(document).ready(function () {
+                        // Navbar Search Toggle
+                        $(document).on('click', '#navbar-search-toggle', function (e) {
+                            $(this).parent("li").hide();
+                           // $("form.navbar-form[role='search']").show();
+                        });
+                        $('body').click(function (e) {
+                            if (!$(e.target).closest("form.navbar-form[role='search']").length) {
+                              //  $("form.navbar-form[role='search']").hide();
+                                $("#navbar-search-toggle").parent("li").show();
+                            }
+                        });
+                        $( "#target" ).submit(function( event ) {
+                        	  alert( "Handler for .submit() called." );
+                        	  event.preventDefault();
+                        	});
+                        $('#navbarsearch').keypress(function(e) {
+                            if (e.which == '13') {
+                            	$('#navbarsearchbut').trigger( "click" );
+                            }
+                          });
+                        
+                        $( "#navbarsearchform" ).submit(function( event ) {
+                        	  event.preventDefault();
+                        	});
+                        // Rebind bootstrap UI components
+                        bind_bsui_components();
+                    });
+
+
+            /*
+             * Custom Popover with HTML code snippet - kw: is this still needed
+             */
+            function popoverHTML() {
+                var popoverTemplateHTML = ['<div class="popover">',
+                    '<div class="arrow"></div>',
+                    '<h3 class="popover-title"></h3>',
+                    '<div class="popover-content">',
+                    '</div>',
+                    '</div>'].join('');
+
+
+
+                var popoverContentHTML = ['<code>',
+                    '<h:outputText value="#{bundle.htmlAllowedTags}" escape="true"/>',
+                    '</code>'].join('');
+ 
+
+                $('body').popover({
+                    selector: 'span.popoverHTML',
+                    title: '<h:outputText value="#{bundle.htmlAllowedTitle}"/>',
+                    trigger: 'hover',
+                    content: popoverContentHTML,
+                    template: popoverTemplateHTML,
+                    placement: "bottom",
+                    container: "#content",
+                    html: true
+                });
+            }
+
         </script>
+
         <ui:include src="google-analytics-snippet.xhtml"></ui:include>
         <ui:include src="piwik-analytics-snippet.xhtml"></ui:include>
     </h:body>
+ 
+    </f:view>
 </html>

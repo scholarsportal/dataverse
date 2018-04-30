@@ -1,0 +1,109 @@
+
+ <div class="variables-table">
+ 
+       <div id="controls">
+		<label class="search_wrapper"><div class="search_icon_wrapper"><span class="glyphicon glyphicon-search search_icon"></span></div><div ng-click="clearField()" class="search_icon_remove glyphicon glyphicon-remove" aria-label="{{lang.detailsPage.deselect_all}}"></div>
+			<div class="search_field_wrapper">
+			<input class="search_field" type="text" ng-model="search_text" ng-change="updateFilter(search_text)" ng-focus="selectFilter()" aria-label="{{lang.topNav.search}}"/>
+			</div>
+		</label>
+		<span class="formlabel"><span class="badge ng-binding">{{filtered.length}}</span> {{lang.detailsPage.results}}</span>
+		<select id="download" ng-model="my_option" class="form-control btn-padding" ng-change="downloadData(my_option);">
+			<option value="0" class="placeholder" label="{{lang.detailsPage.download}}" selected >{{lang.detailsPage.download}}</option>
+			<option value="5" label="{{lang.detailsPage.download_selected}}" ng-disabled="has_no_selection">{{lang.detailsPage.download_selected}}</option>
+			<option value="1" label="{{lang.detailsPage.orig_file_format}}">{{lang.detailsPage.orig_file_format}}</option>
+			<option value="2" label="{{lang.detailsPage.tab_delimited}}">{{lang.detailsPage.tab_delimited}}</option>
+			<option value="3" label="{{lang.detailsPage.rdata_format}}">{{lang.detailsPage.rdata_format}}</option>
+			<option value="4" label="{{lang.detailsPage.variable_metadata}}">{{lang.detailsPage.variable_metadata}}</option>
+		</select>
+		<!--<a class="btn btn-sm btn-primary btn-padding pull-right" href="javascript:void(0)" ng-click="goToTwoRavens()" >{{lang.detailsPage.advanced_analysis}} <span class="glyphicon glyphicon-new-window"></span></a>-->
+		<button ng-show="has_weights" id="weight_but" ng-class="{active:(weight_on)}" ng-controller="weightCtrl" class="btn btn-default" title="{{lang.detailsPage.weight}}"><span class="sortHandle glyphicon glyphicon-scale"></span></button>
+		</div>
+		<div id="variables_table_container">
+		<table id="variables_table" class="table table-bordered table-hover table-condensed">
+			<thead>
+				<tr>
+					<th class='narrower_column'>
+					{{lang.detailsPage.varID}}
+					<span ng-show="sortCol == 'id' && sortReverse" class="glyphicon glyphicon-arrow-up"></span>
+					<span ng-show="sortCol == 'id'&& !sortReverse" class="glyphicon glyphicon-arrow-down"></span>
+					
+					</th>
+					<th class='narrow_column'>
+					{{lang.detailsPage.name}}
+					<span ng-show="sortCol == 'name' && sortReverse" class="glyphicon glyphicon-arrow-up"></span>
+					<span ng-show="sortCol == 'name'&& !sortReverse" class="glyphicon glyphicon-arrow-down"></span>
+					</th>
+					<th>{{lang.detailsPage.label}}<span ng-show="sortCol == 'label' && sortReverse" class="glyphicon glyphicon-arrow-up"></span><span ng-show="sortCol == 'label' && !sortReverse" class="glyphicon glyphicon-arrow-down"></span></th>
+					<th>{{lang.detailsPage.cats}}</th>
+					<th>{{lang.detailsPage.validCases}}</th>
+					<th>{{lang.detailsPage.missingCases}}</th>
+					<th>{{lang.detailsPage.min}}</th>
+					<th>{{lang.detailsPage.max}}</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr tabindex="0"  ng-repeat="vl in filtered = (_variables | filter:filterResults) | startFrom:currentTablePage[_file_num]*tablePageSize | limitTo:tablePageSize " ng-class="{active:(vl.selected),disabled: !vl.chartable}" ng-click="!vl.chartable||viewVariable(vl)" ng-keypress="!vl.chartable||viewVariableKeyPress($event,vl)">
+					<td width="7%">
+						<table width="100%" >
+						<tr>
+							
+							<td align="center" width="35px">
+							<div ng-class="{faded:(vl.type=='col')}" class="row_but stacked_icon" title="Add as Row" ng-click="viewVariable(vl,'row'); $event.stopPropagation();"><div class='glyphicon glyphicon-minus icon_overlap1'></div><div class='glyphicon glyphicon-minus icon_overlap2'></div></div>
+							<div ng-class="{faded:(vl.type=='row')}" class="col_but stacked_icon glyphicon glyphicon-pause" title="Add as Column" ng-click="viewVariable(vl,'col'); $event.stopPropagation();"></div>
+							</td>
+							<td rowspan="2" >{{vl.id}}</td>
+						</tr>
+						</table>
+					</td>
+					<td  width="10%" >{{vl.name}}</td>
+					<td  width="33%" >{{vl.label}}
+						
+					</td>
+<td>{{vl.fullData.catgry.length}}</td>
+							<td>{{vl.valid}}</td>
+							<td>{{vl.missing}}</td>
+							<td>{{vl.min}}</td>
+							<td>{{vl.max}}</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	</div>
+	<div ng-show="showPaging" id="table-controls" class="row" >
+			<div class="">
+				<ul class="pagination pagination-sm">
+					<li ng-class="{'disabled':currentTablePage[_file_num] == 0}">
+						<span ng-show="currentTablePage[_file_num] == 0">{{lang.detailsPage.first}}</span>
+						<a ng-click="gotoPage(_file_num,0)" ng-show="currentTablePage[_file_num] > 0" href="">{{lang.detailsPage.first}}</a>
+					</li>
+					<li ng-class="{'disabled':currentTablePage[_file_num] == 0}">
+						<span ng-show="currentTablePage[_file_num] == 0">&laquo;</span>
+						<a ng-show="currentTablePage[_file_num] > 0" href="" ng-click="gotoPage(_file_num,currentTablePage[_file_num]-1)">&laquo;</a>
+					</li>
+					<li ng-class="{'active':(currentTablePage[_file_num]+1)==page}" ng-repeat="page in [] | tablePaginate:(currentTablePage[_file_num]+1):numberOfTablePages(filtered.length)">
+						<a ng-click="gotoPage(_file_num,page-1)" class="page-num" href="">{{page}}</a>
+					</li>
+					<li ng-class="{'disabled':currentTablePage[_file_num] >= filtered.length/tablePageSize - 1}">
+						<span ng-show="currentTablePage[_file_num] >= filtered.length/tablePageSize - 1">&raquo;</span>
+						<a ng-show="currentTablePage[_file_num] < filtered.length/tablePageSize - 1" href="" ng-click="gotoPage(_file_num,currentTablePage[_file_num]+1)">&raquo;</a>
+					</li>
+					<li ng-class="{'disabled':currentTablePage[_file_num] >= filtered.length/tablePageSize - 1}">
+						<span ng-show="currentTablePage[_file_num] >= filtered.length/tablePageSize - 1">{{lang.detailsPage.last}}</span>
+						<a ng-click="gotoPage(_file_num,numberOfTablePages(filtered.length)-1)" ng-show="currentTablePage[_file_num] < filtered.length/tablePageSize - 1" href="" >{{lang.detailsPage.last}}</a>
+					</li>
+				</ul>
+			</div>
+			<div class="form-inline pull-right">
+				<label for="tablePageSize">{{lang.detailsPage.records}} </label>
+				<select id="tablePageSize" ng-model="tablePageSize" ng-change="resetCurrentPage(tablePageSize)" class="form-control">
+					<option ng-show="filtered.length >= 10" value="10" selected="selected">10</option>
+					<option ng-show="filtered.length >= 25" value="25">25</option>
+					<option ng-show="filtered.length >= 50" value="50">50</option>
+					<option ng-show="filtered.length >= 100" value="100">100</option>
+					<option value="{{filtered.length}}">{{lang.detailsPage.all}}</option>
+				</select>
+				
+			</div>
+		</div>
+</div>

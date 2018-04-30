@@ -50,6 +50,7 @@ import edu.harvard.iq.dataverse.ingest.tabulardata.TabularDataFileReader;
 import edu.harvard.iq.dataverse.ingest.tabulardata.spi.TabularDataFileReaderSpi;
 import edu.harvard.iq.dataverse.ingest.tabulardata.TabularDataIngest;
 
+import edu.harvard.iq.dataverse.util.BundleUtil;
 
 /**
  * ingest plugin for Stata 13 (117) DTA file format.
@@ -426,7 +427,8 @@ public class DTA117FileReader extends TabularDataFileReader{
         // shit ton of diagnostics (still) needed here!!  -- L.A.
         
         if (dataFile != null) {
-            throw new IOException ("this plugin does not support external raw data files");
+            //throw new IOException ("this plugin does not support external raw data files");
+            throw new IOException(BundleUtil.getStringFromBundle("dta.datafile.error"));
         }
 
         DataReader dataReader = null;
@@ -508,7 +510,12 @@ public class DTA117FileReader extends TabularDataFileReader{
         String dtaVersionTag = dataReader.readPrimitiveStringSection(TAG_HEADER_FILEFORMATID, 3);
 
         if (!"117".equals(dtaVersionTag)) {
-            throw new IOException("Unexpected version tag found: "+dtaVersionTag+"; expected value: 117.");
+            //throw new IOException("Unexpected version tag found: "+dtaVersionTag+"; expected value: 117.");
+        	
+        	throw new IOException (BundleUtil.getStringFromBundle (
+        			"dta.readheader.error", 
+        			Arrays.asList(dtaVersionTag)
+        			));
         }
         
         String byteOrderTag = dataReader.readPrimitiveStringSection(TAG_HEADER_BYTEORDER);
@@ -552,7 +559,8 @@ public class DTA117FileReader extends TabularDataFileReader{
         
         if (datasetTimeStamp == null ||
                 (datasetTimeStamp.length() > 0 && datasetTimeStamp.length() < 17)) {
-            throw new IOException("unexpected/invalid length of the time stamp in the DTA117 header.");
+            //throw new IOException("unexpected/invalid length of the time stamp in the DTA117 header.");
+            throw new IOException(BundleUtil.getStringFromBundle("dta.datasettimestamp.error"));
         } else {
             // TODO: validate the time stamp found against dd Mon yyyy hh:mm; 
             // ...but first decide if we actually want/need to use it for any 
@@ -683,7 +691,11 @@ public class DTA117FileReader extends TabularDataFileReader{
                 dv.setIntervalContinuous();
 
             } else {
-                throw new IOException("Unrecognized type label: " + typeLabel + " for Stata type value (short) " + type + ".");
+                //throw new IOException("Unrecognized type label: " + typeLabel + " for Stata type value (short) " + type + ".");
+                throw new IOException (BundleUtil.getStringFromBundle (
+            			"dta.variabletype.label.error", 
+            			Arrays.asList(typeLabel,type+"")
+            			));
             }
 
         } else {
@@ -699,7 +711,11 @@ public class DTA117FileReader extends TabularDataFileReader{
             } else if (type > 0 && type < 2046) {
                 typeLabel = "STR" + type;
             } else {
-                throw new IOException("unknown variable type value encountered: " + type);
+                //throw new IOException("unknown variable type value encountered: " + type);
+                throw new IOException (BundleUtil.getStringFromBundle (
+            			"dta.variabletype.value.error", 
+            			Arrays.asList( type+"")
+            			));
             }
 
             dv.setTypeCharacter();
@@ -942,7 +958,9 @@ public class DTA117FileReader extends TabularDataFileReader{
                 String variableFormat = dateVariableFormats[columnCounter];
 
                 if (varType == null || varType.equals("")) {
-                    throw new IOException("Undefined variable type encountered in readData()");
+                    //throw new IOException("Undefined variable type encountered in readData()");
+                    throw new IOException(BundleUtil.getStringFromBundle("dta.vartype.error"));
+                    
                 }
 
                 // TODO: 
@@ -1163,8 +1181,8 @@ public class DTA117FileReader extends TabularDataFileReader{
                     
                 } else {
                     logger.warning("unknown variable type found: " + varType);
-                    String errorMessage
-                            = "unknown variable type encounted when reading data section: " + varType;
+                    String errorMessage = BundleUtil.getStringFromBundle("dta.datasection.error" , Arrays.asList(varType));
+                           // = "unknown variable type encounted when reading data section: " + varType;
                     //throw new InvalidObjectException(errorMessage);
                     throw new IOException(errorMessage);
 
@@ -1172,7 +1190,9 @@ public class DTA117FileReader extends TabularDataFileReader{
             } // for (columnCounter)
 
             if (byte_offset != bytes_per_row) {
-                throw new IOException("Unexpected number of bytes read for data row " + i + "; " + bytes_per_row + " expected, " + byte_offset + " read.");
+            	String errorMessage = BundleUtil.getStringFromBundle("dta.byteoffset.error" , Arrays.asList(i+"",bytes_per_row+"",byte_offset+""));
+            	throw new IOException(errorMessage);
+            	//throw new IOException("Unexpected number of bytes read for data row " + i + "; " + bytes_per_row + " expected, " + byte_offset + " read.");            	
             }
 
             // Dump the row of data to the tab-delimited file:
@@ -1234,8 +1254,9 @@ public class DTA117FileReader extends TabularDataFileReader{
                             long v; 
                             long o; 
                             if (voPair == null) {
-                                throw new IOException("Failed to read an intermediate v,o Pair for variable "+
-                                        varindex + ", observation "+obsindex);
+                                //throw new IOException("Failed to read an intermediate v,o Pair for variable "+ varindex + ", observation "+obsindex);
+                                String errorMessage = BundleUtil.getStringFromBundle("dta.readSTRLs.failure" , Arrays.asList(varindex+"",obsindex+""));
+                            	throw new IOException(errorMessage);
                             }
                             
                             if ("0,0".equals(voPair)) {
@@ -1250,15 +1271,18 @@ public class DTA117FileReader extends TabularDataFileReader{
                                     v = new Long(voTokens[0]).longValue();
                                     o = new Long(voTokens[1]).longValue();
                                 } catch (NumberFormatException nfex) {
-                                    throw new IOException("Illegal v,o value: "+voPair+" for variable "+
-                                            varindex + ", observation "+obsindex);
+                                    //throw new IOException("Illegal v,o value: "+voPair+" for variable "+   varindex + ", observation "+obsindex);
+                                    String errorMessage = BundleUtil.getStringFromBundle("dta.readSTRLs.illegal" , Arrays.asList(voPair,varindex+"",obsindex+""));
+                                	throw new IOException(errorMessage);
                                 }
                                 
                                 if (v == varindex + 1 && o == obsindex + 1) {
                                     // This v,o must be defined in the STRLs section:
                                     line[varindex] = readGSO(reader, v, o);
                                     if (line[varindex] == null) {
-                                        throw new IOException ("Failed to read GSO value for "+voPair);
+                                        //throw new IOException ("Failed to read GSO value for "+voPair);
+                                        String errorMessage = BundleUtil.getStringFromBundle("dta.readGSO.failure" , Arrays.asList(voPair));
+                                    	throw new IOException(errorMessage);
                                     }
                                     
                                 } else {
@@ -1267,7 +1291,9 @@ public class DTA117FileReader extends TabularDataFileReader{
                                        !cachedGSOs.get(voPair).equals("")) {
                                         line[varindex] = cachedGSOs.get(voPair);
                                     } else {
-                                        throw new IOException("GSO string unavailable for v,o value "+voPair);
+                                        //throw new IOException("GSO string unavailable for v,o value "+voPair);
+                                        String errorMessage = BundleUtil.getStringFromBundle("dta.readGSO.string.error" , Arrays.asList(voPair));
+                                    	throw new IOException(errorMessage);
                                     }
                                 }
                             }                            
@@ -1309,8 +1335,7 @@ public class DTA117FileReader extends TabularDataFileReader{
 
         
         if (vStored != v || oStored != o) {
-            throw new IOException ("GSO reading mismatch: expected v,o pair: "+
-                    voPair+", found: "+vStored+","+oStored);
+            throw new IOException ("GSO reading mismatch: expected v,o pair: "+ voPair+", found: "+vStored+","+oStored);
         }
         
         short type = reader.readByte();
@@ -1434,11 +1459,15 @@ public class DTA117FileReader extends TabularDataFileReader{
             value_category_offset += total_label_bytes;
 
             if (total_label_bytes != text_length) {
-                throw new IOException("<read mismatch in readLabels()>");
+                //throw new IOException("<read mismatch in readLabels()>");
+                String errorMessage = BundleUtil.getStringFromBundle("dta.readlabels.total.error"  );
+            	throw new IOException(errorMessage);
             }
 
             if (value_category_offset != label_table_length) {
-                throw new IOException("<read mismatch in readLabels() 2>");
+                //throw new IOException("<read mismatch in readLabels() 2>");
+                String errorMessage = BundleUtil.getStringFromBundle("dta.readlabels.value.error"  );
+            	throw new IOException(errorMessage);
             }
             reader.readClosingTag(TAG_VALUE_LABELS_LBL_DEF);
 
@@ -1480,13 +1509,17 @@ public class DTA117FileReader extends TabularDataFileReader{
     
     private int calculateBytesPerRow(int[] variableByteLengths) throws IOException {
         if (variableByteLengths == null || variableByteLengths.length != dataTable.getVarQuantity()) {
-            throw new IOException("<internal variable byte offsets table not properly configured>");
+            //throw new IOException("<internal variable byte offsets table not properly configured>");
+            String errorMessage = BundleUtil.getStringFromBundle("dta.calculatebytes.length.error"  );
+        	throw new IOException(errorMessage);
         }
         int bytes_per_row = 0;
 
         for (int i = 0; i < dataTable.getVarQuantity(); i++) {
             if (variableByteLengths[i] < 1) {
-                throw new IOException("<bad variable byte offset: " + variableByteLengths[i] + ">");
+                //throw new IOException("<bad variable byte offset: " + variableByteLengths[i] + ">");
+            	String errorMessage = BundleUtil.getStringFromBundle("dta.calculatebytes.offset.error" ,Arrays.asList(variableByteLengths[i]+"") );
+             	throw new IOException(errorMessage);
             }
             bytes_per_row += variableByteLengths[i];
         }
@@ -1496,7 +1529,9 @@ public class DTA117FileReader extends TabularDataFileReader{
     
     private int[] getVariableByteLengths(String[] variableTypes) throws IOException {
         if (variableTypes == null || variableTypes.length != dataTable.getVarQuantity()) {
-            throw new IOException("<internal variable types not properly configured>");
+            //throw new IOException("<internal variable types not properly configured>");
+            String errorMessage = BundleUtil.getStringFromBundle("dta.variabletypes.error"  );
+        	throw new IOException(errorMessage);
         }
         
         int[] variableByteLengths = new int[dataTable.getVarQuantity().intValue()];
@@ -1512,7 +1547,9 @@ public class DTA117FileReader extends TabularDataFileReader{
         int byte_length = 0;
 
         if (variableType == null || variableType.equals("")) {
-            throw new IOException("<empty variable type in attempted byte length lookup.>");
+            //throw new IOException("<empty variable type in attempted byte length lookup.>");
+        	 String errorMessage = BundleUtil.getStringFromBundle("dta.variabletype.error"  );
+         	throw new IOException(errorMessage);
         }
         if (byteLengthTable.containsKey(variableType)) {
             return byteLengthTable.get(variableType);
@@ -1527,12 +1564,16 @@ public class DTA117FileReader extends TabularDataFileReader{
                 stringLength = null;
             }
             if (stringLength == null || stringLength.intValue() < 1 || stringLength.intValue() > 2045) {
-                throw new IOException("Invalid STRF encountered: " + variableType);
+                //throw new IOException("Invalid STRF encountered: " + variableType);
+            	 String errorMessage = BundleUtil.getStringFromBundle("dta.invalidstrf.error" ,Arrays.asList(variableType) );
+             	throw new IOException(errorMessage);
             }
             return stringLength.intValue();
         }
         
-        throw new IOException ("Unknown/invalid variable type: "+variableType);
+        //throw new IOException ("Unknown/invalid variable type: "+variableType);
+        String errorMessage = BundleUtil.getStringFromBundle("dta.unknown.variable" ,Arrays.asList(variableType) );
+     	throw new IOException(errorMessage);
     }
     
     private class DecodedDateTime {
@@ -1779,7 +1820,9 @@ public class DTA117FileReader extends TabularDataFileReader{
         */
         public byte[] readBytes(int n) throws IOException {
             if (n <= 0) {
-                throw new IOException("DataReader.readBytes called to read zero or negative number of bytes.");
+                //throw new IOException("DataReader.readBytes called to read zero or negative number of bytes.");
+            	String errorMessage = BundleUtil.getStringFromBundle("dta.readbytes.error"   );
+              	throw new IOException(errorMessage);
             }
             byte[] bytes = new byte[n];
             
@@ -1868,14 +1911,18 @@ public class DTA117FileReader extends TabularDataFileReader{
              * return byte[] buffer of size 1. */
             byte ret; 
             if (buffer_byte_offset > this.buffer_size) {
-                throw new IOException ("TD - buffer overflow");
+                //throw new IOException ("TD - buffer overflow");
+                String errorMessage = BundleUtil.getStringFromBundle("dta.readbytes.buffer"  );
+              	throw new IOException(errorMessage);
             }
             if (buffer_byte_offset < this.buffer_size) {
                 ret = byte_buffer[buffer_byte_offset];
                 buffer_byte_offset++;
             } else {
                 if (bufferMoreBytes() < 1) {
-                    throw new IOException("reached the end of data stream prematurely.");
+                    //throw new IOException("reached the end of data stream prematurely.");
+                	String errorMessage = BundleUtil.getStringFromBundle("dta.readbytes.premature");
+                  	throw new IOException(errorMessage);
                 }
                 ret = byte_buffer[0];
                 buffer_byte_offset = 1; 
@@ -1955,7 +2002,9 @@ public class DTA117FileReader extends TabularDataFileReader{
         
         public double readDouble() throws IOException {
             if (LSF == null) {
-                throw new IOException("Byte order not determined for reading numeric values.");
+                //throw new IOException("Byte order not determined for reading numeric values.");
+                String errorMessage = BundleUtil.getStringFromBundle("dta.readdoubleInt.error");
+              	throw new IOException(errorMessage);
             }
             ByteBuffer double_buffer = ByteBuffer.wrap(readBytes(8));
             if (LSF) {
@@ -1985,12 +2034,16 @@ public class DTA117FileReader extends TabularDataFileReader{
         
         private long bytesToInt (byte[] raw_bytes) throws IOException {
             if (LSF == null) {
-                throw new IOException("Byte order not determined for reading numeric values.");
+                //throw new IOException("Byte order not determined for reading numeric values.");
+                String errorMessage = BundleUtil.getStringFromBundle("dta.readdoubleInt.error");
+              	throw new IOException(errorMessage);
             }
             int n = raw_bytes.length; 
 
             if (n != 2 && n != 4) {
-                throw new IOException("Unsupported number of bytes in an integer: "+n);
+                //throw new IOException("Unsupported number of bytes in an integer: "+n);
+            	String errorMessage = BundleUtil.getStringFromBundle("dta.bytestoint.error",Arrays.asList(n+""));
+               	throw new IOException(errorMessage);
             }
             long ret = 0;
             short unsigned_byte_value = 0; 
@@ -2014,7 +2067,9 @@ public class DTA117FileReader extends TabularDataFileReader{
         
         private int bytesToSignedInt(byte[] raw_bytes) throws IOException {
             if (LSF == null) {
-                throw new IOException("Byte order not determined for reading numeric values.");
+                //throw new IOException("Byte order not determined for reading numeric values.");
+            	 String errorMessage = BundleUtil.getStringFromBundle("dta.readdoubleInt.error");
+               	throw new IOException(errorMessage);
             }
             int n = raw_bytes.length;
             ByteBuffer byte_buffer
@@ -2029,17 +2084,23 @@ public class DTA117FileReader extends TabularDataFileReader{
             } else if (n == 4) {
                 int_value = byte_buffer.getInt();
             } else {
-                throw new IOException("Unsupported number of bytes for signed integer: "+n);
+                //throw new IOException("Unsupported number of bytes for signed integer: "+n);
+                String errorMessage = BundleUtil.getStringFromBundle("dta.bytestosignedInt.error",Arrays.asList(n+""));
+               	throw new IOException(errorMessage);
             }
             return int_value;
         }
         
         private long bytesToLong (byte[] raw_bytes) throws IOException {
             if (raw_bytes.length != 8) {
-                throw new IOException("Wrong number of bytes in bytesToLong().");
+                //throw new IOException("Wrong number of bytes in bytesToLong().");
+            	String errorMessage = BundleUtil.getStringFromBundle("dta.bytestolong.error" );
+               	throw new IOException(errorMessage);
             }
             if (LSF == null) {
-                throw new IOException("Byte order not determined for reading numeric values.");
+                //throw new IOException("Byte order not determined for reading numeric values.");
+            	String errorMessage = BundleUtil.getStringFromBundle("dta.readdoubleInt.error");
+               	throw new IOException(errorMessage);
             }
             
             long ret = 0;             
@@ -2123,7 +2184,9 @@ public class DTA117FileReader extends TabularDataFileReader{
             readOpeningTag(tag);
             short number = readByte();
             if (number < 0 || number > limit) {
-                throw new IOException ("<more than limit characters in the section \"tag\">");
+                //throw new IOException ("<more than limit characters in the section \"tag\">");
+                String errorMessage = BundleUtil.getStringFromBundle("dta.characterlimit.error" );
+               	throw new IOException(errorMessage);
             }
             String ret = null;
             if (number > 0) {
@@ -2156,7 +2219,9 @@ public class DTA117FileReader extends TabularDataFileReader{
                 long number = readInteger(4);
                 logger.fine(number+" bytes in this section;");
                 if (number < 0) {
-                    throw new IOException ("<negative number of bytes in skipDefinedSection(\"tag\")?>");
+                    //throw new IOException ("<negative number of bytes in skipDefinedSection(\"tag\")?>");
+                	String errorMessage = BundleUtil.getStringFromBundle("dta.negativenumber.error" );
+                   	throw new IOException(errorMessage);
                 }
                 // TODO: implement skipBytes() instead:
                 byte[] skipped_bytes = readBytes((int)number);
@@ -2170,7 +2235,9 @@ public class DTA117FileReader extends TabularDataFileReader{
         
         private boolean checkTag(String tag) throws IOException {
             if (tag == null || tag.equals("")) {
-                throw new IOException("opening tag must be a non-empty string.");
+                //throw new IOException("opening tag must be a non-empty string.");
+                String errorMessage = BundleUtil.getStringFromBundle("dta.opentag.error" );
+               	throw new IOException(errorMessage);
             }
 
             int n = tag.length();
@@ -2178,7 +2245,9 @@ public class DTA117FileReader extends TabularDataFileReader{
             if (this.buffer_size - buffer_byte_offset >= n) {
                 return (tag).equals(new String(Arrays.copyOfRange(byte_buffer, buffer_byte_offset, buffer_byte_offset+n),"US-ASCII"));
             } else {
-                throw new IOException("Checking section tags across byte buffers not yet implemented.");
+                //throw new IOException("Checking section tags across byte buffers not yet implemented.");
+            	String errorMessage = BundleUtil.getStringFromBundle("dta.sectiontag.error" );
+               	throw new IOException(errorMessage);
             }   
         }
         
@@ -2186,20 +2255,26 @@ public class DTA117FileReader extends TabularDataFileReader{
         
         public void readOpeningTag(String tag) throws IOException {
             if (tag == null || tag.equals("")) {
-                throw new IOException("opening tag must be a non-empty string.");
+                //throw new IOException("opening tag must be a non-empty string.");
+            	String errorMessage = BundleUtil.getStringFromBundle("dta.opentag.error" );
+               	throw new IOException(errorMessage);
             }
             
             byte[] openTag = readBytes(tag.length() + 2);
             
             String openTagString = new String (openTag, "US-ASCII");
             if (openTagString == null || !openTagString.equals("<"+tag+">")) {
-                throw new IOException("Could not read opening tag <"+tag+">");
+                //throw new IOException("Could not read opening tag <"+tag+">");
+                String errorMessage = BundleUtil.getStringFromBundle("dta.opentag.missing",Arrays.asList(tag));
+               	throw new IOException(errorMessage);
             }
         }
         
         public void readClosingTag(String tag) throws IOException {
             if (tag == null || tag.equals("")) {
-                throw new IOException("closing tag must be a non-empty string.");
+                //throw new IOException("closing tag must be a non-empty string.");
+            	String errorMessage = BundleUtil.getStringFromBundle("dta.closetag.error" );
+               	throw new IOException(errorMessage);
             }
             
             byte[] closeTag = readBytes(tag.length() + 3);
@@ -2207,7 +2282,9 @@ public class DTA117FileReader extends TabularDataFileReader{
             String closeTagString = new String (closeTag, "US-ASCII");
             
             if (closeTagString == null || !closeTagString.equals("</"+tag+">")) {
-                throw new IOException("Could not read closing tag </"+tag+">");
+                //throw new IOException("Could not read closing tag </"+tag+">");
+                String errorMessage = BundleUtil.getStringFromBundle("dta.closetag.missing",Arrays.asList(tag));
+               	throw new IOException(errorMessage);
             }
         }
         
@@ -2217,7 +2294,9 @@ public class DTA117FileReader extends TabularDataFileReader{
             byte[] cached_bytes = null;
             
             if (buffer_byte_offset > this.buffer_size) {
-                throw new IOException("Buffer overflow in DataReader.");
+                //throw new IOException("Buffer overflow in DataReader.");
+            	String errorMessage = BundleUtil.getStringFromBundle("dta.bufferoverflow.error" );
+               	throw new IOException(errorMessage);
             }
             if (buffer_byte_offset == this.buffer_size) {
                 // buffer empty; 

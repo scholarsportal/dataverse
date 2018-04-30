@@ -21,18 +21,21 @@ import edu.harvard.iq.dataverse.validation.PasswordValidatorServiceBean;
 public class BuiltinAuthenticationProvider implements CredentialsAuthenticationProvider {
     
     public static final String PROVIDER_ID = "builtin";
-    private static String KEY_USERNAME_OR_EMAIL;
-    private static String KEY_PASSWORD;
-    private static List<Credential> CREDENTIALS_LIST;
+      
+      
+    private static String KEY_USERNAME_OR_EMAIL = "Username";
+    private static String KEY_PASSWORD = "Password";
+    private static List<Credential> CREDENTIALS_LIST;        
+      
       
     final BuiltinUserServiceBean bean;
     private PasswordValidatorServiceBean passwordValidatorService;
 
+
     public BuiltinAuthenticationProvider( BuiltinUserServiceBean aBean, PasswordValidatorServiceBean passwordValidatorService  ) {
         this.bean = aBean;
         this.passwordValidatorService = passwordValidatorService;
-        KEY_USERNAME_OR_EMAIL = BundleUtil.getStringFromBundle("login.builtin.credential.usernameOrEmail");
-        KEY_PASSWORD = BundleUtil.getStringFromBundle("login.builtin.credential.password");
+
         CREDENTIALS_LIST = Arrays.asList(new Credential(KEY_USERNAME_OR_EMAIL), new Credential(KEY_PASSWORD, true));
     }
 

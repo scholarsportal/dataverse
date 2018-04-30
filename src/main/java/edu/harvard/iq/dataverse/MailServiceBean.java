@@ -31,7 +31,6 @@ import java.util.logging.Logger;
 import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import javax.mail.Address;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -80,7 +79,7 @@ public class MailServiceBean implements java.io.Serializable {
     public MailServiceBean() {
     }
 
-    public void sendMail(String host, String reply, String to, String subject, String messageText) {
+    public void sendMail(String host, String from, String to, String subject, String messageText) {
         Properties props = System.getProperties();
         props.put("mail.smtp.host", host);
         Session session = Session.getDefaultInstance(props, null);
@@ -90,11 +89,7 @@ public class MailServiceBean implements java.io.Serializable {
             String[] recipientStrings = to.split(",");
             InternetAddress[] recipients = new InternetAddress[recipientStrings.length];
             try {
-            	InternetAddress fromAddress=getSystemAddress();
-            	fromAddress.setPersonal(BundleUtil.getStringFromBundle("contact.delegation", Arrays.asList(
-                        fromAddress.getPersonal(), reply)), charset);
-            	msg.setFrom(fromAddress);
-                msg.setReplyTo(new Address[] {new InternetAddress(reply, charset)});
+                msg.setFrom(new InternetAddress(from, charset));
                 for (int i = 0; i < recipients.length; i++) {
                     recipients[i] = new InternetAddress(recipientStrings[i], "", charset);
                 }
@@ -119,11 +114,11 @@ public class MailServiceBean implements java.io.Serializable {
 
         boolean sent = false;
         String rootDataverseName = dataverseService.findRootDataverse().getName();
-        InternetAddress systemAddress = getSystemAddress();
-        String body = messageText + BundleUtil.getStringFromBundle("notification.email.closing", Arrays.asList(BrandingUtil.getSupportTeamEmailAddress(systemAddress), BrandingUtil.getSupportTeamName(systemAddress, rootDataverseName)));
+        String body = messageText + BundleUtil.getStringFromBundle("notification.email.closing", Arrays.asList(BrandingUtil.getInstallationBrandName(rootDataverseName)));
         logger.fine("Sending email to " + to + ". Subject: <<<" + subject + ">>>. Body: " + body);
         try {
             MimeMessage msg = new MimeMessage(session);
+            InternetAddress systemAddress = getSystemAddress();
             if (systemAddress != null) {
                 msg.setFrom(systemAddress);
                 msg.setSentDate(new Date());
@@ -169,25 +164,16 @@ public class MailServiceBean implements java.io.Serializable {
         sendMail(from, to, subject, messageText, new HashMap<>());
     }
 
-    public void sendMail(String reply, String to, String subject, String messageText, Map<Object, Object> extraHeaders) {
+    public void sendMail(String from, String to, String subject, String messageText, Map<Object, Object> extraHeaders) {
         try {
             MimeMessage msg = new MimeMessage(session);
-            //Always send from system address to avoid email being blocked
-            InternetAddress fromAddress=getSystemAddress();
-            try {
-              fromAddress.setPersonal(BundleUtil.getStringFromBundle("contact.delegation", Arrays.asList(
-                      fromAddress.getPersonal(), reply)), charset);
-            } catch (UnsupportedEncodingException ex) {
-                logger.severe(ex.getMessage());
-            }
-            msg.setFrom(fromAddress);
-             
-            if (reply.matches(EMAIL_PATTERN)) {
-            	//But set the reply-to address to direct replies to the requested 'from' party if it is a valid email address	
-                msg.setReplyTo(new Address[] {new InternetAddress(reply)});
+            if (from.matches(EMAIL_PATTERN)) {
+                msg.setFrom(new InternetAddress(from));
             } else {
-                //Otherwise include the invalid 'from' address in the message
-                messageText = "From: " + reply + "\n\n" + messageText;
+                // set fake from address; instead, add it as part of the message
+                //msg.setFrom(new InternetAddress("invalid.email.address@mailinator.com"));
+                msg.setFrom(getSystemAddress());
+                messageText = "From: " + from + "\n\n" + messageText;
             }
             msg.setSentDate(new Date());
             msg.setRecipients(Message.RecipientType.TO,

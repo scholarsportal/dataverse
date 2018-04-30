@@ -11,6 +11,7 @@
     </h:head>
 
     <h:body>
+    
         <ui:composition template="/dataverse_template.xhtml">
             <ui:param name="pageTitle" value="#{bundle.account} - #{dataverseServiceBean.findRootDataverse().name}"/>
             <ui:param name="dataverse" value="#{dataverseServiceBean.findRootDataverse()}"/>
@@ -25,6 +26,9 @@
                 };
                 </script>
                 <f:loadBundle basename="Bundle" var="bundle"/>
+
+               <f:view locale="#{dataverseLocale.locale.language}">
+
                 <f:metadata>
                     <f:event type="preRenderView" listener="#{facesContext.externalContext.response.setHeader('Cache-Control', 'no-cache, no-store')}"/>
                     <f:viewParam name="editMode" value="#{DataverseUserPage.editMode}"/>
@@ -33,7 +37,8 @@
                     <f:viewAction action="#{DataverseUserPage.init}" />
                     <f:viewAction action="#{dataverseHeaderFragment.initBreadcrumbs(dataverseServiceBean.findRootDataverse(), (DataverseUserPage.editMode == 'CREATE' ? bundle['user.createBtn'] : bundle.account))}"/>
                 </f:metadata>
-                <h:form id="dataverseUserForm">
+                </f:view>
+                <h:form id="dataverseUserForm">                
                     <p:focus context="dataverseUserForm"/>
                     <div class="clearfix" jsf:rendered="#{empty DataverseUserPage.editMode}">
                         <div class="btn-group pull-right" jsf:rendered="#{DataverseUserPage.passwordEditable or DataverseUserPage.accountDetailsEditable}">
@@ -70,7 +75,7 @@
 
                     <p:tabView id="dataRelatedToMeView" activeIndex="#{DataverseUserPage.activeIndex}" dynamic="true" rendered="#{empty DataverseUserPage.editMode}">
                         <p:ajax event="tabChange" listener="#{DataverseUserPage.onTabChange}" update="@all" oncomplete="javascript:dataverseuser_page_rebind();" />
-                        <p:tab id="myData" title="My Data">
+                        <p:tab id="myData" title="#{bundle['user.dataRelatedToMe']}">
                             <ui:include src="mydata_fragment.xhtml"></ui:include>
                         </p:tab>
                         <p:tab id="notifications" title="#{bundle['header.user.selectTab.notifications']}">
@@ -92,8 +97,8 @@
                                                             <a href="#{systemConfig.guidesBaseUrl}/#{systemConfig.guidesVersion}/user/index.html" title="#{dataverseServiceBean.findRootDataverse().name} #{bundle['header.guides.user']}" target="_blank">#{bundle['header.guides.user']}</a>
                                                         </o:param>
                                                         <o:param>
-                                                            <a href="https://demo.dataverse.org">#{bundle['notification.demoSite']}</a>
-                                                        </o:param>
+                                                            <a href="https://demodv.scholarsportal.info">#{bundle['notification.demoSite']}</a>                                                         
+                                                        </o:param>         
                                                     </h:outputFormat>
                                                 </ui:fragment>
                                                 <ui:fragment rendered="#{item.type == 'CREATEDV'}">
@@ -392,10 +397,10 @@
                                         <div class="col-sm-2 form-col-container">
                                             <p class="form-control-static #{DataverseUserPage.emailIsVerified ? 'text-success' : 'text-danger'}">
                                                 <ui:fragment rendered="#{DataverseUserPage.emailNotVerified}">
-                                                    <span class="glyphicon glyphicon-ban-circle"/> Not Verified
+                                                    <span class="glyphicon glyphicon-ban-circle"/> #{bundle['confirmEmail.notVerified']}
                                                 </ui:fragment>
                                                 <ui:fragment rendered="#{!DataverseUserPage.emailNotVerified}">
-                                                    <span class="glyphicon glyphicon-ok"/> Verified
+                                                    <span class="glyphicon glyphicon-ok"/> #{bundle['confirmEmail.verified']}
                                                 </ui:fragment>
                                             </p>
                                         </div>
@@ -429,6 +434,8 @@
                                         <p class="form-control-static">#{DataverseUserPage.currentUser.affiliation}</p>
                                     </div>
                                 </div>
+                               
+                                               
                                 <!-- Position (not populated for Shibboleth users) -->
                                 <div class="form-group" jsf:rendered="#{!empty DataverseUserPage.currentUser.position}">
                                     <label for="position" class="col-sm-3 control-label">
@@ -518,7 +525,7 @@
                                 <!-- Password -->
                                     <label for="inputPassword" class="col-sm-3 control-label">
                                         <span data-toggle="tooltip" data-placement="auto right" class="tooltiplabel text-info" data-original-title="#{bundle['user.passwd.illegal.tip']}">
-                                            <h:outputText value="#{DataverseUserPage.editMode == 'CREATE' ? 'Password' : 'New Password'}" />
+                                            <h:outputText value="#{DataverseUserPage.editMode == 'CREATE' ? bundle['user.password'] : bundle['user.newPassword']}" />
                                             <span class="glyphicon glyphicon-asterisk text-danger"></span>
                                         </span>
                                     </label>
@@ -532,6 +539,7 @@
                                     <div class="col-sm-4 col-sm-offset-3">
                                         <p:password id="inputPassword" tabindex="2" label="#{DataverseUserPage.editMode == 'CREATE' ? 'Password' : 'New Password'}" styleClass="form-control" match="retypePassword" value="#{DataverseUserPage.inputPassword}" validator="#{DataverseUserPage.validateNewPassword}"  />
                                         <p:message for="inputPassword" display="text" />
+
                                     </div>
                                 </div>
                                 <div class="form-group" jsf:rendered="#{DataverseUserPage.editMode == 'CREATE' or DataverseUserPage.editMode == DataverseUserPage.changePasswordMode}">
@@ -601,18 +609,115 @@
                                         </p>
                                     </div>
                                 </div>
-                                <div class="form-group" jsf:rendered="#{DataverseUserPage.editMode == 'CREATE' or DataverseUserPage.editMode == 'EDIT'}">
-                                    <!-- Affiliation -->
+                                 <div class="form-group" jsf:rendered="#{DataverseUserPage.editMode == 'CREATE' or DataverseUserPage.editMode == 'EDIT'}">
+                                <!-- Affiliation -->
+
                                     <label for="affiliation" class="col-sm-3 control-label">
                                         <span data-toggle="tooltip" data-placement="auto right" class="tooltiplabel text-info" data-original-title="#{bundle['user.affiliation.tip']}">
-                                            #{bundle.affiliation}
+                                            #{bundle.affiliation}<span class="glyphicon glyphicon-asterisk text-danger"/>
                                         </span>
+                                       
                                     </label>
-                                    <div class="col-sm-4">
-                                        <p:inputText id="affiliation" tabindex="7" styleClass="form-control" value="#{DataverseUserPage.userDisplayInfo.affiliation}" />
-                                        <p:message for="affiliation" display="text" />
+                                    <div class="col-sm-9">
+                                        
+                                            
+                                             <p:panelGrid columns="2" styleClass="noBorders">
+                                                 <select id="select_affiliation" class="demo-default" placeholder="Select Affiliation..." tabindex="7">
+                                            </select>
+                                            <p:inputText id="affiliation" styleClass="form-control" value="#{DataverseUserPage.userDisplayInfo.affiliation}"  tabindex="7"/>
+                                            <p:message for="affiliation" display="text" />
+                                        </p:panelGrid>
+
                                     </div>
                                 </div>
+                                 <script type="text/javascript" defer="defer" src="/resources/js/selectize.js"></script>
+                                <script type="text/javascript">
+                   					//<![CDATA[
+                   					    //auto populate the affiliation textfield (now hidden) by using a dynamically populated dropdown
+                   					    var select_elm="#select_affiliation";
+                   					    var input_elm="#dataverseUserForm\\:accountInfoView\\:affiliation";
+                                                            
+                   					    $(document).ready(function () {
+                                                                 $(input_elm).hide();
+                   					   	//Get the users affiliation from their ip - if the value is blank 
+                       					ip_range_checker= new IPRangeChecker(setUserAffiliation)  
+					                    });
+                   						function setUserAffiliation(){
+                                                                    var selectize=setUpAffiliateDropDown();
+                                                                    if(affiliation=="ADMIN"){
+                                                                        affiliation="RYERSON";
+                                                                    }
+                   						//get the title
+                                                                var title;
+                                                                $.each(ip_range_checker.institution_mapping, function (i, item) {
+                                                                    if(ip_range_checker.institution_mapping[i][0]==affiliation){
+                                                                            title=ip_range_checker.institution_mapping[i][2]
+                                                                    }
+                                                                });
+
+                                                                var val = $(input_elm).val();
+                                                                var value_in_list= valueInList(val)
+                                                                if(val!="" && value_in_list){
+                                                                        //set it to the already set value
+                                                                        selectize.setValue(val);
+                                                                        selectize.trigger( "change" );
+                					    	}else if(affiliation && val==""){
+                					    		//find the value set by the ip group
+                					    		selectize.setValue(title);
+                                                                        selectize.trigger( "change" );
+                					    	}else if(val!="" && !value_in_list){
+                					    		//find the value set by the ip group
+                					    		selectize.setValue("OTHER");
+                                                                        $(input_elm).show();
+                                                                        //dont trigger change event which would clear value
+                                                                        $(input_elm).val(val);
+                					    	}else{
+                					    		//not set or found
+                					    		selectize.setValue("OTHER");
+                                                                        selectize.trigger( "change" );
+                					    	}
+                						  
+                					      }    
+                                                            function valueInList(_val){
+                                                                var value_in_list=false;
+                                                                $.each(ip_range_checker.institution_mapping, function (i, item) {
+                   					    	    if(ip_range_checker.institution_mapping[i][2]===_val){
+                                                                        value_in_list=true;
+                                                                    }
+                   					    	});
+                                                                return value_in_list;
+                                                            }
+                   					    
+                   					    function setUpAffiliateDropDown(){
+                                                               
+                   					    	$.each(ip_range_checker.institution_mapping, function (i, item) {
+                   					    	    $(select_elm).append($('<option>', { 
+                   					    	        value: ip_range_checker.institution_mapping[i][2],
+                   					    	        text : ip_range_checker.institution_mapping[i][2]
+                   					    	    }));
+                   					    	});
+                   					    	 $(select_elm).append($('<option>', { 
+            					    	        value: "OTHER",
+            					    	        text : "OTHER"
+            					    	    }));
+                   					    	var $select = $(select_elm).selectize({
+                   					    	    create: true,
+	                   					    	onChange: function (value) {
+                                                                              //show the input if the value doesn't exist
+	                   					    		var val = $select[0].selectize.getValue();
+	                   					    		$(input_elm).val(val)
+                                                                                if(val=="OTHER"){
+                                                                                    $(input_elm).show();
+                                                                                    $(input_elm).val("");
+                                                                                }else{
+                                                                                     $(input_elm).hide();
+                                                                                }
+	                   					    	}
+                   					    	});
+                   					    	return $select[0].selectize;
+                   					    }
+				                    //]]>
+				                </script>
                                 <div class="form-group" jsf:rendered="#{DataverseUserPage.editMode == 'CREATE' or DataverseUserPage.editMode == 'EDIT'}">
                                 <!-- Position -->
                                     <label for="position" class="col-sm-3 control-label">
@@ -629,6 +734,13 @@
                                 <!-- Terms of Use -->
                                     <ui:include src="termsofuse.xhtml"/>
                                 </ui:fragment>
+                                <div class="form-group" >
+                                    <label class="col-sm-3 control-label">    
+                                    </label>
+                                    <div class="col-sm-9">
+										<div id="my-recaptcha-placeholder" ></div>
+                                    </div>
+                                </div>
                                 <div class="form-group">
                                     <div class="col-sm-12 button-block">
                                         <p:commandButton id="save" styleClass="btn btn-default" tabindex="9"
@@ -646,5 +758,6 @@
                 </h:form>
             </ui:define>
         </ui:composition>
+        
     </h:body>
 </html>

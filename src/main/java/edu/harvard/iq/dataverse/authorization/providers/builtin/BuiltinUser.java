@@ -41,27 +41,30 @@ public class BuiltinUser implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Please enter a username.")
+
+    @NotBlank(message = "{user.enterUsername}")
     @Size(min=2, max=60, message ="Username must be between 2 and 60 characters.")
-    @ValidateUserName(message = "Found an illegal character(s). Valid characters are a-Z, 0-9, '_', '-', and '.'.")
+    @ValidateUserName(message = "{user.ilegalCharacters}")
     @Column(nullable = false, unique=true)  
     private String userName;
 
-    @NotBlank(message = "Please enter a valid email address.")
-    @ValidateEmail(message = "Please enter a valid email address.")
+    @NotBlank(message = "{user.invalidEmail}")
+    @ValidateEmail(message = "{user.invalidEmail}")
     @Column(nullable = false, unique=true)    
     private String email;
 
-    @NotBlank(message = "Please enter your first name.")
+    @NotBlank(message = "{user.firstName}")
     private String firstName;
 
-    @NotBlank(message = "Please enter your last name.")
+    @NotBlank(message = "{user.lastName}")
     private String lastName;
+    
+    @NotBlank(message = "{user.affiliation}")
+    private String affiliation;
     
     private int passwordEncryptionVersion; 
     private String encryptedPassword;
 
-    private String affiliation;
     private String position;
     
     public void updateEncryptedPassword( String encryptedPassword, int algorithmVersion ) {

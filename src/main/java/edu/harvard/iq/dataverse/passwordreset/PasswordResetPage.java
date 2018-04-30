@@ -13,7 +13,6 @@ import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinUserServi
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.BundleUtil;
-import edu.harvard.iq.dataverse.util.SystemConfig;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.EJB;
@@ -30,6 +29,7 @@ import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
+
 
 @ViewScoped
 @Named("PasswordResetPage")
@@ -70,9 +70,8 @@ public class PasswordResetPage implements java.io.Serializable {
     /**
      * The email address that is entered to initiate the password reset process.
      */
-
-    @NotBlank(message = "Please enter a valid email address.")
-    @ValidateEmail(message = "Password reset page default email message.")    
+    @NotBlank(message = "{passwordReset.notBlank}")
+    @ValidateEmail(message = "{passwordReset.validateEmail}")
     String emailAddress;
 
     /**
@@ -124,7 +123,7 @@ public class PasswordResetPage implements java.io.Serializable {
                  */
                 logger.log(Level.INFO, "Couldn''t find single account using {0}", emailAddress);
             }
-            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, "Password Reset Initiated", ""));
+            FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_INFO, BundleUtil.getStringFromBundle("passwordReset.initiated"), ""));
         } catch (PasswordResetException ex) {
             /**
              * @todo do we really need a special exception for this??

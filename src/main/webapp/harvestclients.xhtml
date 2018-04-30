@@ -11,6 +11,7 @@
     </h:head>
 
     <h:body>
+     
         <f:metadata>
             <f:viewParam name="dataverseId" value="#{dataverseServiceBean.findRootDataverse().id}"/>
             <f:viewAction action="#{harvestingClientsPage.init}"/>
@@ -554,5 +555,6 @@
                 </script>
             </ui:define>
         </ui:composition>
+         
     </h:body>
 </html>

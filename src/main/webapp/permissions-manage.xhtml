@@ -11,11 +11,13 @@
     </h:head>
 
     <h:body>
+    <f:view locale="#{dataverseLocale.locale.language}">
         <f:metadata>
             <f:viewParam name="id" value="#{managePermissionsPage.dvObject.id}"/>
             <f:viewAction action="#{managePermissionsPage.init}"/>
             <f:viewAction action="#{dataverseHeaderFragment.initBreadcrumbs(managePermissionsPage.dvObject, (managePermissionsPage.dvObject.instanceofDataverse ? bundle['dataverse.permissions.title'] : bundle['dataverse.permissions.dataset.title']))}"/>
         </f:metadata>
+        </f:view>
         <ui:composition template="/dataverse_template.xhtml">
             <ui:param name="pageTitle" value="#{bundle['dataverse.permissions.title']} - #{managePermissionsPage.dvObject.displayName}"/>
             <ui:param name="dataverse" value="#{managePermissionsPage.dvObject.dataverseContext}"/>

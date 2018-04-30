@@ -9,6 +9,7 @@
     <h:head>
     </h:head>
     <h:body>
+    <f:view locale="#{dataverseLocale.locale.language}">
         <f:metadata>
             <f:viewParam name="dataverseId" value="#{manageGuestbooksPage.dataverseId}"/>
             <f:viewAction action="#{manageGuestbooksPage.init}"/>
@@ -225,5 +226,6 @@
                 </h:form>
             </ui:define>
         </ui:composition>
+        </f:view>
     </h:body>
 </html>

@@ -17,12 +17,13 @@ import edu.harvard.iq.dataverse.DvObject;
 import edu.harvard.iq.dataverse.DvObjectServiceBean;
 import edu.harvard.iq.dataverse.FileMetadata;
 import edu.harvard.iq.dataverse.PermissionServiceBean;
-import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
+import edu.harvard.iq.dataverse.util.StringUtil;
 import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinUserServiceBean;
+import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.datavariable.DataVariable;
 import edu.harvard.iq.dataverse.harvest.client.HarvestingClient;
+import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.FileUtil;
-import edu.harvard.iq.dataverse.util.StringUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
 import java.io.IOException;
 import java.sql.Timestamp;
@@ -52,10 +53,10 @@ import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import org.apache.commons.lang.StringUtils;
-import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrServer;
 import org.apache.solr.client.solrj.SolrServerException;
-import org.apache.solr.client.solrj.impl.HttpSolrClient;
+import org.apache.solr.client.solrj.impl.HttpSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.client.solrj.response.UpdateResponse;
 import org.apache.solr.common.SolrDocument;
@@ -106,30 +107,24 @@ public class IndexServiceBean {
     private static final String publicGroupString = groupPrefix + "public";
     public static final String PUBLISHED_STRING = "Published";
     private static final String UNPUBLISHED_STRING = "Unpublished";
-    private static final String DRAFT_STRING = "Draft";
+    private static final String DRAFT_STRING = "Draft";//BundleUtil.getStringFromBundle("dataset.versionUI.draft");
     private static final String IN_REVIEW_STRING = "In Review";
     private static final String DEACCESSIONED_STRING = "Deaccessioned";
     public static final String HARVESTED = "Harvested";
     private String rootDataverseName;
     private Dataverse rootDataverseCached; 
-    private SolrClient solrServer;
+    private SolrServer solrServer;
     
     @PostConstruct
     public void init(){
-        String urlString = "http://" + systemConfig.getSolrHostColonPort() + "/solr/collection1";
-        solrServer = new HttpSolrClient.Builder(urlString).build();
-
+        solrServer = new HttpSolrServer("http://" + systemConfig.getSolrHostColonPort() + "/solr");
         rootDataverseName = findRootDataverseCached().getName();
     }
     
     @PreDestroy
     public void close(){
-        if (solrServer != null) {
-            try {
-                solrServer.close();
-            } catch (IOException e) {
-                logger.warning("Solr closing error: " + e);
-            }
+        if(solrServer != null){
+            solrServer.shutdown();
             solrServer = null;
         }
     }
@@ -1407,7 +1402,7 @@ public class IndexServiceBean {
         QueryResponse queryResponse = null;
         try {
             queryResponse = solrServer.query(solrQuery);
-        } catch (SolrServerException | IOException ex) {
+        } catch (SolrServerException ex) {
             throw new SearchException("Error searching Solr for " + type, ex);
         }
         SolrDocumentList results = queryResponse.getResults();
@@ -1441,7 +1436,7 @@ public class IndexServiceBean {
         QueryResponse queryResponse = null;
         try {
             queryResponse = solrServer.query(solrQuery);
-        } catch (SolrServerException | IOException ex) {
+        } catch (SolrServerException ex) {
             throw new SearchException("Error searching Solr for dataset parent id " + parentDatasetId, ex);
         }
         SolrDocumentList results = queryResponse.getResults();

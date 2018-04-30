@@ -18,6 +18,12 @@ import javax.json.JsonObject;
 import javax.json.JsonObjectBuilder;
 import static edu.harvard.iq.dataverse.util.json.NullSafeJsonBuilder.jsonObjectBuilder;
 
+import java.util.Locale;
+import javax.faces.context.FacesContext;
+import java.text.SimpleDateFormat;
+import java.text.DateFormat;
+
+
 public class SolrSearchResult {
 
     private static final Logger logger = Logger.getLogger(SolrSearchResult.class.getCanonicalName());
@@ -880,7 +886,28 @@ public class SolrSearchResult {
     }
 
     public String getDateToDisplayOnCard() {
-        return dateToDisplayOnCard;
+    	
+    	try
+    	{
+
+    	FacesContext facesContext = FacesContext.getCurrentInstance();
+    	Locale locale = facesContext.getViewRoot().getLocale();
+    	
+    	//logger.info("Datetodisplayoncard " + dateToDisplayOnCard);
+    	//logger.info("locale language " + locale.getLanguage());  	 
+    	
+    	DateFormat inputFormat = new SimpleDateFormat("MMM dd, yyyy"); 
+		Date date1 = inputFormat.parse(dateToDisplayOnCard);
+		
+		DateFormat df = new SimpleDateFormat("MMM dd, yyyy",locale);  
+    	String formattedDate = df.format(date1); 
+    	
+        return formattedDate;
+    	}
+    	catch(Exception e)
+    	{
+    		return null;
+    	}
     }
 
     public void setDateToDisplayOnCard(String dateToDisplayOnCard) {

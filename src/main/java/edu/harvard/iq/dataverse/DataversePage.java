@@ -512,16 +512,19 @@ public class DataversePage implements java.io.Serializable {
         List<SelectItem> retList = new ArrayList<>();
         if ((typeIn.isHasParent() && typeIn.getParentDatasetFieldType().isInclude()) || (!typeIn.isHasParent() && typeIn.isInclude())) {
             SelectItem requiredItem = new SelectItem();
-            requiredItem.setLabel("Required");
+            //requiredItem.setLabel("Required");
+            requiredItem.setLabel(BundleUtil.getStringFromBundle("dataverse.item.required"));
             requiredItem.setValue(true);
             retList.add(requiredItem);
             SelectItem optional = new SelectItem();
-            optional.setLabel("Optional");
+            //optional.setLabel("Optional");
+            optional.setLabel(BundleUtil.getStringFromBundle("dataverse.item.optional"));
             optional.setValue(false);
             retList.add(optional);
         } else {
             SelectItem hidden = new SelectItem();
-            hidden.setLabel("Hidden");
+            //hidden.setLabel("Hidden");
+            hidden.setLabel(BundleUtil.getStringFromBundle("dataverse.item.hidden"));
             hidden.setValue(false);
             hidden.setDisabled(true);
             retList.add(hidden);
@@ -723,7 +726,7 @@ public class DataversePage implements java.io.Serializable {
     public String saveLinkedDataverse() {
 
         if (linkingDataverseId == null) {
-            JsfHelper.addSuccessMessage("You must select a linking dataverse.");
+            JsfHelper.addSuccessMessage(BundleUtil.getStringFromBundle("dataverse.linking"));
             return "";
         }
 
