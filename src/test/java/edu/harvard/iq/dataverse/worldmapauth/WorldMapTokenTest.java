@@ -12,6 +12,8 @@ import java.sql.Timestamp;
 import java.util.Date;
 import javax.ejb.embeddable.EJBContainer;
 import static org.junit.Assert.assertEquals;
+
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -55,6 +57,7 @@ public class WorldMapTokenTest {
     }
     
     @Test
+    @Ignore
     public void testTokenValues(){
         msgt("WorldMapTokenTest!");
         TokenApplicationType tat = this.makeTokenApplicationType(30);
