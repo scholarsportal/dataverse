@@ -79,7 +79,16 @@ public enum Permission implements java.io.Serializable {
     }
 
     public String getHumanName() {
-        return humanName;
+        System.out.println(" ROLE humanName =============== : " + humanName );
+
+        return BundleUtil.getStringFromBundle("permission."+name());
+        //return humanName;
+    }
+
+    public String getDisplayName() {
+        System.out.println(" ROLE name =============== : " + name() );
+        return BundleUtil.getStringFromBundle("roles."+name());
+        //return name();
     }
 
     public boolean appliesTo(Class<? extends DvObject> aClass) {

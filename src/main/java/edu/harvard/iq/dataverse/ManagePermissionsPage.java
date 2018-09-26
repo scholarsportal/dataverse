@@ -525,6 +525,17 @@ public class ManagePermissionsPage implements java.io.Serializable {
     }
 
     public List<Permission> getPermissions() {
+        /*
+        for (int i = 0 ; i < Arrays.asList(Permission.values()).size() ; i++ )
+        {
+            System.out.println( " ====== ROLE permission ==== " + Arrays.asList(Permission.values()).get(i).name());
+
+            BundleUtil.getStringFromBundle("roles."+Arrays.asList(Permission.values()).get(i).name());
+        }
+
+        Permission[] values = Permission.values();
+                                         */
+
         return Arrays.asList(Permission.values());
     }
 

@@ -3,6 +3,8 @@ package edu.harvard.iq.dataverse.authorization;
 import edu.harvard.iq.dataverse.Dataverse;
 import edu.harvard.iq.dataverse.DvObject;
 import edu.harvard.iq.dataverse.util.BitSet;
+import edu.harvard.iq.dataverse.util.BundleUtil;
+
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Comparator;
@@ -117,7 +119,15 @@ public class DataverseRole implements Serializable  {
 	}
 
 	public String getName() {
-		return name;
+
+		if (alias != null )
+		{
+			String key = "role." + alias.toLowerCase() +".name";
+			return BundleUtil.getStringFromPropertyFile(key,"BuiltInRoles" );
+		}
+		else {
+			return name;
+		}
 	}
 
 	public void setName(String name) {
@@ -125,7 +135,20 @@ public class DataverseRole implements Serializable  {
 	}
 
 	public String getDescription() {
-		return description;
+		System.out.println(" ROLE ID : " + id);
+		System.out.println(" ROLE ALIAS : " + alias);
+		System.out.println(" ROLE NAME : " + name);
+		System.out.println(" ROLE DESCRIPTION : " + description);
+
+		//role.tolowercase(alias).description
+		if (alias != null )
+		{
+			String key = "role." + alias.toLowerCase() +".description";
+			return BundleUtil.getStringFromPropertyFile(key,"BuiltInRoles" );
+		}
+		else {
+			return description;
+		}
 	}
 
 	public void setDescription(String description) {
