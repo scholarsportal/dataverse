@@ -1,5 +1,7 @@
 package edu.harvard.iq.dataverse.util;
 
+import edu.harvard.iq.dataverse.DataverseLocaleBean;
+
 import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
@@ -57,9 +59,14 @@ public class JsfHelper {
      */
     @Deprecated
     public String localize( String messageKey ) {
-        FacesContext facesContext = FacesContext.getCurrentInstance();
-        String messageBundleName = facesContext.getApplication().getMessageBundle();
-        Locale locale = facesContext.getViewRoot().getLocale();
+
+        DataverseLocaleBean d = new DataverseLocaleBean();
+
+        Locale locale = new Locale(d.getLocaleCode());
+
+        //FacesContext facesContext = FacesContext.getCurrentInstance();
+        //String messageBundleName = facesContext.getApplication().getMessageBundle();
+        //Locale locale = facesContext.getViewRoot().getLocale();
         ResourceBundle bundle = ResourceBundle.getBundle("Bundle", locale);
         return bundle.getString(messageKey);
     }
