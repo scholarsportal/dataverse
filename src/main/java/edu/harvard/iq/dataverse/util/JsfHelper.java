@@ -64,6 +64,7 @@ public class JsfHelper {
 
         Locale locale = new Locale(d.getLocaleCode());
 
+        logger.log(Level.INFO, messageKey + " ========= JH LOCALIZE ======= " + d.getLocaleTitle()) ;
         //FacesContext facesContext = FacesContext.getCurrentInstance();
         //String messageBundleName = facesContext.getApplication().getMessageBundle();
         //Locale locale = facesContext.getViewRoot().getLocale();
