@@ -2,15 +2,16 @@ package edu.harvard.iq.dataverse.search;
 
 import edu.harvard.iq.dataverse.DataFile;
 import edu.harvard.iq.dataverse.Dataset;
+import edu.harvard.iq.dataverse.DataverseLocaleBean;
 import edu.harvard.iq.dataverse.DvObject;
 import edu.harvard.iq.dataverse.api.Util;
 import edu.harvard.iq.dataverse.dataset.DatasetThumbnail;
 import edu.harvard.iq.dataverse.util.json.JsonPrinter;
 import edu.harvard.iq.dataverse.util.json.NullSafeJsonBuilder;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.logging.Logger;
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
@@ -879,8 +880,32 @@ public class SolrSearchResult {
         this.releaseOrCreateDate = releaseOrCreateDate;
     }
 
-    public String getDateToDisplayOnCard() {
+    public String getDateToDisplayOnCard_OLD() {
         return dateToDisplayOnCard;
+    }
+
+    public String getDateToDisplayOnCard() {
+
+        try
+        {
+            DataverseLocaleBean d = new DataverseLocaleBean();
+            Locale bundle_locale = new Locale(d.getLocaleCode());
+
+            //logger.info("Datetodisplayoncard " + dateToDisplayOnCard);
+            //logger.info("locale language " + locale.getLanguage());
+
+            DateFormat inputFormat = new SimpleDateFormat("MMM dd, yyyy");
+            Date date1 = inputFormat.parse(dateToDisplayOnCard);
+
+            DateFormat df = new SimpleDateFormat("MMM dd, yyyy",bundle_locale);
+            String formattedDate = df.format(date1);
+
+            return formattedDate;
+        }
+        catch(Exception e)
+        {
+            return null;
+        }
     }
 
     public void setDateToDisplayOnCard(String dateToDisplayOnCard) {
