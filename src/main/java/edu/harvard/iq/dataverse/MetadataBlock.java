@@ -1,5 +1,7 @@
 package edu.harvard.iq.dataverse;
 
+import edu.harvard.iq.dataverse.util.BundleUtil;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
@@ -87,8 +89,14 @@ public class MetadataBlock implements Serializable {
         return false;
     }
 
-    public String getDisplayName() {
-        return displayName;
+    public String getDisplayName()
+    {
+        if(getName() == null ){
+            return  displayName ;
+        }
+        else {
+            return BundleUtil.getStringFromPropertyFile("metadatablock.displayName", getName());
+        }
     }
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
