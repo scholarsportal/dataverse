@@ -1,8 +1,6 @@
 package edu.harvard.iq.dataverse;
 
 import edu.harvard.iq.dataverse.search.SolrField;
-import edu.harvard.iq.dataverse.util.BundleUtil;
-
 import java.util.Collection;
 
 import java.io.Serializable;
@@ -191,12 +189,7 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
     }
 
     public String getTitle() {
-        if(getMetadataBlock() == null){
-            return title;
-        }
-        else {
-            return BundleUtil.getStringFromPropertyFile("datasetfieldtype." + getName() + ".title", getMetadataBlock().getName());
-        }
+        return title;
     }
 
     public void setTitle(String title) {
@@ -204,12 +197,7 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
     }
 
     public String getDescription() {
-        if(getMetadataBlock()  == null){
-            return description;
-        }
-        else {
-            return BundleUtil.getStringFromPropertyFile("datasetfieldtype." + getName() + ".description", getMetadataBlock().getName());
-        }
+        return description;
     }
 
     public void setDescription(String description) {
@@ -246,14 +234,8 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
         this.fieldType = fieldType;
     }
     
-    public String getWatermark()
-    {
-        if(getMetadataBlock()  == null){
-            return watermark;
-        }
-        else {
-            return BundleUtil.getStringFromPropertyFile("datasetfieldtype." + getName() + ".watermark", getMetadataBlock().getName());
-        }
+    public String getWatermark() {
+        return watermark;
     }
 
     public void setWatermark(String watermark) {
@@ -524,17 +506,10 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
     }
     
     public String getDisplayName() {
-        String _title = "";
-        if(getMetadataBlock()  == null){
-            _title = title;
-        }
-        else {
-            _title = BundleUtil.getStringFromPropertyFile( "datasetfieldtype."+getName()+".title" ,  getMetadataBlock().getName() );
-        }
-        if (isHasParent() && !parentDatasetFieldType.getTitle().equals(_title)) {
-            return parentDatasetFieldType.getTitle() + " " + _title;
+        if (isHasParent() && !parentDatasetFieldType.getTitle().equals(title)) {
+        return parentDatasetFieldType.getTitle() + " " + title;
         } else {
-            return _title;
+            return title;
         }
     }
 
