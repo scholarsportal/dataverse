@@ -61,9 +61,15 @@ public class BundleUtil {
         }
     }
 
-    public static String getStringFromPropertyFile(String key, String propertyFileName  ) throws MissingResourceException {
+    public static String getStringFromPropertyFile(String key, String propertyFileName  ) {
         ResourceBundle bundle = getResourceBundle(propertyFileName);
-        return getStringFromBundleNoMissingCheck(key, null, bundle);
+        try {
+            return getStringFromBundleNoMissingCheck(key, null, bundle);
+        } catch (MissingResourceException ex) {
+            logger.warning("Could not find key \"" + key + "\" in bundle file: ");
+            logger.log(Level.CONFIG, ex.getMessage(), ex);
+            return null;
+        }
     }
 
     public static ResourceBundle getResourceBundle(String propertyFileName)
