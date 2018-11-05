@@ -194,11 +194,11 @@ public class ManageGroupsPage implements java.io.Serializable {
      */
     public String getRoleAssigneeTypeString(RoleAssignee ra) {
         if (ra instanceof User) {
-            return "User";
+            return BundleUtil.getStringFromBundle("dataverse.manageGroups.User");
         } else if (ra instanceof Group) {
-            return "Group";
+            return BundleUtil.getStringFromBundle("dataverse.manageGroups.Group");
         } else {
-            return "unknown";
+            return BundleUtil.getStringFromBundle("dataverse.manageGroups.unknown");
         }
     }
 
@@ -214,20 +214,20 @@ public class ManageGroupsPage implements java.io.Serializable {
         }
 
         if (userCount == 0 && groupCount == 0) {
-            return "No members";
+            return BundleUtil.getStringFromBundle("dataverse.manageGroups.nomembers");
         }
         
         String memberString = "";
         if (userCount == 1) {
-            memberString = "1 user";
+            memberString = "1 "+BundleUtil.getStringFromBundle("dataverse.manageGroups.user");
         } else if (userCount != 1) {
-            memberString = Long.toString(userCount) + " users";
+            memberString = Long.toString(userCount) + " "+BundleUtil.getStringFromBundle("dataverse.manageGroups.users");
         }
 
         if (groupCount == 1) {
-            memberString = memberString + ", 1 group";
+            memberString = memberString + ", 1 " + BundleUtil.getStringFromBundle("dataverse.manageGroups.group");
         } else if (groupCount != 1) {
-            memberString = memberString + ", " + Long.toString(groupCount) + " groups";
+            memberString = memberString + ", " + Long.toString(groupCount) + " " + BundleUtil.getStringFromBundle("dataverse.manageGroups.groups");
         }
 
         return memberString;
