@@ -2,6 +2,7 @@
 package edu.harvard.iq.dataverse;
 
 import edu.harvard.iq.dataverse.util.BundleUtil;
+import edu.harvard.iq.dataverse.util.DateUtil;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -145,7 +146,9 @@ public class Guestbook implements Serializable {
     }
 
     public String getCreateDate() {
-        return new SimpleDateFormat("MMMM d, yyyy").format(createTime);
+
+        //return new SimpleDateFormat("MMMM d, yyyy").format(createTime);
+        return DateUtil.formatDate(createTime);
     }
         
     public Guestbook copyGuestbook(Guestbook source, Dataverse dataverse) {

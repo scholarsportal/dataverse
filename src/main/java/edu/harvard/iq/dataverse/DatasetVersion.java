@@ -1,5 +1,6 @@
 package edu.harvard.iq.dataverse;
 
+import edu.harvard.iq.dataverse.util.DateUtil;
 import edu.harvard.iq.dataverse.util.MarkupChecker;
 import edu.harvard.iq.dataverse.DatasetFieldType.FieldType;
 import edu.harvard.iq.dataverse.util.StringUtil;
@@ -294,7 +295,8 @@ public class DatasetVersion implements Serializable {
         if (this.lastUpdateTime == null){
             return null; 
         }
-        return new SimpleDateFormat("MMMM d, yyyy").format(lastUpdateTime);
+        //return new SimpleDateFormat("MMMM d, yyyy").format(lastUpdateTime);
+        return DateUtil.formatDate(lastUpdateTime);
     }
 
     public String getVersionYear() {
