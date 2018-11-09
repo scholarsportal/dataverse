@@ -10,7 +10,7 @@
                 xmlns:iqbs="http://xmlns.jcp.org/jsf/composite/iqbs">
 
     <o:resourceInclude path="/CustomizationFilesServlet?customFileType=header" rendered="#{!widgetWrapper.widgetView}"/>
-    
+
     <div id="dataverse-header-block">
         <!-- Navbar Panel -->
         <nav id="navbarFixed" class="navbar navbar-default navbar-fixed-top" jsf:rendered="#{!widgetWrapper.widgetView}" role="navigation">
@@ -79,7 +79,7 @@
                                 </p:commandLink>
                             </o:form>
                         </ui:fragment>
-                        
+
                         <li class="dropdown" jsf:rendered="#{dataverseLocaleBean.useLocale()}">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" title="#{bundle.language}">#{dataverseLocaleBean.localeTitle} <b class="caret"></b></a>
                             <ul class="dropdown-menu">
@@ -293,10 +293,19 @@
                 </p:tree>
             </div>
         </ui:remove>
-
-        
-
-        
+	<p:fragment id="bannerPanel">
+           <div class="jumbotron">
+	                <div class="container">
+	                    <div class="row">
+	                        <div class="float_left" id="institutional_dataverse">
+	                        </div>
+	                        <div class="float_right"><img src="/resources/images/slogan_1#{dataverseLocale.locale.language}.png" class="slogan1" alt="#{bundle.main_dataverse_slogan}"/>
+	                            <p id="cta-area"><a class="but_link but_link_lg" id="create-my-space" href="dataverse.xhtml?ownerId=1" role="button">#{bundle.main_dataverse_create}</a><span class="or-text">#{bundle.main_or}</span><a class="or-link" href="dataverse.xhtml"><span style="margin-right: 5px;" class="glyphicon glyphicon-list" aria-hidden="true"></span>#{bundle.main_explore}</a></p>
+	                        </div>
+	                    </div>
+	                </div>
+	          </div>
+        </p:fragment>
         <!-- Message Panel -->
         <p:fragment id="messagePanel" rendered="#{showMessagePanel}">
             <div class="container messagePanel">
@@ -307,4 +316,204 @@
             </div>
         </p:fragment>
     </div>
+      <script type="text/javascript">
+                    //<![CDATA[
+
+
+                   function windowResize(){
+                	   //prevent overlapping breadcrumbs
+                	   $("#spacer").css( "marginTop",($("#navbarFixed").height()-65)+"px")
+                   }
+                    var ip_range_checker;
+                    var affiliation;
+                    var showing_content=false;
+                    $(document).ready(function () {
+                        $(".header_image").fadeIn();
+                        displayBannerCheck();
+                    	$("#navbarsearch").focus();
+                    	//
+                    	$( window ).resize(function() {
+                    		windowResize()
+                    	});
+                    	windowResize()
+                    });
+                    function displayBannerCheck(){
+                     	var locate = window.location;
+                     	//only do this from the home page
+                 		if(locate.search=="" && locate.pathname=="/"){
+                 			$("#bannerPanel").show();
+                 			$("#dataverseHeader").hide();
+                 			$("#metrics-block").hide();
+                 			$("#search-row-panel").hide();
+                 			$("#footer").hide();
+                 			$("#actionButtonBlock").hide();
+                 			$(".panelSearchForm").hide();
+                 			$("#frenchalert").hide();
+                 			$("#dataverseDesc").hide();
+
+                 			var locale='#{dataverseLocale.locale.language}';
+                 			if(locale=="fr"){
+                 				$("#homepage_fr").show();
+                 			}else{
+                 				$("#homepage").show();
+                 			}
+                 			//if we are at the home page consider redirecting to a more suitable one based on the ip
+                     		ip_range_checker=new IPRangeChecker(updateFeaturedSites)
+                 		}else{
+                 			showContent();
+                 		}
+                 	}
+
+                    function scrollToID(id){
+                        var aTag = $(id);
+                        $('html,body').animate({scrollTop: aTag.offset().top-($("#navbarFixed").height()+10)});
+                    }
+                    function showContent(){
+                    	$(".overlay").fadeOut();
+                    	showing_content=true;
+                    }
+                    //failsafe if ip range can't be determined
+                    setTimeout(function() {
+                	   if(!showing_content){
+                		   showContent()
+                	   }
+                	}, 1500);
+
+                    function updateFeaturedSites(){
+                    	//note: we have to wait a bit of time before these items are loaded
+             			if(affiliation=="ADMIN"){
+         					affiliation="RYERSON";
+         				}
+             			//get the home by looking up the name
+             			var home;
+             			$.each(ip_range_checker.institution_mapping, function (i, item) {
+             				if(ip_range_checker.institution_mapping[i][0]==affiliation){
+             					home=ip_range_checker.institution_mapping[i][1]
+             				}
+				    	});
+             			$("div.owl-item").each(function( index ) {
+             				  var path =$( this ).find("a")[0].pathname
+             				  if(path.indexOf(home)>-1){
+             					 $("div.owl-wrapper").prepend($( this ))
+             				  }
+
+             			});
+             			showContent()
+                    }
+                    /*
+                    The following appliation loads ip ranges and compares them to the system ip to see if there are any matches
+                    */
+                    IPRangeChecker=function(func){
+                    	this.entitlements_xml="/resources/js/ip_ranges.xml"
+                        this.institution_mapping;
+                    	this.func=func
+                    	//first load the json list
+                    	$.ajax({
+                    		  dataType: 'json',
+                    		  url: "/GetAffiliation",
+                    		  data: {},
+                    		  success: function (data) {
+                                    ip_range_checker.institution_mapping=data
+                   					ip_range_checker.findIP();
+                    			  },
+                    			  error: function (e) {
+                    		        ip_range_checker.institution_mapping=$.parseJSON(e.responseText)
+                      			 	ip_range_checker.findIP();
+                      			  }
+                    		});
+                    }
+
+                    IPRangeChecker.prototype.findIP=function() {
+	                    try{
+	                      var myPeerConnection = window.RTCPeerConnection || window.mozRTCPeerConnection || window.webkitRTCPeerConnection; //compatibility for firefox and chrome
+	                      var pc = new myPeerConnection({iceServers: []}),
+	                    	noop = function() {},
+	                    	localIPs = {},
+	                    	ipRegex = /([0-9]{1,3}(\.[0-9]{1,3}){3}|[a-f0-9]{1,4}(:[a-f0-9]{1,4}){7})/g,
+	                    	key;
+
+	                      function ipIterate(ip) {
+	                    	if (!localIPs[ip]) {
+	                    		//
+	                    		ip_range_checker.setIP(ip)
+	                    		ip_range_checker.getIPRanges();
+	                    		localIPs[ip] = true;
+	                    	}
+	                      }
+	                      pc.createDataChannel(""); //create a bogus data channel
+	                      pc.createOffer(function(sdp) {
+	                    	sdp.sdp.split('\n').forEach(function(line) {
+	                    	  if (line.indexOf('candidate') < 0) return;
+	                    	  line.match(ipRegex).forEach(ipIterate);
+	                    	});
+	                    	pc.setLocalDescription(sdp, noop, noop);
+	                      }, noop); // create offer and set local description
+	                      pc.onicecandidate = function(ice) { //listen for candidate events
+	                    	if (!ice || !ice.candidate || !ice.candidate.candidate || !ice.candidate.candidate.match(ipRegex)) return;
+	                    	ice.candidate.candidate.match(ipRegex).forEach(ipIterate);
+	                      };
+	                    }catch(e){
+	                    	//unable to get the users ip - call the relayed function
+	                    	ip_range_checker.func();
+	                    }
+                    }
+                    IPRangeChecker.prototype.setIP = function(_ip){
+
+                    	var reg_pat="|\\*|\\-)\\.("
+                    	var ip_reg_ex="("+_ip.split(".").join(reg_pat)+reg_pat.slice(0, -3);
+                    	this.ip=_ip
+                    	this.patt=new RegExp(ip_reg_ex)
+                    }
+
+                    IPRangeChecker.prototype.getIPRanges=function(){
+                    	var pattern_array=[];
+                    	var match_array=[];
+                    	var data = this.institution_mapping
+                    	for (var i = 0; i <data.length; i++) {
+                    		var pattern=data[i][3].split(",");
+                    		for (var j = 0; j <pattern.length; j++) {
+                    			pattern_array.push({"name":data[i][0],"range":pattern[j]})
+                    		}
+                    	}
+                    	//loop through each of the items and compare it to the ip
+                    	for (var i = 0; i <pattern_array.length; i++) {
+                    		var range = pattern_array[i]["range"]
+                    		if(range.indexOf("-")>-1){
+                    			//need to recheck to see if the ip falls within the two numbers
+                    			//step 1. Get location of range
+                    			var range_array=range.split(".");
+                    			var rangeslot;
+                    			for (var j=0; j<range_array.length;j++){
+                    				if(range_array[j].indexOf("-")>-1){
+                    					rangeslot=j
+                    				}
+                    			}
+                    			//step 2. Get the equilvant slot from the ip
+                    			var ip_slot_val=ip_range_checker.ip.split(".")[rangeslot];
+                    			var range_slot_val=range_array[rangeslot]
+
+                    			//step 3. check in the ip slot val is between numbers
+                    			var range_array_slot=range_slot_val.split("-")
+                    			var range_slot_start=range_array_slot[0]
+                    			var range_slot_end=range_array_slot[1]
+                    			if(ip_slot_val>=range_slot_start && ip_slot_val<=range_slot_end){
+                    				//we are within range - prequalify this slot by replacing with a star
+                    				range_array[rangeslot]="*";
+                    				range=range_array.join(".");
+                    			}
+                    		}
+                    		if(ip_range_checker.patt.test(range)){
+                    			match_array.push(pattern_array[i])
+                    		}
+
+                    	}
+                    	if(match_array.length>0){
+                    	//take the first match
+                    		var redirect_page = window.location.hostname+"/dataverse/"
+                    		affiliation =match_array[0].name;
+                    	}
+                    	ip_range_checker.func();
+                    }
+                    //]]>
+                </script>
 </ui:composition>
