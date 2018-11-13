@@ -183,7 +183,7 @@ public class LoginPage implements java.io.Serializable {
             String alias="";
             //
              
-            String json_url= "http://localhost:8080/GetAffiliation";
+            String json_url= "http://localhost:8080/affiliation";
             logger.log(Level.FINE, "calling readUrl: {0}", json_url);
 
     		JSONObject json_obj;

@@ -410,8 +410,8 @@
                     	//first load the json list
                     	$.ajax({
                     		  dataType: 'json',
-                    		  url: "/GetAffiliation",
-                    		  data: {},
+                    		  url: "/affiliation",
+                    		  data: { locale : '#{dataverseLocaleBean.localeCode}'},
                     		  success: function (data) {
                                     ip_range_checker.institution_mapping=data
                    					ip_range_checker.findIP();
