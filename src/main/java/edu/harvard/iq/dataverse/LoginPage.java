@@ -15,7 +15,10 @@ import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.JsfHelper;
 import static edu.harvard.iq.dataverse.util.JsfHelper.JH;
 import edu.harvard.iq.dataverse.util.SystemConfig;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -33,6 +36,7 @@ import javax.faces.validator.ValidatorException;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+import org.json.*;
 
 /**
  *
@@ -103,6 +107,7 @@ public class LoginPage implements java.io.Serializable {
     private List<FilledCredential> filledCredentials;
     
     private String redirectPage = "dataverse.xhtml";
+
     private AuthenticationProvider authProvider;
     private int numFailedLoginAttempts;
     Random random;
@@ -152,7 +157,7 @@ public class LoginPage implements java.io.Serializable {
         return false;
     }
 
-    public String login() {
+    public String login() throws Exception {
         
         AuthenticationRequest authReq = new AuthenticationRequest();
         List<FilledCredential> filledCredentialsList = getFilledCredentials();
@@ -171,6 +176,41 @@ public class LoginPage implements java.io.Serializable {
             AuthenticatedUser r = authSvc.getUpdateAuthenticatedUser(credentialsAuthProviderId, authReq);
             logger.log(Level.FINE, "User authenticated: {0}", r.getEmail());
             session.setUser(r);
+            //allow the logged-in user to redirect to their institution
+            
+            String affiliation= r.getAffiliation();
+            logger.log(Level.FINE, "affiliation: {0}", affiliation);
+            String alias="";
+            //
+             
+            String json_url= "http://localhost:8080/affiliation";
+            logger.log(Level.FINE, "calling readUrl: {0}", json_url);
+
+    		JSONObject json_obj;
+    		try {
+    			json_obj = new JSONObject("{ \"affiliates\":"+readUrl(json_url)+"}");
+
+    			//note the saved affiliation is the "title" of the affiliates.json file
+    			JSONArray json_array = json_obj.getJSONArray("affiliates");
+
+    			for(int i = 0; i < json_array.length(); i++){
+                                String[] array = json_array.getJSONArray(i).toString().split(",");
+    				String title = array[2].replace("\"", "");
+    				if(title.equals(affiliation)){
+    					alias=array[1].replace("\"", "");
+    				}
+    			}
+    			
+    		} catch (JSONException e) {
+    			// TODO Auto-generated catch block
+    			e.printStackTrace();
+    		}
+            System.out.println(affiliation+" Redirect to "+alias+" "+redirectPage);
+    		//redirect to the alias if there is one and the user came from the homepage
+            if(!alias.equals("") && redirectPage.contains("dataverse.xhtml")){
+                redirectPage = "%2Fdataverse.xhtml%3Falias%3D"+alias;
+                logger.log(Level.FINE, "redirect to affiliate dataverse", redirectPage);
+            }
             
             if ("dataverse.xhtml".equals(redirectPage)) {
                 redirectPage = redirectToRoot();
@@ -214,7 +254,24 @@ public class LoginPage implements java.io.Serializable {
         }
         
     }
-    
+
+    private static String readUrl(String urlString) throws Exception {
+        BufferedReader reader = null;
+        try {
+            URL url = new URL(urlString);
+            reader = new BufferedReader(new InputStreamReader(url.openStream()));
+            StringBuffer buffer = new StringBuffer();
+            int read;
+            char[] chars = new char[1024];
+            while ((read = reader.read(chars)) != -1)
+                buffer.append(chars, 0, read); 
+            return buffer.toString();
+        } finally {
+            if (reader != null)
+                reader.close();
+        }
+    }
+
     private String redirectToRoot(){
         return "dataverse.xhtml?alias=" + dataverseService.findRootDataverse().getAlias();
     }

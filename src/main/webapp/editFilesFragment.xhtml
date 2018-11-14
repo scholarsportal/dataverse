@@ -105,7 +105,7 @@
                           	//Setup an observer to watch for additional rows being added
                           	var config={childList: true};
                           	var callback = function(mutations) {
-                        		//Add an id attribute to all new entries  
+                        		//Add an id attribute to all new entries
                             	mutations.forEach(function(mutation) {
                             	for(i=0; i<mutation.addedNodes.length;i++) {
                               		mutation.addedNodes[i].setAttribute('upid',curId);

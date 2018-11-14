@@ -89,8 +89,14 @@ public class MetadataBlock implements Serializable {
         return false;
     }
 
-    public String getDisplayName() {
-        return displayName;
+    public String getDisplayName()
+    {
+        if(getName() == null ){
+            return  displayName ;
+        }
+        else {
+            return BundleUtil.getStringFromPropertyFile("metadatablock.displayName", getName());
+        }
     }
     public void setDisplayName(String displayName) {
         this.displayName = displayName;

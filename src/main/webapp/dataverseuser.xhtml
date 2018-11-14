@@ -610,12 +610,15 @@
                                     <!-- Affiliation -->
                                     <label for="affiliation" class="col-sm-3 control-label">
                                         <span data-toggle="tooltip" data-placement="auto right" class="tooltiplabel text-info" data-original-title="#{bundle['user.affiliation.tip']}">
-                                            #{bundle.affiliation}
+                                            #{bundle.affiliation}<span class="glyphicon glyphicon-asterisk text-danger"/>
                                         </span>
                                     </label>
-                                    <div class="col-sm-4">
-                                        <p:inputText id="affiliation" tabindex="7" styleClass="form-control" value="#{DataverseUserPage.userDisplayInfo.affiliation}" />
-                                        <p:message for="affiliation" display="text" />
+                                    <div class="col-sm-9">
+                                            <p:panelGrid columns="2" styleClass="noBorders">
+                                                <select id="select_affiliation" class="demo-default" placeholder="Select Affiliation..." tabindex="7"></select>
+                                                <p:inputText id="affiliation" styleClass="form-control" value="#{DataverseUserPage.userDisplayInfo.affiliation}"  tabindex="7"/>
+                                                <p:message for="affiliation" display="text" />
+                                            </p:panelGrid>
                                     </div>
                                 </div>
                                 <div class="form-group" jsf:rendered="#{DataverseUserPage.editMode == 'CREATE' or DataverseUserPage.editMode == 'EDIT'}">
@@ -646,6 +649,88 @@
                                     </div>
                                 </div>
                             </div>
+                                 <script type="text/javascript" defer="defer" src="/resources/js/selectize.js"></script>
+                                <script type="text/javascript">
+                   					//<![CDATA[
+                   					    //auto populate the affiliation textfield (now hidden) by using a dynamically populated dropdown
+                   					    var select_elm="#select_affiliation";
+                   					    var input_elm="#dataverseUserForm\\:accountInfoView\\:affiliation";
+
+                   					    $(document).ready(function () {
+                                                                 $(input_elm).hide();
+                   					   	//Get the users affiliation from their ip - if the value is blank
+                       					ip_range_checker= new IPRangeChecker(setUserAffiliation)
+					                    });
+                   						function setUserAffiliation(){
+                                                                    var selectize=setUpAffiliateDropDown();
+                                                                    if(affiliation=="ADMIN"){
+                                                                        affiliation="RYERSON";
+                                                                    }
+                   						//get the title
+                                                                var title;
+                                                                $.each(ip_range_checker.institution_mapping, function (i, item) {
+                                                                    if(ip_range_checker.institution_mapping[i][0]==affiliation){
+                                                                            title=ip_range_checker.institution_mapping[i][2]
+                                                                    }
+                                                                });
+
+                                                                var val = $(input_elm).val();
+                                                                var value_in_list= valueInList(val)
+                                                                if(val!="" && value_in_list){
+                                                                        //set it to the already set value
+                                                                        selectize.setValue(val);
+                                                                        selectize.trigger( "change" );
+                					    	}else if(affiliation && val==""){
+                					    		//find the value set by the ip group
+                					    		selectize.setValue(title);
+                                                                        selectize.trigger( "change" );
+                					    	}else if(val!="" && !value_in_list){
+                					    		//find the value set by the ip group
+                					    		selectize.setValue("OTHER");
+                                                                        $(input_elm).show();
+                                                                        //dont trigger change event which would clear value
+                                                                        $(input_elm).val(val);
+                					    	}else{
+                					    		//not set or found
+                					    		selectize.setValue("OTHER");
+                                                                        selectize.trigger( "change" );
+                					    	}
+
+                					      }
+                                                            function valueInList(_val){
+                                                                var value_in_list=false;
+                                                                $.each(ip_range_checker.institution_mapping, function (i, item) {
+                   					    	    if(ip_range_checker.institution_mapping[i][2]===_val){
+                                                                        value_in_list=true;
+                                                                    }
+                   					    	});
+                                                                return value_in_list;
+                                                            }
+
+                   					    function setUpAffiliateDropDown(){
+
+                   					    	$.each(ip_range_checker.institution_mapping, function (i, item) {
+                   					    	    $(select_elm).append($('<option>', {
+                   					    	        value: ip_range_checker.institution_mapping[i][2],
+                   					    	        text : ip_range_checker.institution_mapping[i][2]
+                   					    	    }));
+                   					    	});
+                   					    	 $(select_elm).append($('<option>', {
+            					    	        value: "OTHER",
+            					    	        text : "OTHER"
+            					    	    }));
+                   					    	var $select = $(select_elm).selectize({
+                   					    	    create: true,
+	                   					    	onChange: function (value) {
+                                                                              //show the input if the value doesn't exist
+	                   					    		var val = $select[0].selectize.getValue();
+	                   					    		$(input_elm).val(val);
+	                   					    	}
+                   					    	});
+                   					    	return $select[0].selectize;
+                   					    }
+				                    //]]>
+				                </script>
                         </p:tab>
                     </p:tabView>
                 </h:form>
