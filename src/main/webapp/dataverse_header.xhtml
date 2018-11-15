@@ -319,16 +319,7 @@
         var ip_range_checker;
         var affiliation;
         var showing_content=false;
-        $(document).ready(function () {
-            $(".header_image").fadeIn();
-            displayBannerCheck();
-            $("#navbarsearch").focus();
-            //
-            $( window ).resize(function() {
-                windowResize()
-            });
-            windowResize()
-        });
+
         function displayBannerCheck(){
             var locate = window.location;
             //only do this from the home page
