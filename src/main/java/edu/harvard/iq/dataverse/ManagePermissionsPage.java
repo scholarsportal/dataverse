@@ -163,17 +163,12 @@ public class ManagePermissionsPage implements java.io.Serializable {
             for (RoleAssignment roleAssignment : ras) {
                 // for files, only show role assignments which can download
                 if (!(dvObject instanceof DataFile) || roleAssignment.getRole().permissions().contains(Permission.DownloadFile)) {
-                    if ( roleAssignment.getAssigneeIdentifier() != null ) {
-                        RoleAssignee roleAssignee = roleAssigneeService.getRoleAssignee(roleAssignment.getAssigneeIdentifier());
-                        if (roleAssignee != null) {
-                            raList.add(new RoleAssignmentRow(roleAssignment, roleAssignee.getDisplayInfo()));
-                        } else {
-                            logger.info("Could not find role assignee based on role assignment id " + roleAssignment.getId());
-                        }
+                    RoleAssignee roleAssignee = roleAssigneeService.getRoleAssignee(roleAssignment.getAssigneeIdentifier());
+                    if (roleAssignee != null) {
+                        raList.add(new RoleAssignmentRow(roleAssignment, roleAssignee.getDisplayInfo()));
                     } else {
-                        logger.info("Could not find role assignee based on role assignment id 2 " + roleAssignment.getId());
+                        logger.info("Could not find role assignee based on role assignment id " + roleAssignment.getId());
                     }
-
                 }
             }
         }
