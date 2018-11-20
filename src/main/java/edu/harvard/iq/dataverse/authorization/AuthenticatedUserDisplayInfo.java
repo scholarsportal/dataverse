@@ -13,7 +13,7 @@ public class AuthenticatedUserDisplayInfo extends RoleAssigneeDisplayInfo {
     private String lastName;
     @NotBlank(message = "{user.firstName}")
     private String firstName;
-    @NotBlank(message = "{user.affiliation}")
+
     private String affiliation;
     private String position;
     
