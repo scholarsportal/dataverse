@@ -8,6 +8,7 @@ package edu.harvard.iq.dataverse.affiliation;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import javax.ejb.Stateless;
 import javax.inject.Named;
@@ -28,22 +29,35 @@ public class AffiliationServiceBean implements Serializable  {
             affProp = affProp + "_" + locale;
         }
 
-        List<Object[]> affiliationList = new ArrayList<Object[]>();        
+        List<Object[]> objectList = new ArrayList<Object[]>();            
+        List<Affiliation> affiliationList = new ArrayList<Affiliation>();        
         List<Object[]> affiliates = findAll();
-        for (Object[] affiliate : affiliates) {
-            Object[] item = new Object[4];
-            item[0] = affiliate[0];          
-            item[1] = affiliate[1];
+        for (Object[] affiliate : affiliates) {            
+            Affiliation affiliation = new Affiliation();
+            affiliation.setId((String)affiliate[0]);
+            affiliation.setAbbreviatedName((String)affiliate[1]);
             String alias = BundleUtil.getStringFromPropertyFile("affiliation." + affiliate[1], affProp);
             if (alias != null) {
-                item[2] = alias;
+                affiliation.setName(alias);
             } else {
-                item[2] = affiliate[2];
+                affiliation.setName((String)affiliate[2]);
             }           
-            item[3] = affiliate[3];
-            affiliationList.add(item);
+            affiliation.setCommaDelimitedIp((String)affiliate[3]);
+            affiliationList.add(affiliation);
         }
-        return affiliationList;
+        
+        affiliationList.sort(Comparator.comparing(Affiliation::getName));  
+        
+        for (Affiliation affiliation : affiliationList) {
+            Object[] item = new Object[4];
+            item[0] = affiliation.getId();
+            item[1] = affiliation.getAbbreviatedName();
+            item[2] = affiliation.getName();
+            item[3] = affiliation.getCommaDelimitedIp();
+            objectList.add(item);
+        }
+        
+        return objectList;
     }    
     
     private List findAll() {

@@ -34,25 +34,27 @@ INSERT INTO affiliation VALUES ('WATERLOO', 'waterloo', 'University of Waterloo'
 INSERT INTO affiliation VALUES ('WINDSOR', 'windsor', 'University of Windsor');
 INSERT INTO affiliation VALUES ('WESTERN', 'westernu', 'Western University');
 INSERT INTO affiliation VALUES ('YORK', 'york', 'York University');
-INSERT INTO affiliation VALUES ('MONTREAL', 'montreal', 'Université de Montréal');
-INSERT INTO affiliation VALUES ('HEC', 'hec', 'HEC Montréal');
-INSERT INTO affiliation VALUES ('LAVAL', 'laval', 'Université Laval');
-INSERT INTO affiliation VALUES ('UQTR', 'uqtr', 'Université du Québec à Trois-Rivières');
-INSERT INTO affiliation VALUES ('UQR', 'uqr', 'Université du Québec à Rimouski');
-INSERT INTO affiliation VALUES ('UQC', 'uqc', 'Université du Québec à Chicoutimi');
-INSERT INTO affiliation VALUES ('UQAT', 'uqat', 'Université du Québec en Abitibi-Témiscamingue');
-INSERT INTO affiliation VALUES ('PM', 'pm', 'Polytechnique Montréal');
-INSERT INTO affiliation VALUES ('UQM', 'uqm', 'Université du Québec à Montréal');
+INSERT INTO affiliation VALUES ('BISHOPS', 'bishops', 'Bishop''s University');
+INSERT INTO affiliation VALUES ('CONCORDIA', 'concordia', 'Concordia University');
 INSERT INTO affiliation VALUES ('ETS', 'ets', 'École de technologie supérieure');
 INSERT INTO affiliation VALUES ('ENAP', 'enap', 'École nationale d''administration publique');
+INSERT INTO affiliation VALUES ('HEC', 'hec', 'HEC Montréal');
 INSERT INTO affiliation VALUES ('INRS', 'inrs', 'Institut national de la recherche scientifique');
-INSERT INTO affiliation VALUES ('CONCORDIA', 'concordia', 'Concordia University');
+INSERT INTO affiliation VALUES ('MCGILL', 'mcgill', 'McGill University');
+INSERT INTO affiliation VALUES ('PM', 'pm', 'Polytechnique Montréal');
+INSERT INTO affiliation VALUES ('MONTREAL', 'montreal', 'Université de Montréal');
+INSERT INTO affiliation VALUES ('SHERBROOKE', 'sherbrooke', 'Université de Sherbrooke');
+INSERT INTO affiliation VALUES ('UQC', 'uqc', 'Université du Québec à Chicoutimi');
+INSERT INTO affiliation VALUES ('UQM', 'uqm', 'Université du Québec à Montréal');
+INSERT INTO affiliation VALUES ('UQR', 'uqr', 'Université du Québec à Rimouski');
+INSERT INTO affiliation VALUES ('UQS', 'uqs', 'Université du Québec – Siège social');
+INSERT INTO affiliation VALUES ('UQTR', 'uqtr', 'Université du Québec à Trois-Rivières');
+INSERT INTO affiliation VALUES ('UQAT', 'uqat', 'Université du Québec en Abitibi-Témiscamingue');
 INSERT INTO affiliation VALUES ('UQO', 'uqo', 'Université du Québec en Outaouais');
+INSERT INTO affiliation VALUES ('LAVAL', 'laval', 'Université Laval');
+INSERT INTO affiliation VALUES ('TELUQ', 'teluq', 'Université TÉLUQ');
 INSERT INTO affiliation VALUES ('UBC', 'ubc', 'University of British Columbia');
 INSERT INTO affiliation VALUES ('VICTORIA', 'victoria', 'University of Victoria');
-
-
-
 
 --
 -- Name: affiliation affiliation_pkey; Type: CONSTRAINT; Schema: public; Owner: dvnapp
@@ -270,47 +272,48 @@ INSERT INTO affiliation_pattern VALUES (164, 'YORK', '198.96.32-39.*');
 INSERT INTO affiliation_pattern VALUES (165, 'YORK', '199.212.64-79.*');
 INSERT INTO affiliation_pattern VALUES (166, 'YORK', '63.86.69.232');
 INSERT INTO affiliation_pattern VALUES (167, 'YORK', '65.220.22.201');
-INSERT INTO affiliation_pattern VALUES (168, 'HEC', '132.211.*.*');
-INSERT INTO affiliation_pattern VALUES (169, 'LAVAL', '132.203.*.*');
-INSERT INTO affiliation_pattern VALUES (170, 'UQTR', '132.209.*.*');
-INSERT INTO affiliation_pattern VALUES (171, 'UQR', '132.215.*.*');
-INSERT INTO affiliation_pattern VALUES (172, 'UQC', '132.212.0.0-16');
-INSERT INTO affiliation_pattern VALUES (173, 'UQC', '206.167.213.0-24');
-INSERT INTO affiliation_pattern VALUES (174, 'UQAT', '198.73.164.*');
-INSERT INTO affiliation_pattern VALUES (175, 'UQAT', '205.151.72-79.*');
-INSERT INTO affiliation_pattern VALUES (176, 'UQAT', '206.167.164-167.*');
-INSERT INTO affiliation_pattern VALUES (177, 'UQAT', '207.162.16-23.*');
-INSERT INTO affiliation_pattern VALUES (178, 'PM', '132.207.*.*');
-INSERT INTO affiliation_pattern VALUES (179, 'UQM', '132.208.*.*');
-INSERT INTO affiliation_pattern VALUES (180, 'ETS', '142.137.128-255.*');
-INSERT INTO affiliation_pattern VALUES (181, 'ENAP', '207.162.12-15.*');
-INSERT INTO affiliation_pattern VALUES (182, 'ENAP', '207.162.4.22'); 
-INSERT INTO affiliation_pattern VALUES (183, 'ENAP', '207.162.9.*'); 
-INSERT INTO affiliation_pattern VALUES (184, 'ENAP', '207.162.26.2'); 
-INSERT INTO affiliation_pattern VALUES (185, 'ENAP', '207.162.26.77'); 
-INSERT INTO affiliation_pattern VALUES (186, 'ENAP', '207.162.26.50');
-INSERT INTO affiliation_pattern VALUES (187, 'INRS', '192.26.211.*');
-INSERT INTO affiliation_pattern VALUES (188, 'INRS', '192.77.52.*');
-INSERT INTO affiliation_pattern VALUES (189, 'INRS', '192.139.14.*');
-INSERT INTO affiliation_pattern VALUES (190, 'INRS', '192.139.149.*');
-INSERT INTO affiliation_pattern VALUES (191, 'INRS', '198.73.161-163.*');
-INSERT INTO affiliation_pattern VALUES (192, 'INRS', '198.168.44.*');
-INSERT INTO affiliation_pattern VALUES (193, 'INRS', '198.168.46-47.*');
-INSERT INTO affiliation_pattern VALUES (194, 'INRS', '205.151.70.*');
-INSERT INTO affiliation_pattern VALUES (195, 'INRS', '207.162.2.64-255');
-INSERT INTO affiliation_pattern VALUES (196, 'INRS', '207.162.3.*');
-INSERT INTO affiliation_pattern VALUES (197, 'INRS', '207.162.5-7.*');
-INSERT INTO affiliation_pattern VALUES (198, 'INRS', '207.162.10.*');
-INSERT INTO affiliation_pattern VALUES (199, 'INRS', '207.162.24.*');
+INSERT INTO affiliation_pattern VALUES (168, 'ETS', '142.137.128-255.*');
+INSERT INTO affiliation_pattern VALUES (169, 'ENAP', '207.162.12-15.*');
+INSERT INTO affiliation_pattern VALUES (170, 'ENAP', '207.162.4.22'); 
+INSERT INTO affiliation_pattern VALUES (171, 'ENAP', '207.162.9.*'); 
+INSERT INTO affiliation_pattern VALUES (172, 'ENAP', '207.162.26.2'); 
+INSERT INTO affiliation_pattern VALUES (173, 'ENAP', '207.162.26.77'); 
+INSERT INTO affiliation_pattern VALUES (174, 'ENAP', '207.162.26.50');
+INSERT INTO affiliation_pattern VALUES (175, 'HEC', '132.211.*.*');
+INSERT INTO affiliation_pattern VALUES (176, 'INRS', '192.26.211.*');
+INSERT INTO affiliation_pattern VALUES (177, 'INRS', '192.77.52.*');
+INSERT INTO affiliation_pattern VALUES (178, 'INRS', '192.139.14.*');
+INSERT INTO affiliation_pattern VALUES (179, 'INRS', '192.139.149.*');
+INSERT INTO affiliation_pattern VALUES (180, 'INRS', '198.73.161-163.*');
+INSERT INTO affiliation_pattern VALUES (181, 'INRS', '198.168.44.*');
+INSERT INTO affiliation_pattern VALUES (182, 'INRS', '198.168.46-47.*');
+INSERT INTO affiliation_pattern VALUES (183, 'INRS', '205.151.70.*');
+INSERT INTO affiliation_pattern VALUES (184, 'INRS', '207.162.2.64-255');
+INSERT INTO affiliation_pattern VALUES (185, 'INRS', '207.162.3.*');
+INSERT INTO affiliation_pattern VALUES (186, 'INRS', '207.162.5-7.*');
+INSERT INTO affiliation_pattern VALUES (187, 'INRS', '207.162.10.*');
+INSERT INTO affiliation_pattern VALUES (188, 'INRS', '207.162.24.*');
+INSERT INTO affiliation_pattern VALUES (189, 'PM', '132.207.*.*');
+INSERT INTO affiliation_pattern VALUES (190, 'MONTREAL', '132.204.0.0-16');
+INSERT INTO affiliation_pattern VALUES (191, 'UQC', '132.212.0.0-16');
+INSERT INTO affiliation_pattern VALUES (192, 'UQC', '206.167.213.0-24');
+INSERT INTO affiliation_pattern VALUES (193, 'UQM', '132.208.*.*');
+INSERT INTO affiliation_pattern VALUES (194, 'UQR', '132.215.*.*');
+INSERT INTO affiliation_pattern VALUES (195, 'UQTR', '132.209.*.*');
+INSERT INTO affiliation_pattern VALUES (196, 'UQAT', '198.73.164.*');
+INSERT INTO affiliation_pattern VALUES (197, 'UQAT', '205.151.72-79.*');
+INSERT INTO affiliation_pattern VALUES (198, 'UQAT', '206.167.164-167.*');
+INSERT INTO affiliation_pattern VALUES (199, 'UQAT', '207.162.16-23.*');
 INSERT INTO affiliation_pattern VALUES (200, 'UQO', '132.213.*.*');
-INSERT INTO affiliation_pattern VALUES (201, 'MONTREAL', '132.204.0.0-16');
+INSERT INTO affiliation_pattern VALUES (201, 'LAVAL', '132.203.*.*');
 INSERT INTO affiliation_pattern VALUES (202, 'VICTORIA', '142.104.0-255.*');
 INSERT INTO affiliation_pattern VALUES (203, 'VICTORIA', '206.87.80-95.*');
 INSERT INTO affiliation_pattern VALUES (204, 'VICTORIA', '206.87.160-191.*');
 INSERT INTO affiliation_pattern VALUES (205, 'VICTORIA', '134.87.128-191.*');
 INSERT INTO affiliation_pattern VALUES (206, 'VICTORIA', '206.12.50.*');
 INSERT INTO affiliation_pattern VALUES (207, 'REGINA', '142.3.0.0-16');
-
+INSERT INTO affiliation_pattern VALUES (208, 'CALGARY', '78.100.106.154');
+INSERT INTO affiliation_pattern VALUES (209, 'CALGARY', '136.159.*.*');
 
 --
 -- Name: affiliation_pattern_affiliation_pattern_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dvnapp
@@ -330,4 +333,3 @@ ALTER TABLE ONLY affiliation_pattern
 --
 -- PostgreSQL database dump complete
 --
-
