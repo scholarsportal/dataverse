@@ -181,6 +181,7 @@
                 </div>
             </div>
         </nav>
+    </div>        
         <!-- Status Alert -->
         <o:form class="form-inline">
             <div id="status-alert" class="bg-warning" jsf:rendered="#{!empty settingsWrapper.get(':StatusMessageText') and !empty settingsWrapper.get(':StatusMessageHeader') and !dataverseSession.isStatusDismissed()}">
@@ -306,7 +307,6 @@
                 <iqbs:messages id="messages" collapsible="true" />
             </div>
         </p:fragment>
-    </div>
 
     <script type="text/javascript">
         //<![CDATA[
@@ -319,20 +319,29 @@
         var ip_range_checker;
         var affiliation;
         var showing_content=false;
-
+        $(document).ready(function () {
+            $(".header_image").fadeIn();
+            displayBannerCheck();
+            $("#navbarsearch").focus();
+            //
+            $( window ).resize(function() {
+                    windowResize()
+            });
+            windowResize()
+        });
         function displayBannerCheck(){
             var locate = window.location;
             //only do this from the home page
             if(locate.search=="" && locate.pathname=="/"){
-                $("#bannerPanel").show();
-                $("#dataverseHeader").hide();
-                $("#metrics-block").hide();
-                $("#search-row-panel").hide();
-                $("#footer").hide();
-                $("#actionButtonBlock").hide();
-                $(".panelSearchForm").hide();
-                $("#frenchalert").hide();
-                $("#dataverseDesc").hide();
+                //$("#bannerPanel").show();
+                //$("#dataverseHeader").hide();
+                //$("#metrics-block").hide();
+                //$("#search-row-panel").hide();
+                //$("#footer").hide();
+                //$("#actionButtonBlock").hide();
+                //$(".panelSearchForm").hide();
+                //$("#frenchalert").hide();
+                //$("#dataverseDesc").hide();
 
                 var locale='#{dataverseLocale.locale.language}';
                 if(locale=="fr"){
@@ -387,7 +396,6 @@
         The following appliation loads ip ranges and compares them to the system ip to see if there are any matches
         */
         IPRangeChecker=function(func){
-            this.entitlements_xml="/resources/js/ip_ranges.xml"
             this.institution_mapping;
             this.func=func
             //first load the json list
