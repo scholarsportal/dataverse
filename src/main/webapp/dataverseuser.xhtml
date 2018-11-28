@@ -674,6 +674,7 @@
                                                                     }
                                                                 });
 
+                                                                var other = "#{bundle['affiliation.other']}";
                                                                 var val = $(input_elm).val();
                                                                 var value_in_list= valueInList(val)
                                                                 if(val!="" && value_in_list){
@@ -686,13 +687,13 @@
                                                                         selectize.trigger( "change" );
                 					    	}else if(val!="" && !value_in_list){
                 					    		//find the value set by the ip group
-                					    		selectize.setValue("OTHER");
+                					    		selectize.setValue(other);
                                                                         $(input_elm).show();
                                                                         //dont trigger change event which would clear value
                                                                         $(input_elm).val(val);
                 					    	}else{
                 					    		//not set or found
-                					    		selectize.setValue("OTHER");
+                					    		selectize.setValue(other);
                                                                         selectize.trigger( "change" );
                 					    	}
 
@@ -708,7 +709,7 @@
                                                             }
 
                    					    function setUpAffiliateDropDown(){
-
+                                                                var other='#{bundle['affiliation.other']}';
                    					    	$.each(ip_range_checker.institution_mapping, function (i, item) {
                    					    	    $(select_elm).append($('<option>', {
                    					    	        value: ip_range_checker.institution_mapping[i][2],
@@ -716,8 +717,8 @@
                    					    	    }));
                    					    	});
                    					    	 $(select_elm).append($('<option>', {
-            					    	        value: "OTHER",
-            					    	        text : "OTHER"
+            					    	        value: other,
+            					    	        text : other
             					    	    }));
                    					    	var $select = $(select_elm).selectize({
                    					    	    create: true,
