@@ -10,7 +10,7 @@
                 xmlns:iqbs="http://xmlns.jcp.org/jsf/composite/iqbs">
 
     <o:resourceInclude path="/CustomizationFilesServlet?customFileType=header" rendered="#{!widgetWrapper.widgetView}"/>
-
+    
     <div id="dataverse-header-block">
         <!-- Navbar Panel -->
         <nav id="navbarFixed" class="navbar navbar-default navbar-fixed-top" jsf:rendered="#{!widgetWrapper.widgetView}" role="navigation">
@@ -331,16 +331,14 @@
         });
         function displayBannerCheck(){
             var locate = window.location;
-            //only do this from the home page
-            if(locate.search=="" && locate.pathname=="/"){
-                //$("#bannerPanel").show();
+            //only do this from the home page           
+            if((locate.search=="" && locate.pathname=="/") || locate.pathname.endsWith('dataverse/'+'#{dataverseServiceBean.findRootDataverse().alias}') || locate.pathname.endsWith("dataverse.xhtml")){
                 //$("#dataverseHeader").hide();
                 //$("#metrics-block").hide();
                 //$("#search-row-panel").hide();
                 //$("#footer").hide();
                 //$("#actionButtonBlock").hide();
                 //$(".panelSearchForm").hide();
-                //$("#frenchalert").hide();
                 //$("#dataverseDesc").hide();
 
                 var locale='#{dataverseLocale.locale.language}';
@@ -396,22 +394,22 @@
         The following appliation loads ip ranges and compares them to the system ip to see if there are any matches
         */
         IPRangeChecker=function(func){
-            this.institution_mapping;
-            this.func=func
-            //first load the json list
-            $.ajax({
-                dataType: 'json',
-                url: "/affiliation",
-                data: { locale : '#{dataverseLocaleBean.localeCode}'},
-                success: function (data) {
-                    ip_range_checker.institution_mapping=data
-                    ip_range_checker.findIP();
-                },
-                error: function (e) {
-                    ip_range_checker.institution_mapping=$.parseJSON(e.responseText)
-                    ip_range_checker.findIP();
-                }
-            });
+                this.institution_mapping;
+                this.func=func
+                //first load the json list
+                $.ajax({
+                    dataType: 'json',
+                    url: "/affiliation",
+                    data: { locale : '#{dataverseLocaleBean.localeCode}'},
+                    success: function (data) {
+                        ip_range_checker.institution_mapping=data
+                        ip_range_checker.findIP();
+                    },
+                    error: function (e) {
+                        ip_range_checker.institution_mapping=$.parseJSON(e.responseText)
+                        ip_range_checker.findIP();
+                    }
+                });
         }
 
         IPRangeChecker.prototype.findIP=function() {
