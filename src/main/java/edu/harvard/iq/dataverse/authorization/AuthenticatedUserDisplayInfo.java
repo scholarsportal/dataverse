@@ -13,6 +13,8 @@ public class AuthenticatedUserDisplayInfo extends RoleAssigneeDisplayInfo {
     private String lastName;
     @NotBlank(message = "{user.firstName}")
     private String firstName;
+
+    private String affiliation;
     private String position;
     
     /*
@@ -23,6 +25,7 @@ public class AuthenticatedUserDisplayInfo extends RoleAssigneeDisplayInfo {
         super(firstName + " " + lastName,emailAddress,affiliation);
         this.firstName = firstName;
         this.lastName = lastName;
+        this.affiliation = affiliation;
         this.position = position;        
     }
 
@@ -31,6 +34,7 @@ public class AuthenticatedUserDisplayInfo extends RoleAssigneeDisplayInfo {
         firstName="";
         lastName="";
         position="";
+        affiliation="";
     }
 
     
@@ -58,6 +62,14 @@ public class AuthenticatedUserDisplayInfo extends RoleAssigneeDisplayInfo {
         this.firstName = firstName;
     }
 
+    public String getAffiliation() {
+        return affiliation;
+    }
+
+    public void setAffiliation(String affiliation) {
+        this.affiliation = affiliation;
+    }
+    
     public String getPosition() {
         return position;
     }
@@ -68,7 +80,7 @@ public class AuthenticatedUserDisplayInfo extends RoleAssigneeDisplayInfo {
 
     @Override
     public String toString() {
-        return "AuthenticatedUserDisplayInfo{firstName=" + firstName + ", lastName=" + lastName + ", position=" + position + ", email=" + getEmailAddress() + '}';
+        return "AuthenticatedUserDisplayInfo{firstName=" + firstName + ", lastName=" + lastName + ", affiliation=" + affiliation + ", position=" + position + ", email=" + getEmailAddress() + '}';
     }
 
     @Override
@@ -94,6 +106,9 @@ public class AuthenticatedUserDisplayInfo extends RoleAssigneeDisplayInfo {
             return false;
         }
         if (!Objects.equals(this.firstName, other.firstName)) {
+            return false;
+        }
+        if (!Objects.equals(this.affiliation, other.affiliation)) {
             return false;
         }
         return Objects.equals(this.position, other.position) && super.equals(obj);
