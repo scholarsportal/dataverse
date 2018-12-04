@@ -315,13 +315,11 @@ function updatePagination(json_data){
             //console.log("update link to: " + pagination_json.nextPageNumber);
             $('#div-more-cards-link').show();
 
-            var view_next = document.getElementById("dataverseUserForm:mydataviewnext").value;
-            var more = document.getElementById("dataverseUserForm:mydatamore").value;
-            var result_label = document.getElementById("dataverseUserForm:mydataresults").value;
+            var result_label = 'Results';
             if (pagination_json.numberNextResults == 1){
-                result_label = document.getElementById("dataverseUserForm:mydataresult").value;
+                result_label = 'Result';
             }
-            $('#lnk_add_more_cards').html(view_next + ' ' + pagination_json.numberNextResults + ' ' + result_label + ' (' + pagination_json.remainingCards + ' ' + more +')');
+            $('#lnk_add_more_cards').html('View Next ' + pagination_json.numberNextResults + ' ' + result_label + ' (' + pagination_json.remainingCards + ' More)');
         }
         bindPages();
     }
