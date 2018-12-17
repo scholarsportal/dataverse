@@ -314,6 +314,24 @@ INSERT INTO affiliation_pattern VALUES (206, 'VICTORIA', '206.12.50.*');
 INSERT INTO affiliation_pattern VALUES (207, 'REGINA', '142.3.0.0-16');
 INSERT INTO affiliation_pattern VALUES (208, 'CALGARY', '78.100.106.154');
 INSERT INTO affiliation_pattern VALUES (209, 'CALGARY', '136.159.*.*');
+INSERT INTO affiliation_pattern VALUES (210, 'UBC', '128.189.16-31.*');
+INSERT INTO affiliation_pattern VALUES (211, 'UBC', '128.189.64-95.*');
+INSERT INTO affiliation_pattern VALUES (212, 'UBC', '128.189.128-255.*');
+INSERT INTO affiliation_pattern VALUES (213, 'UBC', '137.82.*.*');
+INSERT INTO affiliation_pattern VALUES (214, 'UBC', '142.103.0-190.*');
+INSERT INTO affiliation_pattern VALUES (215, 'UBC', '142.103.191.1-200');
+INSERT INTO affiliation_pattern VALUES (216, 'UBC', '142.103.191.208-255');
+INSERT INTO affiliation_pattern VALUES (217, 'UBC', '142.103.192-255.*');
+INSERT INTO affiliation_pattern VALUES (218, 'UBC', '142.231.64-95.*');
+INSERT INTO affiliation_pattern VALUES (219, 'UBC', '198.162.32-63.*');
+INSERT INTO affiliation_pattern VALUES (220, 'UBC', '206.12.40-47.*');
+INSERT INTO affiliation_pattern VALUES (221, 'UBC', '206.12.64-71.*');
+INSERT INTO affiliation_pattern VALUES (222, 'UBC', '206.12.118.*');
+INSERT INTO affiliation_pattern VALUES (223, 'UBC', '206.12.192-199.*');
+INSERT INTO affiliation_pattern VALUES (224, 'UBC', '206.87.0-63.*');
+INSERT INTO affiliation_pattern VALUES (225, 'UBC', '206.87.112-159.*');
+INSERT INTO affiliation_pattern VALUES (226, 'UBC', '206.87.192-239.*');
+INSERT INTO affiliation_pattern VALUES (227, 'UBC', '207.23.94-95.*');
 
 --
 -- Name: affiliation_pattern_affiliation_pattern_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dvnapp
