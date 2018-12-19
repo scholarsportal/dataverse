@@ -26,6 +26,7 @@ public class ExternalToolHandler {
     private final DataFile dataFile;
 
     private final ApiToken apiToken;
+    private String localeCode;
 
     /**
      * @param externalTool The database entity.
@@ -44,10 +45,19 @@ public class ExternalToolHandler {
         this.apiToken = apiToken;
     }
 
+    public ExternalToolHandler(ExternalTool externalTool, DataFile dataFile, ApiToken apiToken, String localeCode) {       
+        this(externalTool, dataFile, apiToken);
+        this.localeCode = localeCode;
+    }
+    
     public DataFile getDataFile() {
         return dataFile;
     }
 
+    public String getLocaleCode() {
+        return localeCode;
+    }
+    
     public ApiToken getApiToken() {
         return apiToken;
     }
@@ -90,6 +100,8 @@ public class ExternalToolHandler {
                     return key + "=" + apiTokenString;
                 }
                 break;
+            case LOCALE_CODE:
+                return key + "=" + getLocaleCode();  
             default:
                 break;
         }
