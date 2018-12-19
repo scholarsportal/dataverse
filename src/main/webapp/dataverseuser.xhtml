@@ -91,8 +91,8 @@
                                                             <a href="#{systemConfig.guidesBaseUrl}/#{systemConfig.guidesVersion}/user/index.html" title="#{dataverseServiceBean.findRootDataverse().name} #{bundle['header.guides.user']}" target="_blank">#{bundle['header.guides.user']}</a>
                                                         </o:param>
                                                         <o:param>
-                                                            <a href="https://demodv.scholarsportal.info">#{bundle['notification.demoSite']}</a>
-                                                        </o:param>
+                                                            <a href="https://demodv.scholarsportal.info">#{bundle['notification.demoSite']}</a>                                                         
+                                                        </o:param>         
                                                     </h:outputFormat>
                                                 </ui:fragment>
                                                 <ui:fragment rendered="#{item.type == 'CREATEDV'}">
@@ -618,6 +618,7 @@
                                             #{bundle.affiliation}<span class="glyphicon glyphicon-asterisk text-danger"/>
                                         </span>
                                     </label>
+
                                     <div class="col-sm-9">
                                             <p:panelGrid columns="2" styleClass="noBorders">
                                                 <select id="select_affiliation" class="demo-default" placeholder="Select Affiliation..." tabindex="7"></select>
