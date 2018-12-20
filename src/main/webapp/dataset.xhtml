@@ -10,7 +10,6 @@
       xmlns:cc="http://java.sun.com/jsf/composite"
       xmlns:o="http://omnifaces.org/ui"
       xmlns:iqbs="http://xmlns.jcp.org/jsf/composite/iqbs">
-<f:view locale="#{dataverseLocaleBean.localeCode}">
     <h:head>
     </h:head>
     <h:body>
@@ -1184,7 +1183,7 @@
                             <ui:param name="fileDownloadService" value="#{DatasetPage.fileDownloadService}"/>
                         </ui:include>
                     </p:dialog>
-                    
+
                     <p:dialog id="requestAccessPopup" styleClass="largePopUp" header="#{bundle['file.requestAccess']}" widgetVar="requestAccessPopup" modal="true">
                         <o:importFunctions type="edu.harvard.iq.dataverse.util.MarkupChecker" />
                         <ui:include src="file-request-access-popup-fragment.xhtml">
@@ -1608,5 +1607,4 @@
             </ui:define>
         </ui:composition>
     </h:body>
-</f:view>
 </html>

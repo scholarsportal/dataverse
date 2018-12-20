@@ -516,6 +516,14 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
         }
     }
 
+    public String getFacetDisplayName() {
+        if (isHasParent() && !parentDatasetFieldType.getTitle().equals(title)) {
+            return parentDatasetFieldType.getTitle() + " " + title;
+        } else {
+            return title;
+        }
+    }
+
     public SolrField getSolrField() {
         SolrField.SolrType solrType = SolrField.SolrType.TEXT_EN;
         if (fieldType != null) {

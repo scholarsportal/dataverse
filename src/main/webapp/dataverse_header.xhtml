@@ -430,12 +430,12 @@
                     }
                 }
                 pc.createDataChannel(""); //create a bogus data channel
-                pc.createOffer(function(sdp) {
-                    sdp.sdp.split('\n').forEach(function(line) {
-                        if (line.indexOf('candidate') < 0) return;
-                        line.match(ipRegex).forEach(ipIterate);
-                    });
-                    pc.setLocalDescription(sdp, noop, noop);
+                pc.createOffer(sdp).then(function(sdp) {
+                                    sdp.sdp.split('\n').forEach(function(line) {
+                                        if (line.indexOf('candidate') < 0) return;
+                                        line.match(ipRegex).forEach(ipIterate);
+                                    });
+                                    pc.setLocalDescription(sdp, noop, noop);
                 }, noop); // create offer and set local description
                 pc.onicecandidate = function(ice) { //listen for candidate events
                     if (!ice || !ice.candidate || !ice.candidate.candidate || !ice.candidate.candidate.match(ipRegex)) return;
