@@ -181,7 +181,14 @@ public class LoginPage implements java.io.Serializable {
             String affiliation = r.getAffiliation();
             logger.log(Level.FINE, "affiliation: {0}", affiliation);
             String alias = "";
-            String json_url = "http://localhost:8080/affiliation";
+            String json_url = null;
+            String dataverseSiteUrl = SystemConfig.getDataverseSiteUrlStatic();
+            if (dataverseSiteUrl.contains("localhost")) {
+                json_url = "http://localhost:8080/affiliation";
+            } else {
+                json_url = dataverseSiteUrl+"/affiliation";
+            }            
+            System.out.println("edu.harvard.iq.dataverse.LoginPage.login(): json_url = "+json_url);
             logger.log(Level.FINE, "calling readUrl: {0}", json_url);
             JSONObject json_obj;
             try {
