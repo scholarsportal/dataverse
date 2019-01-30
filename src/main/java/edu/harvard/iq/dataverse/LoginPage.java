@@ -225,10 +225,7 @@ public class LoginPage implements java.io.Serializable {
             }
 
             logger.log(Level.FINE, "Sending user to = {0}", redirectPage);
-            String rpage = redirectPage + (!redirectPage.contains("?") ? "?" : "&") + "faces-redirect=true";
-            System.out.println(" ****************** edu.harvard.iq.dataverse.LoginPage.login() rpage = "+rpage);
-            return rpage;
-
+            return redirectPage + (!redirectPage.contains("?") ? "?" : "&") + "faces-redirect=true";            
             
         } catch (AuthenticationFailedException ex) {
             numFailedLoginAttempts++;
