@@ -208,7 +208,7 @@ public class LoginPage implements java.io.Serializable {
             }
             System.out.println(affiliation + " Redirect to " + alias + " " + redirectPage);
             //redirect to the alias if there is one and the user came from the homepage
-            if (!alias.equals("") && redirectPage.contains("dataverse.xhtml")) {
+            if (!alias.equals("") && (redirectPage.contains("dataverse.xhtml") || redirectPage.contains("dataverseuser.xhtml"))) {
                 redirectPage = "%2Fdataverse.xhtml%3Falias%3D" + alias;
                 logger.log(Level.FINE, "redirect to affiliate dataverse", redirectPage);
             }            
@@ -225,7 +225,9 @@ public class LoginPage implements java.io.Serializable {
             }
 
             logger.log(Level.FINE, "Sending user to = {0}", redirectPage);
-            return redirectPage + (!redirectPage.contains("?") ? "?" : "&") + "faces-redirect=true";
+            String rpage = redirectPage + (!redirectPage.contains("?") ? "?" : "&") + "faces-redirect=true";
+            System.out.println(" ****************** edu.harvard.iq.dataverse.LoginPage.login() rpage = "+rpage);
+            return rpage;
 
             
         } catch (AuthenticationFailedException ex) {
