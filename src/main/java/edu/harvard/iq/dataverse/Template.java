@@ -27,7 +27,7 @@ import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 import javax.validation.constraints.Size;
 import org.hibernate.validator.constraints.NotBlank;
-
+import edu.harvard.iq.dataverse.util.DateUtil;
 /**
  *
  * @author skraffmiller
@@ -91,7 +91,7 @@ public class Template implements Serializable {
     }
 
     public String getCreateDate() {
-        return new SimpleDateFormat("MMMM d, yyyy").format(createTime);
+        return DateUtil.formatDate(createTime);
     }
     
     @OneToOne(cascade = {CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST}, orphanRemoval=true)
