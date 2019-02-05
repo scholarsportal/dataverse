@@ -1,5 +1,6 @@
 package edu.harvard.iq.dataverse;
 
+import edu.harvard.iq.dataverse.affiliation.AffiliationServiceBean;
 import edu.harvard.iq.dataverse.authorization.AuthenticationProvider;
 import edu.harvard.iq.dataverse.authorization.AuthenticationProviderDisplayInfo;
 import edu.harvard.iq.dataverse.authorization.AuthenticationRequest;
@@ -15,10 +16,7 @@ import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.JsfHelper;
 import static edu.harvard.iq.dataverse.util.JsfHelper.JH;
 import edu.harvard.iq.dataverse.util.SystemConfig;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.net.URL;
 import java.net.URLDecoder;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -36,9 +34,6 @@ import javax.faces.validator.ValidatorException;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  *
@@ -104,6 +99,9 @@ public class LoginPage implements java.io.Serializable {
     @Inject
     DataverseRequestServiceBean dvRequestService;
     
+    @Inject
+    AffiliationServiceBean affiliationServiceBean;
+    
     private String credentialsAuthProviderId;
     
     private List<FilledCredential> filledCredentials;
@@ -159,65 +157,39 @@ public class LoginPage implements java.io.Serializable {
     }
 
     public String login() throws Exception {
-        
+
         AuthenticationRequest authReq = new AuthenticationRequest();
         List<FilledCredential> filledCredentialsList = getFilledCredentials();
-        if ( filledCredentialsList == null ) {
+        if (filledCredentialsList == null) {
             logger.info("Credential list is null!");
             return null;
         }
-        for ( FilledCredential fc : filledCredentialsList ) {
-            if(fc.getValue()==null || fc.getValue().isEmpty()){
-                JH.addMessage(FacesMessage.SEVERITY_ERROR, BundleUtil.getStringFromBundle("login."+fc.getCredential().getKey()));
+        for (FilledCredential fc : filledCredentialsList) {
+            if (fc.getValue() == null || fc.getValue().isEmpty()) {
+                JH.addMessage(FacesMessage.SEVERITY_ERROR, BundleUtil.getStringFromBundle("login." + fc.getCredential().getKey()));
             }
             authReq.putCredential(fc.getCredential().getKey(), fc.getValue());
         }
-        authReq.setIpAddress( dvRequestService.getDataverseRequest().getSourceAddress() );
+        authReq.setIpAddress(dvRequestService.getDataverseRequest().getSourceAddress());
         try {
             AuthenticatedUser r = authSvc.getUpdateAuthenticatedUser(credentialsAuthProviderId, authReq);
             logger.log(Level.FINE, "User authenticated: {0}", r.getEmail());
             session.setUser(r);
-            
-            String affiliation = r.getAffiliation();
-            logger.log(Level.FINE, "affiliation: {0}", affiliation);
-            String alias = "";
-            String json_url = null;
-            String dataverseSiteUrl = SystemConfig.getDataverseSiteUrlStatic();
-            if (dataverseSiteUrl.contains("localhost")) {
-                json_url = "http://localhost:8080/affiliation";
-            } else {
-                json_url = dataverseSiteUrl+"/affiliation";
-            }            
-            System.out.println("edu.harvard.iq.dataverse.LoginPage.login(): json_url = "+json_url);
-            logger.log(Level.FINE, "calling readUrl: {0}", json_url);
-            JSONObject json_obj;
-            try {
-                json_obj = new JSONObject("{ \"affiliates\":" + readUrl(json_url) + "}");
-                //note the saved affiliation is the "title" of the affiliates.json file
-                JSONArray json_array = json_obj.getJSONArray("affiliates");
-                for (int i = 0; i < json_array.length(); i++) {
-                    String[] array = json_array.getJSONArray(i).toString().split(",");
-                    String title = array[2].replace("\"", "");
-                    if (title.equals(affiliation)) {
-                        alias = array[1].replace("\"", "");
-                    }
-                }
-            } catch (JSONException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            System.out.println(affiliation + " Redirect to " + alias + " " + redirectPage);
+
+            String affiliationInEnglish = r.getAffiliation();
+            String alias = affiliationServiceBean.getAlias(affiliationInEnglish);
+            logger.log(Level.FINE, "affiliation {0} redirects to alias {1} redirectPage {2} " + new Object[]{affiliationInEnglish, alias, redirectPage});
             //redirect to the alias if there is one and the user came from the homepage
             if (!alias.equals("") && (redirectPage.contains("dataverse.xhtml") || redirectPage.contains("dataverseuser.xhtml"))) {
                 redirectPage = "%2Fdataverse.xhtml%3Falias%3D" + alias;
                 logger.log(Level.FINE, "redirect to affiliate dataverse", redirectPage);
-            }            
-            
+            }
+
             if ("dataverse.xhtml".equals(redirectPage)) {
                 redirectPage = redirectToRoot();
             }
-            
-            try {            
+
+            try {
                 redirectPage = URLDecoder.decode(redirectPage, "UTF-8");
             } catch (UnsupportedEncodingException ex) {
                 Logger.getLogger(LoginPage.class.getName()).log(Level.SEVERE, null, ex);
@@ -225,14 +197,14 @@ public class LoginPage implements java.io.Serializable {
             }
 
             logger.log(Level.FINE, "Sending user to = {0}", redirectPage);
-            return redirectPage + (!redirectPage.contains("?") ? "?" : "&") + "faces-redirect=true";            
-            
+            return redirectPage + (!redirectPage.contains("?") ? "?" : "&") + "faces-redirect=true";
+
         } catch (AuthenticationFailedException ex) {
             numFailedLoginAttempts++;
             op1 = new Long(random.nextInt(10));
             op2 = new Long(random.nextInt(10));
             AuthenticationResponse response = ex.getResponse();
-            switch ( response.getStatus() ) {
+            switch (response.getStatus()) {
                 case FAIL:
                     JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("login.builtin.invalidUsernameEmailOrPassword"));
                     return null;
@@ -243,7 +215,7 @@ public class LoginPage implements java.io.Serializable {
                      * https://github.com/IQSS/dataverse/pull/2922
                      */
                     JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("login.error"));
-                    logger.log( Level.WARNING, "Error logging in: " + response.getMessage(), response.getError() );
+                    logger.log(Level.WARNING, "Error logging in: " + response.getMessage(), response.getError());
                     return null;
                 case BREAKOUT:
                     return response.getMessage();
@@ -252,24 +224,7 @@ public class LoginPage implements java.io.Serializable {
                     return null;
             }
         }
-        
-    }
 
-    private static String readUrl(String urlString) throws Exception {
-        BufferedReader reader = null;
-        try {
-            URL url = new URL(urlString);
-            reader = new BufferedReader(new InputStreamReader(url.openStream()));
-            StringBuffer buffer = new StringBuffer();
-            int read;
-            char[] chars = new char[1024];
-            while ((read = reader.read(chars)) != -1)
-                buffer.append(chars, 0, read); 
-            return buffer.toString();
-        } finally {
-            if (reader != null)
-                reader.close();
-        }
     }
 
     private String redirectToRoot(){

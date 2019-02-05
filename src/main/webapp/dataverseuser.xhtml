@@ -664,8 +664,8 @@
 
                    					    $(document).ready(function () {
                                                                  $(input_elm).hide();
-                   					   	//Get the users affiliation from their ip - if the value is blank
-                       					ip_range_checker= new IPRangeChecker(setUserAffiliation)
+                   					   	 //Get the users affiliation from their ip - if the value is blank
+                       					         ip_range_checker= new IPRangeChecker(setUserAffiliation)
 					                    });
                    						function setUserAffiliation(){
                                                                     var selectize=setUpAffiliateDropDown();
@@ -692,11 +692,11 @@
                 					    		selectize.setValue(title);
                                                                         selectize.trigger( "change" );
                 					    	}else if(val!="" && !value_in_list){
-                					    		//find the value set by the ip group
-                					    		selectize.setValue(other);
-                                                                        $(input_elm).show();
+                					    		//find the value set by the ip group                                    
+                                                                        selectize.setValue(val);
+                                                                        selectize.trigger( "change" );
                                                                         //dont trigger change event which would clear value
-                                                                        $(input_elm).val(val);
+                                                                        //$(input_elm).val(val);
                 					    	}else{
                 					    		//not set or found
                 					    		selectize.setValue(other);

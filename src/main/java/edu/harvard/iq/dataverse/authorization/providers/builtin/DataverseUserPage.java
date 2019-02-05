@@ -7,6 +7,7 @@ import edu.harvard.iq.dataverse.DatasetServiceBean;
 import edu.harvard.iq.dataverse.DatasetVersion;
 import edu.harvard.iq.dataverse.DatasetVersionServiceBean;
 import edu.harvard.iq.dataverse.Dataverse;
+import edu.harvard.iq.dataverse.DataverseLocaleBean;
 import edu.harvard.iq.dataverse.DataverseServiceBean;
 import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.DvObject;
@@ -20,22 +21,20 @@ import edu.harvard.iq.dataverse.UserNotification;
 import static edu.harvard.iq.dataverse.UserNotification.Type.CREATEDV;
 import edu.harvard.iq.dataverse.UserNotificationServiceBean;
 import edu.harvard.iq.dataverse.UserServiceBean;
+import edu.harvard.iq.dataverse.affiliation.AffiliationServiceBean;
 import edu.harvard.iq.dataverse.authorization.AuthUtil;
 import edu.harvard.iq.dataverse.authorization.AuthenticatedUserDisplayInfo;
 import edu.harvard.iq.dataverse.authorization.AuthenticationProvider;
-import edu.harvard.iq.dataverse.authorization.AuthenticationProviderDisplayInfo;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.UserRecordIdentifier;
 import edu.harvard.iq.dataverse.authorization.groups.Group;
 import edu.harvard.iq.dataverse.authorization.groups.GroupServiceBean;
-import edu.harvard.iq.dataverse.authorization.providers.shib.ShibAuthenticationProvider;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.confirmemail.ConfirmEmailData;
 import edu.harvard.iq.dataverse.confirmemail.ConfirmEmailException;
 import edu.harvard.iq.dataverse.confirmemail.ConfirmEmailServiceBean;
 import edu.harvard.iq.dataverse.confirmemail.ConfirmEmailUtil;
 import edu.harvard.iq.dataverse.mydata.MyDataPage;
-import edu.harvard.iq.dataverse.passwordreset.PasswordValidator;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.JsfHelper;
@@ -49,7 +48,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
+import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -113,7 +114,8 @@ public class DataverseUserPage implements java.io.Serializable {
     MyDataPage mydatapage;
     @Inject
     PermissionsWrapper permissionsWrapper;
-
+    @Inject
+    AffiliationServiceBean affiliationBean;
     @EJB
     AuthenticationServiceBean authSvc;
 
@@ -348,6 +350,13 @@ public class DataverseUserPage implements java.io.Serializable {
                 redirectPage = "/dataverse.xhtml";
             }
             
+            String userAffiliation = au.getAffiliation();
+            String alias = affiliationBean.getAlias(userAffiliation);
+            if (!alias.equals("") && "/dataverse.xhtml".equals(redirectPage)) {
+                redirectPage = "%2Fdataverse.xhtml%3Falias%3D" + alias;
+                logger.log(Level.FINE, "redirect {0} to affiliate {1} dataverse", new Object[] {redirectPage, alias});
+            }
+            
             if ("dataverse.xhtml".equals(redirectPage)) {
                 redirectPage = redirectPage + "?alias=" + dataverseService.findRootDataverse().getAlias();
             }
@@ -573,6 +582,17 @@ public class DataverseUserPage implements java.io.Serializable {
     }
 
     public AuthenticatedUserDisplayInfo getUserDisplayInfo() {
+        DataverseLocaleBean d = new DataverseLocaleBean();
+        String localeCode = d.getLocaleCode();
+        if (!localeCode.equalsIgnoreCase("en")) {
+            String affProp = "affiliation";
+            Locale enLocale = new Locale("en");
+            ResourceBundle fromBundle = ResourceBundle.getBundle(affProp, enLocale);
+            ResourceBundle toBundle = BundleUtil.getResourceBundle(affProp + "_" + localeCode);
+            String affiliation = userDisplayInfo.getAffiliation();
+            String newAffiliation = affiliationBean.convertAffiliation(affiliation, fromBundle, toBundle);
+            userDisplayInfo.setAffiliation(newAffiliation);
+        }
         return userDisplayInfo;
     }
 
