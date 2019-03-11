@@ -43,6 +43,8 @@ public class SendFeedbackDialog implements java.io.Serializable {
      */
     private String messageSubject = "";
 
+    private String messageAffiliation = "";
+
     /**
      * First operand in addition problem.
      */
@@ -96,6 +98,7 @@ public class SendFeedbackDialog implements java.io.Serializable {
         userEmail = "";
         userMessage = "";
         messageSubject = "";
+        messageAffiliation = "";
         Random random = new Random();
         op1 = new Long(random.nextInt(10));
         op2 = new Long(random.nextInt(10));
@@ -164,6 +167,14 @@ public class SendFeedbackDialog implements java.io.Serializable {
         return messageSubject;
     }
 
+    public void setMessageAffiliation(String messageAffiliation) {
+        this.messageAffiliation = messageAffiliation;
+    }
+
+    public String getMessageAffiliation() {
+        return messageAffiliation;
+    }
+
     public boolean isLoggedIn() {
         return dataverseSession.getUser().isAuthenticated();
     }
@@ -202,7 +213,7 @@ public class SendFeedbackDialog implements java.io.Serializable {
         String rootDataverseName = dataverseService.findRootDataverse().getName();
         String installationBrandName = BrandingUtil.getInstallationBrandName(rootDataverseName);
         String supportTeamName = BrandingUtil.getSupportTeamName(systemAddress, rootDataverseName);
-        List<Feedback> feedbacks = FeedbackUtil.gatherFeedback(recipient, dataverseSession, messageSubject, userMessage, systemAddress, userEmail, systemConfig.getDataverseSiteUrl(), installationBrandName, supportTeamName);
+        List<Feedback> feedbacks = FeedbackUtil.gatherFeedback(recipient, dataverseSession, messageSubject + " - " + messageAffiliation, userMessage, systemAddress, userEmail, systemConfig.getDataverseSiteUrl(), installationBrandName, supportTeamName);
         if (feedbacks.isEmpty()) {
             logger.warning("No feedback has been sent!");
             return null;

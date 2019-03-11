@@ -43,7 +43,32 @@
                                      requiredMessage="#{bundle['contact.subject.required']}" required="#{param['DO_VALIDATION']}"/>                        
                         <h:message for="messageSubject" styleClass="bg-danger text-danger"/>
                     </div>
-                </div>   
+                </div>
+
+
+
+
+                <div class="form-group">
+                    <!-- Affiliation -->
+                    <label for="messageAffiliation" class="col-sm-3 control-label">
+                            <span data-toggle="tooltip" data-placement="auto right" class="tooltiplabel text-info" data-original-title="#{bundle['user.affiliation.tip']}">
+                                #{bundle.affiliation}<span class="glyphicon glyphicon-asterisk text-danger"/>
+                            </span>
+                    </label>
+
+                    <div class="col-sm-9">
+                        <p:panelGrid columns="2" styleClass="noBorders">
+                            <select id="select_messageAffiliation" class="demo-default" placeholder="Select Affiliation test..." tabindex="7"></select>
+                            <p:inputText id="messageAffiliation" styleClass="form-control" value="#{sendFeedbackDialog.messageAffiliation}"  tabindex="7"/>
+
+                        </p:panelGrid>
+                        <p:message for="messageAffiliation" display="text" />
+                    </div>
+                </div>
+
+
+
+
                 <!-- message -->
                 <div class="form-group">
                     <label for="userMessage" class="col-sm-3 control-label">#{bundle['contact.msg']} <span class="glyphicon glyphicon-asterisk text-danger" title="#{bundle.requiredField}"/></label>
@@ -80,5 +105,40 @@
                 </div>
             </h:form>
         </p:fragment>
+        <script type="text/javascript">
+            //<![CDATA[
+            //auto populate the affiliation textfield (now hidden) by using a dynamically populated dropdown
+            var select_elm2="#select_messageAffiliation";
+            var input_elm2="#emailForm\\:messageAffiliation";
+
+            $(this).ready(function () {
+                $(input_elm2).hide();
+                setUpAffiliateDropDown_Support();
+            });
+
+            function setUpAffiliateDropDown_Support(){
+                var other='#{bundle['affiliation.other']}';
+                $.each(ip_range_checker.institution_mapping, function (i, item) {
+                    $(select_elm2).append($('<option>', {
+                        value: ip_range_checker.institution_mapping[i][2],
+                        text : ip_range_checker.institution_mapping[i][2]
+                    }));
+                });
+                $(select_elm2).append($('<option>', {
+                    value: other,
+                    text : other
+                }));
+                var $select = $(select_elm2).selectize({
+                    create: true,
+                    onChange: function (value) {
+                        //show the input if the value doesn't exist
+                        var val = $select[0].selectize.getValue();
+                        $(input_elm2).val(val);
+                    }
+                });
+                return $select[0].selectize;
+            }
+            //]]>
+        </script>
     </p:dialog>
 </ui:composition>
