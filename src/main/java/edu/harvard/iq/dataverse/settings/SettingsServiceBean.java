@@ -30,7 +30,9 @@ public class SettingsServiceBean {
      * over your shoulder when typing strings in various places of a large app. 
      * So there.
      */
-    public enum Key {
+    public enum Key {        
+        AffiliationInternationalized,
+        
         AllowApiTokenLookupViaApi,
         /**
          * Ordered, comma-separated list of custom fields to show above the fold

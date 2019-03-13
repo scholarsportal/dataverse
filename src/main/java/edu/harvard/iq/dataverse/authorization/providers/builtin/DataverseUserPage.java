@@ -21,7 +21,6 @@ import edu.harvard.iq.dataverse.UserNotification;
 import static edu.harvard.iq.dataverse.UserNotification.Type.CREATEDV;
 import edu.harvard.iq.dataverse.UserNotificationServiceBean;
 import edu.harvard.iq.dataverse.UserServiceBean;
-import edu.harvard.iq.dataverse.affiliation.AffiliationServiceBean;
 import edu.harvard.iq.dataverse.authorization.AuthUtil;
 import edu.harvard.iq.dataverse.authorization.AuthenticatedUserDisplayInfo;
 import edu.harvard.iq.dataverse.authorization.AuthenticationProvider;
@@ -29,6 +28,9 @@ import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.UserRecordIdentifier;
 import edu.harvard.iq.dataverse.authorization.groups.Group;
 import edu.harvard.iq.dataverse.authorization.groups.GroupServiceBean;
+import edu.harvard.iq.dataverse.authorization.groups.impl.ipaddress.IpGroup;
+import edu.harvard.iq.dataverse.authorization.groups.impl.ipaddress.IpGroupsServiceBean;
+import edu.harvard.iq.dataverse.authorization.groups.impl.ipaddress.ip.IpAddress;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.confirmemail.ConfirmEmailData;
 import edu.harvard.iq.dataverse.confirmemail.ConfirmEmailException;
@@ -47,9 +49,12 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.logging.Level;
@@ -63,6 +68,7 @@ import javax.faces.event.ActionEvent;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
 import org.primefaces.event.TabChangeEvent;
@@ -114,10 +120,12 @@ public class DataverseUserPage implements java.io.Serializable {
     MyDataPage mydatapage;
     @Inject
     PermissionsWrapper permissionsWrapper;
-    @Inject
-    AffiliationServiceBean affiliationBean;
     @EJB
     AuthenticationServiceBean authSvc;
+    @EJB
+    IpGroupsServiceBean ipGroupsService;
+    @Inject
+    AffiliationServiceBean affiliationServiceBean;    
 
     private AuthenticatedUser currentUser;
     private BuiltinUser builtinUser;    
@@ -125,7 +133,8 @@ public class DataverseUserPage implements java.io.Serializable {
     private transient AuthenticationProvider userAuthProvider;
     private EditMode editMode;
     private String redirectPage = "dataverse.xhtml";
-
+    private List<String> affiliationList = new ArrayList<String>();
+    
     @NotBlank(message = "{password.retype}")
     private String inputPassword;
 
@@ -351,8 +360,8 @@ public class DataverseUserPage implements java.io.Serializable {
             }
             
             String userAffiliation = au.getAffiliation();
-            String alias = affiliationBean.getAlias(userAffiliation);
-            if (!alias.equals("") && "/dataverse.xhtml".equals(redirectPage)) {
+            String alias = affiliationServiceBean.getAlias(userAffiliation);
+            if (!alias.equals("") && redirectPage.contains("/dataverse.xhtml")) {
                 redirectPage = "%2Fdataverse.xhtml%3Falias%3D" + alias;
                 logger.log(Level.FINE, "redirect {0} to affiliate {1} dataverse", new Object[] {redirectPage, alias});
             }
@@ -585,13 +594,9 @@ public class DataverseUserPage implements java.io.Serializable {
         DataverseLocaleBean d = new DataverseLocaleBean();
         String localeCode = d.getLocaleCode();
         if (!localeCode.equalsIgnoreCase("en")) {
-            String affProp = "affiliation";
-            Locale enLocale = new Locale("en");
-            ResourceBundle fromBundle = ResourceBundle.getBundle(affProp, enLocale);
-            ResourceBundle toBundle = BundleUtil.getResourceBundle(affProp + "_" + localeCode);
-            String affiliation = userDisplayInfo.getAffiliation();
-            String newAffiliation = affiliationBean.convertAffiliation(affiliation, fromBundle, toBundle);
-            userDisplayInfo.setAffiliation(newAffiliation);
+            ResourceBundle fromBundle = BundleUtil.getResourceBundle("affiliation", "en");
+            ResourceBundle toBundle = BundleUtil.getResourceBundle("affiliation");
+            affiliationServiceBean.convertAffiliation(userDisplayInfo, fromBundle, toBundle);
         }
         return userDisplayInfo;
     }
@@ -722,4 +727,46 @@ public class DataverseUserPage implements java.io.Serializable {
         if(notification.getRequestor() == null) return BundleUtil.getStringFromBundle("notification.email.info.unavailable");;
         return notification.getRequestor().getEmail() != null ? notification.getRequestor().getEmail() : BundleUtil.getStringFromBundle("notification.email.info.unavailable");
     }
+     
+    public List<String> getAffiliationList() {
+        affiliationList.clear();
+        ResourceBundle bundle = BundleUtil.getResourceBundle("affiliation");
+        affiliationList = affiliationServiceBean.getValues(bundle);
+        affiliationList.sort(String::compareTo);
+        if (editMode == EditMode.CREATE) {
+            String ipAffiliation = getAffiliationFromIPAddress();
+            if (StringUtils.isBlank(ipAffiliation)) {
+                String affiliation = StringUtils.isEmpty(ipAffiliation) ? bundle.getString("affiliation.other") : ipAffiliation;
+                getUserDisplayInfo().setAffiliation(affiliation);
+            }
+        } else if (editMode == EditMode.EDIT) {
+            String language = bundle.getLocale().getLanguage();
+            if (StringUtils.isNotBlank(language) && !language.equalsIgnoreCase("en")) {
+                ResourceBundle enBundle = BundleUtil.getResourceBundle("affiliation", "en");
+                affiliationServiceBean.convertAffiliation(userDisplayInfo, enBundle, bundle);
+            }
+        }
+        return affiliationList;
+    }
+
+    public String getAffiliationFromIPAddress() {
+        ResourceBundle bundle = BundleUtil.getResourceBundle("affiliation");
+        HttpServletRequest httpServletRequest = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+        String remoteAddressFromRequest = httpServletRequest.getRemoteAddr();
+        IpAddress sourceAddress = null;
+        if (remoteAddressFromRequest != null) {
+            sourceAddress = IpAddress.valueOf(remoteAddressFromRequest);
+            Set<IpGroup> ipgroups = ipGroupsService.findAllIncludingIp(sourceAddress);
+            Iterator<IpGroup> iterator = ipgroups.iterator();
+            List<String> values = affiliationServiceBean.getValues(bundle);
+            while (iterator.hasNext()) {
+                IpGroup next = iterator.next();
+                if (values.contains(next.getDisplayName())) {
+                    return next.getDisplayName();
+                }
+            }
+        }
+        logger.log(Level.WARNING, "IPAddress not found. {0}", Optional.ofNullable(sourceAddress.toString()));
+        return StringUtils.EMPTY;
+    }   
 }

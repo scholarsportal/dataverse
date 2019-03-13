@@ -195,6 +195,9 @@ public class SettingsWrapper implements java.io.Serializable {
 
         return !getDropBoxKey().isEmpty();
     }
-
+    
+    public boolean isAffiliationInternationalized() {
+        return isTrueForKey(Key.AffiliationInternationalized, false);
+    }
 }
 

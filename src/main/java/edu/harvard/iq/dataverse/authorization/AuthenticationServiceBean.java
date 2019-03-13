@@ -6,12 +6,12 @@ import edu.harvard.iq.dataverse.UserServiceBean;
 import edu.harvard.iq.dataverse.search.IndexServiceBean;
 import edu.harvard.iq.dataverse.actionlogging.ActionLogRecord;
 import edu.harvard.iq.dataverse.actionlogging.ActionLogServiceBean;
-import edu.harvard.iq.dataverse.affiliation.AffiliationServiceBean;
 import edu.harvard.iq.dataverse.authorization.exceptions.AuthenticationFailedException;
 import edu.harvard.iq.dataverse.authorization.exceptions.AuthenticationProviderFactoryNotFoundException;
 import edu.harvard.iq.dataverse.authorization.exceptions.AuthorizationSetupException;
 import edu.harvard.iq.dataverse.authorization.providers.AuthenticationProviderFactory;
 import edu.harvard.iq.dataverse.authorization.providers.AuthenticationProviderRow;
+import edu.harvard.iq.dataverse.authorization.providers.builtin.AffiliationServiceBean;
 import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinAuthenticationProvider;
 import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinAuthenticationProviderFactory;
 import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinUser;
@@ -51,6 +51,7 @@ import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
 import javax.ejb.EJBException;
 import javax.ejb.Singleton;
+import javax.inject.Inject;
 import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
@@ -61,6 +62,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * The AuthenticationManager is responsible for registering and listing
@@ -109,7 +111,7 @@ public class AuthenticationServiceBean {
     @EJB
     PasswordValidatorServiceBean passwordValidatorService;
         
-    @EJB
+    @Inject
     AffiliationServiceBean affiliationBean;
     
     @PersistenceContext(unitName = "VDCNet-ejbPU")
@@ -536,18 +538,7 @@ public class AuthenticationServiceBean {
         // set account creation time & initial login time (same timestamp)
         authenticatedUser.setCreatedTime(new Timestamp(new Date().getTime()));
         authenticatedUser.setLastLoginTime(authenticatedUser.getCreatedTime());
-
-        DataverseLocaleBean d = new DataverseLocaleBean();
-        String localeCode = d.getLocaleCode();
-        if (!localeCode.equalsIgnoreCase("en")) {
-            String affProp = "affiliation";
-            Locale enLocale = new Locale("en");
-            ResourceBundle fromBundle = BundleUtil.getResourceBundle(affProp + "_" + localeCode);
-            ResourceBundle toBundle = ResourceBundle.getBundle(affProp, enLocale);
-            String affiliation = userDisplayInfo.getAffiliation();
-            String newAffiliation = affiliationBean.convertAffiliation(affiliation, fromBundle, toBundle);
-            userDisplayInfo.setAffiliation(newAffiliation);
-        }
+        saveAffiliationInEnglish(userDisplayInfo);
         authenticatedUser.applyDisplayInfo(userDisplayInfo);
 
         // we have no desire for leading or trailing whitespace in identifiers
@@ -605,14 +596,10 @@ public class AuthenticationServiceBean {
     }
     
     public AuthenticatedUser updateAuthenticatedUser(AuthenticatedUser user, AuthenticatedUserDisplayInfo userDisplayInfo) {
-        DataverseLocaleBean d = new DataverseLocaleBean();
-        String localeCode = d.getLocaleCode();
-        if (!localeCode.equalsIgnoreCase("en")) {
-            affiliationBean.updateAuthenticatedUserAffiliation(userDisplayInfo, localeCode);            
-        }                
+        saveAffiliationInEnglish(userDisplayInfo);
         user.applyDisplayInfo(userDisplayInfo);
         actionLogSvc.log( new ActionLogRecord(ActionLogRecord.ActionType.Auth, "updateUser")
-            .setInfo(user.getIdentifier()));
+                .setInfo(user.getIdentifier()));
         return update(user);
     }
     
@@ -895,4 +882,12 @@ public class AuthenticationServiceBean {
         );
     }
 
+    private void saveAffiliationInEnglish(AuthenticatedUserDisplayInfo userDisplayInfo) {
+        ResourceBundle bundle = BundleUtil.getResourceBundle("affiliation");
+        String language = bundle.getLocale().getLanguage();
+        if (StringUtils.isNotBlank(language) && !language.equalsIgnoreCase("en")) {
+            ResourceBundle enBundle = BundleUtil.getResourceBundle("affiliation", "en");
+            affiliationBean.convertAffiliation(userDisplayInfo, bundle, enBundle);
+        }        
+    }    
 }

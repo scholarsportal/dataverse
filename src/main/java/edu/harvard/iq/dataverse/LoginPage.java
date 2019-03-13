@@ -1,6 +1,5 @@
 package edu.harvard.iq.dataverse;
 
-import edu.harvard.iq.dataverse.affiliation.AffiliationServiceBean;
 import edu.harvard.iq.dataverse.authorization.AuthenticationProvider;
 import edu.harvard.iq.dataverse.authorization.AuthenticationProviderDisplayInfo;
 import edu.harvard.iq.dataverse.authorization.AuthenticationRequest;
@@ -8,6 +7,7 @@ import edu.harvard.iq.dataverse.authorization.AuthenticationResponse;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.CredentialsAuthenticationProvider;
 import edu.harvard.iq.dataverse.authorization.exceptions.AuthenticationFailedException;
+import edu.harvard.iq.dataverse.authorization.providers.builtin.AffiliationServiceBean;
 import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinUserServiceBean;
 import edu.harvard.iq.dataverse.authorization.providers.shib.ShibAuthenticationProvider;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
@@ -100,7 +100,7 @@ public class LoginPage implements java.io.Serializable {
     DataverseRequestServiceBean dvRequestService;
     
     @Inject
-    AffiliationServiceBean affiliationServiceBean;
+    AffiliationServiceBean affiliationBean;
     
     private String credentialsAuthProviderId;
     
@@ -175,11 +175,9 @@ public class LoginPage implements java.io.Serializable {
             AuthenticatedUser r = authSvc.getUpdateAuthenticatedUser(credentialsAuthProviderId, authReq);
             logger.log(Level.FINE, "User authenticated: {0}", r.getEmail());
             session.setUser(r);
-
-            String affiliationInEnglish = r.getAffiliation();
-            String alias = affiliationServiceBean.getAlias(affiliationInEnglish);
-            logger.log(Level.FINE, "affiliation {0} redirects to alias {1} redirectPage {2} " + new Object[]{affiliationInEnglish, alias, redirectPage});
-            //redirect to the alias if there is one and the user came from the homepage
+            String affiliation = r.getAffiliation();
+            String alias = affiliationBean.getAlias(affiliation);
+            logger.log(Level.FINE, "affiliation {0} redirects to alias {1} redirectPage {2} " + new Object[]{affiliation, alias, redirectPage});
             if (!alias.equals("") && (redirectPage.contains("dataverse.xhtml") || redirectPage.contains("dataverseuser.xhtml"))) {
                 redirectPage = "%2Fdataverse.xhtml%3Falias%3D" + alias;
                 logger.log(Level.FINE, "redirect to affiliate dataverse", redirectPage);
