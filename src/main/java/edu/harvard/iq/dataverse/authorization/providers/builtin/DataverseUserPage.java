@@ -28,9 +28,7 @@ import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.UserRecordIdentifier;
 import edu.harvard.iq.dataverse.authorization.groups.Group;
 import edu.harvard.iq.dataverse.authorization.groups.GroupServiceBean;
-import edu.harvard.iq.dataverse.authorization.groups.impl.ipaddress.IpGroup;
 import edu.harvard.iq.dataverse.authorization.groups.impl.ipaddress.IpGroupsServiceBean;
-import edu.harvard.iq.dataverse.authorization.groups.impl.ipaddress.ip.IpAddress;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.confirmemail.ConfirmEmailData;
 import edu.harvard.iq.dataverse.confirmemail.ConfirmEmailException;
@@ -49,12 +47,8 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
 import java.util.logging.Level;
@@ -68,7 +62,6 @@ import javax.faces.event.ActionEvent;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
-import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
 import org.primefaces.event.TabChangeEvent;
@@ -734,7 +727,7 @@ public class DataverseUserPage implements java.io.Serializable {
         affiliationList = affiliationServiceBean.getValues(bundle);
         affiliationList.sort(String::compareTo);
         if (editMode == EditMode.CREATE) {
-            String ipAffiliation = getAffiliationFromIPAddress();
+            String ipAffiliation = affiliationServiceBean.getAffiliationFromIPAddress();
             String affiliation = StringUtils.isEmpty(ipAffiliation) ? bundle.getString("affiliation.other") : ipAffiliation;
             getUserDisplayInfo().setAffiliation(affiliation);
         } else if (editMode == EditMode.EDIT) {
@@ -745,26 +738,5 @@ public class DataverseUserPage implements java.io.Serializable {
             }
         }
         return affiliationList;
-    }
-
-    public String getAffiliationFromIPAddress() {
-        ResourceBundle bundle = BundleUtil.getResourceBundle("affiliation", "en");
-        HttpServletRequest httpServletRequest = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-        String remoteAddressFromRequest = httpServletRequest.getRemoteAddr();
-        IpAddress sourceAddress = null;
-        if (remoteAddressFromRequest != null) {
-            sourceAddress = IpAddress.valueOf(remoteAddressFromRequest);
-            Set<IpGroup> ipgroups = ipGroupsService.findAllIncludingIp(sourceAddress);
-            Iterator<IpGroup> iterator = ipgroups.iterator();
-            List<String> values = affiliationServiceBean.getValues(bundle);
-            while (iterator.hasNext()) {
-                IpGroup next = iterator.next();
-                if (values.contains(next.getDisplayName())) {
-                    return next.getDisplayName();
-                }
-            }
-        }
-        logger.log(Level.WARNING, "IPAddress not found. {0}", Optional.ofNullable(sourceAddress.toString()));
-        return StringUtils.EMPTY;
     }   
 }

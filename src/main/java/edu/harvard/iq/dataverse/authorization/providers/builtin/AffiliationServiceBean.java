@@ -6,17 +6,25 @@
 package edu.harvard.iq.dataverse.authorization.providers.builtin;
 
 import edu.harvard.iq.dataverse.authorization.AuthenticatedUserDisplayInfo;
+import edu.harvard.iq.dataverse.authorization.groups.impl.ipaddress.IpGroup;
+import edu.harvard.iq.dataverse.authorization.groups.impl.ipaddress.IpGroupsServiceBean;
+import edu.harvard.iq.dataverse.authorization.groups.impl.ipaddress.ip.IpAddress;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
+import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.faces.context.FacesContext;
 import javax.inject.Named;
+import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -28,7 +36,10 @@ import org.apache.commons.lang.StringUtils;
 public class AffiliationServiceBean implements Serializable {
 
     private static final Logger logger = Logger.getLogger(AffiliationServiceBean.class.getCanonicalName());
-
+    
+    @EJB
+    IpGroupsServiceBean ipGroupsService;
+    
     public void convertAffiliation(AuthenticatedUserDisplayInfo userDisplayInfo, ResourceBundle fromBundle, ResourceBundle toBundle) {
         Enumeration<String> enumeration = fromBundle.getKeys();
         while (enumeration.hasMoreElements()) {
@@ -73,4 +84,25 @@ public class AffiliationServiceBean implements Serializable {
         }
         return values;
     }
+    
+    public String getAffiliationFromIPAddress() {
+        ResourceBundle bundle = BundleUtil.getResourceBundle("affiliation", "en");
+        HttpServletRequest httpServletRequest = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+        String remoteAddressFromRequest = httpServletRequest.getRemoteAddr();
+        IpAddress sourceAddress = null;
+        if (remoteAddressFromRequest != null) {
+            sourceAddress = IpAddress.valueOf(remoteAddressFromRequest);
+            Set<IpGroup> ipgroups = ipGroupsService.findAllIncludingIp(sourceAddress);
+            Iterator<IpGroup> iterator = ipgroups.iterator();
+            List<String> values = getValues(bundle);
+            while (iterator.hasNext()) {
+                IpGroup next = iterator.next();
+                if (values.contains(next.getDisplayName())) {
+                    return next.getDisplayName();
+                }
+            }
+        }
+        logger.log(Level.WARNING, "IPAddress not found. {0}", Optional.ofNullable(sourceAddress.toString()));
+        return StringUtils.EMPTY;
+    }      
 }
