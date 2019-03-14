@@ -735,10 +735,8 @@ public class DataverseUserPage implements java.io.Serializable {
         affiliationList.sort(String::compareTo);
         if (editMode == EditMode.CREATE) {
             String ipAffiliation = getAffiliationFromIPAddress();
-            if (StringUtils.isBlank(ipAffiliation)) {
-                String affiliation = StringUtils.isEmpty(ipAffiliation) ? bundle.getString("affiliation.other") : ipAffiliation;
-                getUserDisplayInfo().setAffiliation(affiliation);
-            }
+            String affiliation = StringUtils.isEmpty(ipAffiliation) ? bundle.getString("affiliation.other") : ipAffiliation;
+            getUserDisplayInfo().setAffiliation(affiliation);
         } else if (editMode == EditMode.EDIT) {
             String language = bundle.getLocale().getLanguage();
             if (StringUtils.isNotBlank(language) && !language.equalsIgnoreCase("en")) {
@@ -750,7 +748,7 @@ public class DataverseUserPage implements java.io.Serializable {
     }
 
     public String getAffiliationFromIPAddress() {
-        ResourceBundle bundle = BundleUtil.getResourceBundle("affiliation");
+        ResourceBundle bundle = BundleUtil.getResourceBundle("affiliation", "en");
         HttpServletRequest httpServletRequest = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
         String remoteAddressFromRequest = httpServletRequest.getRemoteAddr();
         IpAddress sourceAddress = null;
