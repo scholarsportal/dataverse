@@ -31,7 +31,7 @@ public class SettingsServiceBean {
      * So there.
      */
     public enum Key {        
-        AffiliationInternationalized,
+        AffiliationDropDown,
         
         AllowApiTokenLookupViaApi,
         /**

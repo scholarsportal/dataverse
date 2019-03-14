@@ -618,13 +618,13 @@
                                             #{bundle.affiliation}<span class="glyphicon glyphicon-asterisk text-danger"/>
                                         </span>
                                     </label>
-                                    <div class="form-group" jsf:rendered="#{!settingsWrapper.affiliationInternationalized}">
+                                    <div class="form-group" jsf:rendered="#{!settingsWrapper.affiliationSelectable}">
                                         <div class="col-sm-4">
                                             <p:inputText id="affiliation" styleClass="form-control" value="#{DataverseUserPage.userDisplayInfo.affiliation}" />
                                             <p:message for="affiliation" display="text" />
                                         </div>
                                     </div>
-                                    <div class="form-group" jsf:rendered="#{settingsWrapper.affiliationInternationalized}">
+                                    <div class="form-group" jsf:rendered="#{settingsWrapper.affiliationSelectable}">
                                         <div class="col-sm-4">
                                             <p:selectOneMenu id="affiliationList" value="#{DataverseUserPage.userDisplayInfo.affiliation}">
                                                 <f:selectItems value="#{DataverseUserPage.affiliationList}" />
