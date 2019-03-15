@@ -48,13 +48,11 @@
                 <!-- affiliation -->
                 <div class="form-group" jsf:rendered="#{DataverseUserPage.editMode == 'SUPPORT'}">
                     <label for="messageAffiliation" class="col-sm-3 control-label">#{bundle.affiliation}<span class="glyphicon glyphicon-asterisk text-danger" title="#{bundle.requiredField}"/></label>
-                    <div class="form-group">
-                        <div class="col-sm-4">
-                            <p:selectOneMenu id="messageAffiliation" styleClass="form-control" value="#{sendFeedbackDialog.messageAffiliation}">
-                                <f:selectItems styleClass="form-control" value="#{DataverseUserPage.affiliationList}" />
-                            </p:selectOneMenu>
-                            <p:message for="messageAffiliation" display="text" />
-                        </div>
+                    <div class="col-sm-9">
+                        <p:selectOneMenu id="messageAffiliation" styleClass="form-control" value="#{sendFeedbackDialog.messageAffiliation}">
+                            <f:selectItems styleClass="form-control" value="#{DataverseUserPage.affiliationList}" />
+                        </p:selectOneMenu>
+                        <p:message for="messageAffiliation" display="text" />
                     </div>
                 </div>
 
