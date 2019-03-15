@@ -393,11 +393,8 @@ public class DataversePage implements java.io.Serializable {
         }
         carouselFeaturedDataverses = featuredDataverseService.findByDataverseIdQuick(dataverse.getId());
         String ipAffiliation = affiliationServiceBean.getAffiliationFromIPAddress();
-        logger.info("ipAffiliation ==> "+ipAffiliation);
-        carouselFeaturedDataverses.forEach(dataverse -> logger.info("carouselFeaturedDataverses: "+dataverse.getAffiliation()+"."));
         Optional<Dataverse> match = carouselFeaturedDataverses.stream().filter(dataverse -> ipAffiliation.equalsIgnoreCase(dataverse.getAffiliation())).findFirst();
         if (match.isPresent()) {
-            logger.info("MATCH ==> "+match.get().getAffiliation());
             carouselFeaturedDataverses.remove(match.get());
             carouselFeaturedDataverses.add(0, match.get());
         }
