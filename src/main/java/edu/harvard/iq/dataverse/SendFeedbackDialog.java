@@ -1,5 +1,6 @@
 package edu.harvard.iq.dataverse;
 
+import edu.harvard.iq.dataverse.authorization.providers.builtin.DataverseUserPage;
 import edu.harvard.iq.dataverse.branding.BrandingUtil;
 import edu.harvard.iq.dataverse.feedback.Feedback;
 import edu.harvard.iq.dataverse.feedback.FeedbackUtil;
@@ -43,6 +44,8 @@ public class SendFeedbackDialog implements java.io.Serializable {
      */
     private String messageSubject = "";
 
+    private String messageAffiliation = "";
+
     /**
      * First operand in addition problem.
      */
@@ -84,6 +87,9 @@ public class SendFeedbackDialog implements java.io.Serializable {
     @Inject
     DataverseSession dataverseSession;
 
+    @Inject
+    DataverseUserPage dataverseUserPage;
+
     public void setUserEmail(String uEmail) {
         userEmail = uEmail;
     }
@@ -102,6 +108,8 @@ public class SendFeedbackDialog implements java.io.Serializable {
         userSum = null;
         String systemEmail = settingsService.getValueForKey(SettingsServiceBean.Key.SystemEmail);
         systemAddress = MailUtil.parseSystemAddress(systemEmail);
+
+        dataverseUserPage.supportMode() ;
     }
 
     public Long getOp1() {
@@ -164,6 +172,14 @@ public class SendFeedbackDialog implements java.io.Serializable {
         return messageSubject;
     }
 
+    public void setMessageAffiliation(String messageAffiliation) {
+        this.messageAffiliation = messageAffiliation;
+    }
+
+    public String getMessageAffiliation() {
+        return messageAffiliation;
+    }
+
     public boolean isLoggedIn() {
         return dataverseSession.getUser().isAuthenticated();
     }
@@ -202,7 +218,7 @@ public class SendFeedbackDialog implements java.io.Serializable {
         String rootDataverseName = dataverseService.findRootDataverse().getName();
         String installationBrandName = BrandingUtil.getInstallationBrandName(rootDataverseName);
         String supportTeamName = BrandingUtil.getSupportTeamName(systemAddress, rootDataverseName);
-        List<Feedback> feedbacks = FeedbackUtil.gatherFeedback(recipient, dataverseSession, messageSubject, userMessage, systemAddress, userEmail, systemConfig.getDataverseSiteUrl(), installationBrandName, supportTeamName);
+        List<Feedback> feedbacks = FeedbackUtil.gatherFeedback(recipient, dataverseSession, messageSubject + " - " + messageAffiliation, userMessage, systemAddress, userEmail, systemConfig.getDataverseSiteUrl(), installationBrandName, supportTeamName);
         if (feedbacks.isEmpty()) {
             logger.warning("No feedback has been sent!");
             return null;
