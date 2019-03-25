@@ -23,19 +23,16 @@ import edu.harvard.iq.dataverse.UserServiceBean;
 import edu.harvard.iq.dataverse.authorization.AuthUtil;
 import edu.harvard.iq.dataverse.authorization.AuthenticatedUserDisplayInfo;
 import edu.harvard.iq.dataverse.authorization.AuthenticationProvider;
-import edu.harvard.iq.dataverse.authorization.AuthenticationProviderDisplayInfo;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.UserRecordIdentifier;
 import edu.harvard.iq.dataverse.authorization.groups.Group;
 import edu.harvard.iq.dataverse.authorization.groups.GroupServiceBean;
-import edu.harvard.iq.dataverse.authorization.providers.shib.ShibAuthenticationProvider;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.confirmemail.ConfirmEmailData;
 import edu.harvard.iq.dataverse.confirmemail.ConfirmEmailException;
 import edu.harvard.iq.dataverse.confirmemail.ConfirmEmailServiceBean;
 import edu.harvard.iq.dataverse.confirmemail.ConfirmEmailUtil;
 import edu.harvard.iq.dataverse.mydata.MyDataPage;
-import edu.harvard.iq.dataverse.passwordreset.PasswordValidator;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.JsfHelper;
@@ -240,6 +237,17 @@ public class DataverseUserPage implements java.io.Serializable {
             logger.info("Email is not valid: " + userEmail);
             return;
         }
+        
+        String domain = userEmail.substring(userEmail.indexOf("@")+1).trim();
+        boolean domainValid = isEmailDomainAllowed(domain);
+        if (!domainValid) {
+            ((UIInput) toValidate).setValid(false);
+            FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, BundleUtil.getStringFromBundle("user.email.domain.invalid"), null);
+            context.addMessage(toValidate.getClientId(context), message);
+            logger.info("Invalid email domain: " + userEmail);
+            return;
+        }        
+        
         boolean userEmailFound = false;
         AuthenticatedUser aUser = authenticationService.getAuthenticatedUserByEmail(userEmail);
         if (editMode == EditMode.CREATE) {
@@ -702,4 +710,15 @@ public class DataverseUserPage implements java.io.Serializable {
         if(notification.getRequestor() == null) return BundleUtil.getStringFromBundle("notification.email.info.unavailable");;
         return notification.getRequestor().getEmail() != null ? notification.getRequestor().getEmail() : BundleUtil.getStringFromBundle("notification.email.info.unavailable");
     }
+    
+   private boolean isEmailDomainAllowed(String userEmail) {
+        String validEmailDomains = settingsWrapper.getValueForKey(SettingsServiceBean.Key.CommaDelimitedEmailDomains);
+        if (StringUtils.isNotBlank(validEmailDomains)) {
+            List<String> list = Arrays.asList(validEmailDomains.toLowerCase().split("\\s*,\\s*"));
+            if(list.contains(userEmail.toLowerCase())) {
+                return true;
+            }
+        }
+        return false;
+    }    
 }

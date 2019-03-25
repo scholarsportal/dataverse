@@ -394,7 +394,8 @@ public class SettingsServiceBean {
          * /api/admin/dataverse/{alias}/addRolesToChildren. Default is "", no
          * inheritance. "*" means inherit assignments for all roles
          */
-        InheritParentRoleAssignments
+        InheritParentRoleAssignments,
+        CommaDelimitedEmailDomains
         
         ;
 
