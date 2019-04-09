@@ -176,7 +176,11 @@ public class LoginPage implements java.io.Serializable {
             logger.log(Level.FINE, "User authenticated: {0}", r.getEmail());
             session.setUser(r);
             String affiliation = r.getAffiliation();
-            String alias = affiliationBean.getAlias(affiliation);
+            String alias = affiliationBean.getAlias(affiliation);            
+            Dataverse dv = dataverseService.findByAlias(alias);
+            if (dv == null) {
+                alias = "";                
+            }
             logger.log(Level.FINE, "affiliation {0} redirects to alias {1} redirectPage {2} " + new Object[]{affiliation, alias, redirectPage});
             if (!alias.equals("") && (redirectPage.contains("dataverse.xhtml") || redirectPage.contains("dataverseuser.xhtml"))) {
                 redirectPage = "%2Fdataverse.xhtml%3Falias%3D" + alias;

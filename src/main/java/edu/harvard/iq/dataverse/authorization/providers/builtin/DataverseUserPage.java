@@ -354,6 +354,10 @@ public class DataverseUserPage implements java.io.Serializable {
             
             String userAffiliation = au.getAffiliation();
             String alias = affiliationServiceBean.getAlias(userAffiliation);
+            Dataverse dv = dataverseService.findByAlias(alias);
+            if (dv == null) {
+                alias = "";                
+            }
             if (!alias.equals("") && redirectPage.contains("/dataverse.xhtml")) {
                 redirectPage = "%2Fdataverse.xhtml%3Falias%3D" + alias;
                 logger.log(Level.FINE, "redirect {0} to affiliate {1} dataverse", new Object[] {redirectPage, alias});
