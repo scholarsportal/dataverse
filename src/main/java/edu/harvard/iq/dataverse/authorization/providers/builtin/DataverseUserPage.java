@@ -359,6 +359,10 @@ public class DataverseUserPage implements java.io.Serializable {
             
             String userAffiliation = au.getAffiliation();
             String alias = affiliationServiceBean.getAlias(userAffiliation);
+            Dataverse dv = dataverseService.findByAlias(alias);
+            if (dv == null) {
+                alias = "";                
+            }
             if (!alias.equals("") && redirectPage.contains("/dataverse.xhtml")) {
                 redirectPage = "%2Fdataverse.xhtml%3Falias%3D" + alias;
                 logger.log(Level.FINE, "redirect {0} to affiliate {1} dataverse", new Object[] {redirectPage, alias});
@@ -731,9 +735,12 @@ public class DataverseUserPage implements java.io.Serializable {
         ResourceBundle bundle = BundleUtil.getResourceBundle("affiliation");
         affiliationList = affiliationServiceBean.getValues(bundle);
         affiliationList.sort(String::compareTo);
+        String affiliationOther = bundle.getString("affiliation.other");
+        affiliationList.remove(affiliationOther);    
+        affiliationList.add(affiliationList.size(), affiliationOther);
         if (editMode == EditMode.CREATE) {
-            String ipAffiliation = affiliationServiceBean.getAffiliationFromIPAddress();
-            String affiliation = StringUtils.isEmpty(ipAffiliation) ? bundle.getString("affiliation.other") : ipAffiliation;
+            String ipAffiliation = affiliationServiceBean.getAffiliationFromIPAddress();            
+            String affiliation = StringUtils.isEmpty(ipAffiliation) ? affiliationOther : ipAffiliation;
             getUserDisplayInfo().setAffiliation(affiliation);
         } else if (editMode == EditMode.EDIT) {
             String language = bundle.getLocale().getLanguage();

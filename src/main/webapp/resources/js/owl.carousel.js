@@ -555,7 +555,7 @@ if (typeof Object.create !== "function") {
                 return false;
             }
 
-            base.currentItem += base.options.scrollPerPage === true ? base.options.items : 1;
+            base.currentItem += base.options.scrollPerPage === true ? base.options.items : 4;
             if (base.currentItem > base.maximumItem + (base.options.scrollPerPage === true ? (base.options.items - 1) : 0)) {
                 if (base.options.rewindNav === true) {
                     base.currentItem = 0;
@@ -578,7 +578,7 @@ if (typeof Object.create !== "function") {
             if (base.options.scrollPerPage === true && base.currentItem > 0 && base.currentItem < base.options.items) {
                 base.currentItem = 0;
             } else {
-                base.currentItem -= base.options.scrollPerPage === true ? base.options.items : 1;
+                base.currentItem -= base.options.scrollPerPage === true ? base.options.items : 4;
             }
             if (base.currentItem < 0) {
                 if (base.options.rewindNav === true) {
