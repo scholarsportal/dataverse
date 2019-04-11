@@ -44,6 +44,7 @@ import edu.harvard.iq.dataverse.validation.PasswordValidatorServiceBean;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.sql.Timestamp;
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -729,7 +730,11 @@ public class DataverseUserPage implements java.io.Serializable {
         affiliationList.clear();
         ResourceBundle bundle = BundleUtil.getResourceBundle("affiliation");
         affiliationList = affiliationServiceBean.getValues(bundle);
-        affiliationList.sort(String::compareTo);
+        affiliationList.sort((String o1, String o2) -> {
+            o1 = Normalizer.normalize(o1, Normalizer.Form.NFD);
+            o2 = Normalizer.normalize(o2, Normalizer.Form.NFD);
+            return o1.compareTo(o2);
+        });
         String affiliationOther = bundle.getString("affiliation.other");
         affiliationList.remove(affiliationOther);    
         affiliationList.add(affiliationList.size(), affiliationOther);
