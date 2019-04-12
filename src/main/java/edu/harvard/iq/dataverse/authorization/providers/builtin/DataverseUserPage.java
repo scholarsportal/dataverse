@@ -355,8 +355,8 @@ public class DataverseUserPage implements java.io.Serializable {
             
             String userAffiliation = au.getAffiliation();
             String alias = affiliationServiceBean.getAlias(userAffiliation);
-            Dataverse dv = dataverseService.findByAlias(alias);
-            if (dv == null) {
+            Dataverse dv = dataverseService.findByAlias(alias);            
+            if (dv == null || !dv.isReleased()) {
                 alias = "";                
             }
             if (!alias.equals("") && redirectPage.contains("/dataverse.xhtml")) {
