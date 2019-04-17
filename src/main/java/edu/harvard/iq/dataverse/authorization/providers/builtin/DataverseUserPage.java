@@ -48,6 +48,7 @@ import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Objects;
 import java.util.ResourceBundle;
@@ -168,7 +169,10 @@ public class DataverseUserPage implements java.io.Serializable {
         }
 
         if ( session.getUser().isAuthenticated() ) {
-            setCurrentUser((AuthenticatedUser) session.getUser());
+            AuthenticatedUser user = (AuthenticatedUser) session.getUser();            
+            String affiliation = user.getAffiliation();
+            user.setLocalizedAffiliation(affiliation);
+            setCurrentUser(user);
             userAuthProvider = authenticationService.lookupProvider(currentUser);
             notificationsList = userNotificationService.findByUser(currentUser.getId());
             
@@ -612,11 +616,11 @@ public class DataverseUserPage implements java.io.Serializable {
     }
 
     public void setCurrentUser(AuthenticatedUser currentUser) {
-        this.currentUser = currentUser;
+        this.currentUser = currentUser;       
         userDisplayInfo = currentUser.getDisplayInfo();
         username = currentUser.getUserIdentifier();
     }
-
+    
     public EditMode getEditMode() {
         return editMode;
     }
