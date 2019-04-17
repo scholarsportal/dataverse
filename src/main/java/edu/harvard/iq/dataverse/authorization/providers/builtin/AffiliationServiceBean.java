@@ -5,6 +5,7 @@
  */
 package edu.harvard.iq.dataverse.authorization.providers.builtin;
 
+import edu.harvard.iq.dataverse.DataverseLocaleBean;
 import edu.harvard.iq.dataverse.authorization.AuthenticatedUserDisplayInfo;
 import edu.harvard.iq.dataverse.authorization.groups.impl.ipaddress.IpGroup;
 import edu.harvard.iq.dataverse.authorization.groups.impl.ipaddress.IpGroupsServiceBean;
@@ -15,6 +16,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -23,6 +25,7 @@ import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.faces.context.FacesContext;
+import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang.StringUtils;
@@ -39,6 +42,9 @@ public class AffiliationServiceBean implements Serializable {
     
     @EJB
     IpGroupsServiceBean ipGroupsService;
+    
+    @Inject
+    DataverseLocaleBean bean;
     
     public void convertAffiliation(AuthenticatedUserDisplayInfo userDisplayInfo, ResourceBundle fromBundle, ResourceBundle toBundle) {
         Enumeration<String> enumeration = fromBundle.getKeys();
@@ -107,10 +113,11 @@ public class AffiliationServiceBean implements Serializable {
     }
     
     public String getLocalizedAffiliation(String affiliation) {
-        ResourceBundle bundle = BundleUtil.getResourceBundle("affiliation");
-        String language = bundle.getLocale().getLanguage();
-        if (StringUtils.isNotBlank(language) && !language.equalsIgnoreCase("en")) {
-            ResourceBundle enBundle = BundleUtil.getResourceBundle("affiliation", "en");
+        String localeCode = bean.getLocaleCode();
+        if (!localeCode.equalsIgnoreCase("en")) {            
+            Locale locale = new Locale(localeCode);
+            ResourceBundle bundle = ResourceBundle.getBundle("affiliation", locale);
+            ResourceBundle enBundle = BundleUtil.getResourceBundle("affiliation", "en");           
             Enumeration<String> enumeration = enBundle.getKeys();
             while (enumeration.hasMoreElements()) {
                 String next = enumeration.nextElement();
