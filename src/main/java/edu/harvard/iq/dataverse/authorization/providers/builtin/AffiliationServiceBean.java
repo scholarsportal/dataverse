@@ -104,5 +104,22 @@ public class AffiliationServiceBean implements Serializable {
         }
         logger.log(Level.WARNING, "IPAddress not found. {0}", Optional.ofNullable(sourceAddress.toString()));
         return StringUtils.EMPTY;
-    }      
+    }
+    
+    public String getLocalizedAffiliation(String affiliation) {
+        ResourceBundle bundle = BundleUtil.getResourceBundle("affiliation");
+        String language = bundle.getLocale().getLanguage();
+        if (StringUtils.isNotBlank(language) && !language.equalsIgnoreCase("en")) {
+            ResourceBundle enBundle = BundleUtil.getResourceBundle("affiliation", "en");
+            Enumeration<String> enumeration = enBundle.getKeys();
+            while (enumeration.hasMoreElements()) {
+                String next = enumeration.nextElement();
+                String value = enBundle.getString(next);
+                if (affiliation.equalsIgnoreCase(value)) {
+                    return bundle.getString(next);
+                }
+            }
+        }
+        return affiliation;
+    }
 }
