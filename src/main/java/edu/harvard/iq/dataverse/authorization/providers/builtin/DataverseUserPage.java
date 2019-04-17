@@ -48,7 +48,6 @@ import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Objects;
 import java.util.ResourceBundle;
@@ -170,8 +169,9 @@ public class DataverseUserPage implements java.io.Serializable {
 
         if ( session.getUser().isAuthenticated() ) {
             AuthenticatedUser user = (AuthenticatedUser) session.getUser();            
-            String affiliation = user.getAffiliation();
-            user.setLocalizedAffiliation(affiliation);
+            String userAffiliation = user.getAffiliation();
+            String affl = affiliationServiceBean.getLocalizedAffiliation(userAffiliation);
+            user.setLocalizedAffiliation(affl);
             setCurrentUser(user);
             userAuthProvider = authenticationService.lookupProvider(currentUser);
             notificationsList = userNotificationService.findByUser(currentUser.getId());
