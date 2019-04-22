@@ -4,6 +4,8 @@
     xmlns:c="http://java.sun.com/jsp/jstl/core"
     xmlns:p="http://primefaces.org/ui"
     xmlns:jsf="http://xmlns.jcp.org/jsf">
+
+
     <!-- Dialog Contact Form -->
     <p:dialog id="contactDialog" header="#{sendFeedbackDialog.getFormHeader()}" widgetVar="contactForm" modal="true">
         <p:fragment>
@@ -49,7 +51,7 @@
                 <div class="form-group" jsf:rendered="#{DataverseUserPage.editMode == 'SUPPORT'}">
                     <label for="messageAffiliation" class="col-sm-3 control-label">#{bundle.affiliation}<span class="glyphicon glyphicon-asterisk text-danger" title="#{bundle.requiredField}"/></label>
                     <div class="col-sm-9">
-                        <p:selectOneMenu id="messageAffiliation" styleClass="form-control" value="#{sendFeedbackDialog.messageAffiliation}">
+                        <p:selectOneMenu id="messageAffiliation" styleClass="form-control" value="#{DataverseUserPage.userDisplayInfo.affiliation}" >
                             <f:selectItems styleClass="form-control" value="#{DataverseUserPage.affiliationList}" />
                         </p:selectOneMenu>
                         <p:message for="messageAffiliation" display="text" />

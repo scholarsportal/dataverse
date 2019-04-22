@@ -215,7 +215,6 @@ public class DataverseUserPage implements java.io.Serializable {
     }
 
     public void supportMode( ) {
-        System.out.println(" Suport mode is shere --------------------");
         editMode = EditMode.SUPPORT;
     }
 
@@ -600,9 +599,14 @@ public class DataverseUserPage implements java.io.Serializable {
     public AuthenticatedUserDisplayInfo getUserDisplayInfo() {
         DataverseLocaleBean d = new DataverseLocaleBean();
         String localeCode = d.getLocaleCode();
+        if(userDisplayInfo == null)
+        {
+            userDisplayInfo = new AuthenticatedUserDisplayInfo();
+        }
         if (!localeCode.equalsIgnoreCase("en")) {
             ResourceBundle fromBundle = BundleUtil.getResourceBundle("affiliation", "en");
             ResourceBundle toBundle = BundleUtil.getResourceBundle("affiliation");
+
             affiliationServiceBean.convertAffiliation(userDisplayInfo, fromBundle, toBundle);
         }
         return userDisplayInfo;
@@ -747,8 +751,8 @@ public class DataverseUserPage implements java.io.Serializable {
         String affiliationOther = bundle.getString("affiliation.other");
         affiliationList.remove(affiliationOther);    
         affiliationList.add(affiliationList.size(), affiliationOther);
-        if (editMode == EditMode.CREATE) {
-            String ipAffiliation = affiliationServiceBean.getAffiliationFromIPAddress();            
+        if (editMode == EditMode.CREATE || editMode == EditMode.SUPPORT) {
+            String ipAffiliation = affiliationServiceBean.getAffiliationFromIPAddress();
             String affiliation = StringUtils.isEmpty(ipAffiliation) ? affiliationOther : ipAffiliation;
             getUserDisplayInfo().setAffiliation(affiliation);
         } else if (editMode == EditMode.EDIT) {
