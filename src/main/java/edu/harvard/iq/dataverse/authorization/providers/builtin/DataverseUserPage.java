@@ -764,6 +764,8 @@ public class DataverseUserPage implements java.io.Serializable {
             }
             else
             {
+                AuthenticatedUser user = (AuthenticatedUser) session.getUser();
+                setCurrentUser(user);
                 System.out.println(" Affiliation in support form ======== " + getUserDisplayInfo().getAffiliation() + " ==== ");
             }
         } else if (editMode == EditMode.EDIT) {
