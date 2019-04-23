@@ -751,10 +751,21 @@ public class DataverseUserPage implements java.io.Serializable {
         String affiliationOther = bundle.getString("affiliation.other");
         affiliationList.remove(affiliationOther);    
         affiliationList.add(affiliationList.size(), affiliationOther);
-        if (editMode == EditMode.CREATE || editMode == EditMode.SUPPORT) {
+        if (editMode == EditMode.CREATE) {
             String ipAffiliation = affiliationServiceBean.getAffiliationFromIPAddress();
             String affiliation = StringUtils.isEmpty(ipAffiliation) ? affiliationOther : ipAffiliation;
             getUserDisplayInfo().setAffiliation(affiliation);
+        } else if (editMode == EditMode.SUPPORT) {
+            if (!session.getUser().isAuthenticated()) {
+                System.out.println(" ====== is not authenticated in support form =====");
+                String ipAffiliation = affiliationServiceBean.getAffiliationFromIPAddress();
+                String affiliation = StringUtils.isEmpty(ipAffiliation) ? affiliationOther : ipAffiliation;
+                getUserDisplayInfo().setAffiliation(affiliation);
+            }
+            else
+            {
+                System.out.println(" Affiliation in support form ======== " + getUserDisplayInfo().getAffiliation() + " ==== ");
+            }
         } else if (editMode == EditMode.EDIT) {
             String language = bundle.getLocale().getLanguage();
             if (StringUtils.isNotBlank(language) && !language.equalsIgnoreCase("en")) {
