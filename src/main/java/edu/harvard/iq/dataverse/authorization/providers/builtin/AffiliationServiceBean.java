@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -113,11 +112,11 @@ public class AffiliationServiceBean implements Serializable {
     }
     
     public String getLocalizedAffiliation(String affiliation) {
-        String localeCode = bean.getLocaleCode();
-        if (!localeCode.equalsIgnoreCase("en")) {            
-            Locale locale = new Locale(localeCode);
-            ResourceBundle bundle = ResourceBundle.getBundle("affiliation", locale);
-            ResourceBundle enBundle = BundleUtil.getResourceBundle("affiliation", "en");           
+        String localeCode = bean.getLocaleCode(); 
+        logger.log(Level.INFO, "getLocalizedAffiliation() Locale. {0}", localeCode);
+        if (!localeCode.equalsIgnoreCase("en")) {
+            ResourceBundle bundle = BundleUtil.getResourceBundle("affiliation", localeCode);
+            ResourceBundle enBundle = BundleUtil.getResourceBundle("affiliation", "en");
             Enumeration<String> enumeration = enBundle.getKeys();
             while (enumeration.hasMoreElements()) {
                 String next = enumeration.nextElement();
