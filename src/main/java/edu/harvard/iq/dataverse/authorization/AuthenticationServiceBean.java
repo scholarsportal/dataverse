@@ -596,6 +596,7 @@ public class AuthenticationServiceBean {
     }
     
     public AuthenticatedUser updateAuthenticatedUser(AuthenticatedUser user, AuthenticatedUserDisplayInfo userDisplayInfo) {
+        user.setLocalizedAffiliation(userDisplayInfo.getAffiliation());
         saveAffiliationInEnglish(userDisplayInfo);
         user.applyDisplayInfo(userDisplayInfo);
         actionLogSvc.log( new ActionLogRecord(ActionLogRecord.ActionType.Auth, "updateUser")
