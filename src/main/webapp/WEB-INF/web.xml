@@ -89,10 +89,6 @@
         <servlet-class>edu.harvard.iq.dataverse.CitationServlet</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>Affiliation Servlet</servlet-name>
-        <servlet-class>edu.harvard.iq.dataverse.affiliation.AffiliationServlet</servlet-class>
-    </servlet>
-    <servlet>
         <servlet-name>Homepage Servlet</servlet-name>
         <servlet-class>edu.harvard.iq.dataverse.HomepageServlet</servlet-class>
     </servlet>
@@ -132,10 +128,6 @@
     <servlet-mapping>
         <servlet-name>Citation Servlet</servlet-name>
         <url-pattern>/citation</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>Affiliation Servlet</servlet-name>
-        <url-pattern>/affiliation</url-pattern>
     </servlet-mapping>
     
     <session-config>
