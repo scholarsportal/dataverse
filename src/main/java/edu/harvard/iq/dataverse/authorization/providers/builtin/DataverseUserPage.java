@@ -739,13 +739,11 @@ public class DataverseUserPage implements java.io.Serializable {
             o2 = Normalizer.normalize(o2, Normalizer.Form.NFD);
             return o1.compareTo(o2);
         });
-        String affiliationOther = bundle.getString("affiliation.other");
-        affiliationList.remove(affiliationOther);    
-        affiliationList.add(affiliationList.size(), affiliationOther);
         if (editMode == EditMode.CREATE) {
-            String ipAffiliation = affiliationServiceBean.getAffiliationFromIPAddress();            
-            String affiliation = StringUtils.isEmpty(ipAffiliation) ? affiliationOther : ipAffiliation;
-            getUserDisplayInfo().setAffiliation(affiliation);
+            String ipAffiliation = affiliationServiceBean.getAffiliationFromIPAddress();
+            if(StringUtils.isNotBlank(ipAffiliation)) {
+                getUserDisplayInfo().setAffiliation(ipAffiliation);
+            }
         } else if (editMode == EditMode.EDIT) {
             String language = bundle.getLocale().getLanguage();
             if (StringUtils.isNotBlank(language) && !language.equalsIgnoreCase("en")) {

@@ -580,7 +580,7 @@
                                         <p:message for="lastName" display="text" />
                                     </div>
                                 </div>
-                                <div class="form-group" jsf:rendered="#{DataverseUserPage.editMode == 'CREATE' or DataverseUserPage.editMode == 'EDIT'}">
+                                <div class="form-group" jsf:rendered="#{DataverseUserPage.editMode == 'CREATE' or (DataverseUserPage.editMode == 'EDIT' and DataverseUserPage.currentUser.superuser)}">
                                     <!-- Email -->
                                     <label for="email" class="col-sm-3 control-label">
                                         <span data-toggle="tooltip" data-placement="auto right" class="tooltiplabel text-info" data-original-title="#{user.email.tip}">
@@ -592,6 +592,20 @@
                                                      validator="#{DataverseUserPage.validateUserEmail}"
                                                      value="#{DataverseUserPage.userDisplayInfo.emailAddress}" />
                                         <p:message for="email" display="text" />
+                                    </div>
+                                </div>
+                                <div class="form-group" jsf:rendered="#{DataverseUserPage.editMode == 'CREATE' or DataverseUserPage.editMode == 'EDIT'} and #{!DataverseUserPage.currentUser.superuser}">
+                                    <!-- Email -->
+                                    <label for="email" class="col-sm-3 control-label">
+                                        <span data-toggle="tooltip" data-placement="auto right" class="tooltiplabel text-info" data-original-title="#{user.email.tip}">
+                                            #{bundle.email} <span class="glyphicon glyphicon-asterisk text-danger"/>
+                                        </span>
+                                    </label>
+                                    <div class="col-sm-4">
+                                        <p:outputLabel value="#{DataverseUserPage.userDisplayInfo.emailAddress}" for="email" styleClass="col-sm-3 control-label"/>
+                                        <p:outputLabel id="emailOut" styleClass="form-control"
+                                                     value="#{DataverseUserPage.userDisplayInfo.emailAddress}" />
+                                        <p:message for="emailOut" display="text" />
                                     </div>
                                 </div>
                                 <!--FIXME: refactor to remove need for EDIT? userAuthProvider is null on CREATE-->
@@ -611,7 +625,7 @@
                                         </p>
                                     </div>
                                 </div>
-                                <div class="form-group" jsf:rendered="#{DataverseUserPage.editMode == 'CREATE' or DataverseUserPage.editMode == 'EDIT'}">
+                                <div class="form-group" jsf:rendered="#{DataverseUserPage.editMode == 'CREATE' or (DataverseUserPage.editMode == 'EDIT' and DataverseUserPage.currentUser.superuser)}">
                                     <!-- Affiliation -->
                                     <label for="affiliation" class="col-sm-3 control-label">
                                         <span data-toggle="tooltip" data-placement="auto right" class="tooltiplabel text-info" data-original-title="#{bundle['user.affiliation.tip']}">
@@ -630,8 +644,8 @@
                                                 <f:selectItems value="#{DataverseUserPage.affiliationList}" />
                                             </p:selectOneMenu>
                                             <p:message for="affiliation" display="text" />
-                                        </div>                                    
-                                    </div>                                    
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="form-group" jsf:rendered="#{DataverseUserPage.editMode == 'CREATE' or DataverseUserPage.editMode == 'EDIT'}">
                                 <!-- Position -->

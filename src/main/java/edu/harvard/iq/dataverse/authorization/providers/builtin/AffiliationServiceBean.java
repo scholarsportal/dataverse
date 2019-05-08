@@ -63,9 +63,6 @@ public class AffiliationServiceBean implements Serializable {
     }
 
     public String getAlias(String userAffiliation) {
-        if ("OTHER".equalsIgnoreCase(userAffiliation.toUpperCase())) {
-            return "";
-        }
         ResourceBundle bundle = BundleUtil.getResourceBundle("affiliation", "en");
         Enumeration<String> enumeration = bundle.getKeys();
         while (enumeration.hasMoreElements()) {
