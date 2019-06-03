@@ -19,6 +19,7 @@ import java.util.Collection;
 import java.util.ArrayList;
 
 import edu.harvard.iq.dataverse.FileMetadata;
+import io.searchbox.core.Cat;
 
 @Entity
 @Table(indexes = {@Index(columnList="datavariable_id"), @Index(columnList="filemetadata_id"),
@@ -57,8 +58,8 @@ public class VariableMetadata implements Serializable  {
     private String literalquestion;
 
     /**
-    *
-    */
+     * postquestion: post question, metadata variable field.
+     */
     @Column(columnDefinition="TEXT")
     private String postquestion;
 
@@ -149,11 +150,11 @@ public class VariableMetadata implements Serializable  {
         return this.literalquestion;
     }
 
-    public String getPostquestion() {return this.postquestion;}
-
     public void setLiteralquestion(String literalquestion) {
         this.literalquestion = literalquestion;
     }
+
+    public String getPostquestion() {return this.postquestion;}
 
     public void setPostquestion(String postquestion) {this.postquestion = postquestion;}
 
@@ -201,7 +202,7 @@ public class VariableMetadata implements Serializable  {
         return categoriesMetadata;
     }
 
-    public void setCategoriesMetadata(ArrayList<CategoryMetadata> categoriesMetadata) {
+    public void setCategoriesMetadata(Collection<CategoryMetadata> categoriesMetadata) {
         this.categoriesMetadata = categoriesMetadata;
 
     }
