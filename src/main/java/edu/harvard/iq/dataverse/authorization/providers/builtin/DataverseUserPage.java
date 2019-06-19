@@ -28,6 +28,7 @@ import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.UserRecordIdentifier;
 import edu.harvard.iq.dataverse.authorization.groups.Group;
 import edu.harvard.iq.dataverse.authorization.groups.GroupServiceBean;
+import edu.harvard.iq.dataverse.authorization.groups.impl.affiliation.AffiliationServiceBean;
 import edu.harvard.iq.dataverse.authorization.groups.impl.ipaddress.IpGroupsServiceBean;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.confirmemail.ConfirmEmailData;
@@ -119,7 +120,7 @@ public class DataverseUserPage implements java.io.Serializable {
     @EJB
     IpGroupsServiceBean ipGroupsService;
     @Inject
-    AffiliationServiceBean affiliationServiceBean;    
+    AffiliationServiceBean affiliationServiceBean;
 
     private AuthenticatedUser currentUser;
     private BuiltinUser builtinUser;    

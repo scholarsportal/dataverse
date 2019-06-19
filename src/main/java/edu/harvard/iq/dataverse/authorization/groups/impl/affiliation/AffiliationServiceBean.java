@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package edu.harvard.iq.dataverse.authorization.providers.builtin;
+package edu.harvard.iq.dataverse.authorization.groups.impl.affiliation;
 
 import edu.harvard.iq.dataverse.DataverseLocaleBean;
 import edu.harvard.iq.dataverse.authorization.AuthenticatedUserDisplayInfo;
@@ -11,6 +11,7 @@ import edu.harvard.iq.dataverse.authorization.groups.impl.ipaddress.IpGroup;
 import edu.harvard.iq.dataverse.authorization.groups.impl.ipaddress.IpGroupsServiceBean;
 import edu.harvard.iq.dataverse.authorization.groups.impl.ipaddress.ip.IpAddress;
 import edu.harvard.iq.dataverse.util.BundleUtil;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -27,10 +28,10 @@ import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang.StringUtils;
 
 /**
- *
  * @author manikons
  */
 @Stateless
@@ -38,13 +39,13 @@ import org.apache.commons.lang.StringUtils;
 public class AffiliationServiceBean implements Serializable {
 
     private static final Logger logger = Logger.getLogger(AffiliationServiceBean.class.getCanonicalName());
-    
+
     @EJB
     IpGroupsServiceBean ipGroupsService;
-    
+
     @Inject
     DataverseLocaleBean bean;
-    
+
     public void convertAffiliation(AuthenticatedUserDisplayInfo userDisplayInfo, ResourceBundle fromBundle, ResourceBundle toBundle) {
         Enumeration<String> enumeration = fromBundle.getKeys();
         while (enumeration.hasMoreElements()) {
@@ -69,13 +70,13 @@ public class AffiliationServiceBean implements Serializable {
             String next = enumeration.nextElement();
             String value = bundle.getString(next);
             if (value.equalsIgnoreCase(userAffiliation)) {
-                return next.substring(next.indexOf(".")+1);
+                return next.substring(next.indexOf(".") + 1);
             }
-        }        
+        }
         logger.log(Level.SEVERE, "Unable to find alias for {0}", userAffiliation);
         return "";
     }
-    
+
     public List<String> getValues(ResourceBundle bundle) {
         List<String> values = new ArrayList<String>();
         Enumeration<String> enumeration = bundle.getKeys();
@@ -86,7 +87,7 @@ public class AffiliationServiceBean implements Serializable {
         }
         return values;
     }
-    
+
     public String getAffiliationFromIPAddress() {
         ResourceBundle bundle = BundleUtil.getResourceBundle("affiliation", "en");
         HttpServletRequest httpServletRequest = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
@@ -107,9 +108,9 @@ public class AffiliationServiceBean implements Serializable {
         logger.log(Level.WARNING, "IPAddress not found. {0}", Optional.ofNullable(sourceAddress.toString()));
         return StringUtils.EMPTY;
     }
-    
+
     public String getLocalizedAffiliation(String affiliation) {
-        String localeCode = bean.getLocaleCode(); 
+        String localeCode = bean.getLocaleCode();
         logger.log(Level.INFO, "getLocalizedAffiliation() Locale. {0}", localeCode);
         if (!localeCode.equalsIgnoreCase("en")) {
             ResourceBundle bundle = BundleUtil.getResourceBundle("affiliation", localeCode);

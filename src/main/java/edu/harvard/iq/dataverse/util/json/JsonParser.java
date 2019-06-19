@@ -21,6 +21,7 @@ import edu.harvard.iq.dataverse.TermsOfUseAndAccess;
 import edu.harvard.iq.dataverse.TermsOfUseAndAccess.License;
 import edu.harvard.iq.dataverse.api.Util;
 import edu.harvard.iq.dataverse.api.dto.FieldDTO;
+import edu.harvard.iq.dataverse.authorization.groups.impl.affiliation.AffiliationGroup;
 import edu.harvard.iq.dataverse.authorization.groups.impl.ipaddress.IpGroup;
 import edu.harvard.iq.dataverse.authorization.groups.impl.ipaddress.ip.IpAddress;
 import edu.harvard.iq.dataverse.authorization.groups.impl.ipaddress.ip.IpAddressRange;
@@ -244,6 +245,14 @@ public class JsonParser {
         }
 
         return retVal;
+    }
+
+    public AffiliationGroup parseAffiliationGroup(JsonObject object) {
+        AffiliationGroup group = new AffiliationGroup();
+        group.setDisplayName(object.getString("name", null));
+        group.setDescription(object.getString("description", null));
+        group.setPersistedGroupAlias(object.getString("alias", null));
+        return group;
     }
 
     public DatasetVersion parseDatasetVersion(JsonObject obj) throws JsonParseException {

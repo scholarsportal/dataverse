@@ -70,6 +70,7 @@ public class FileDownloadServiceBean implements java.io.Serializable {
     
     @Inject WorldMapPermissionHelper worldMapPermissionHelper;
     @Inject FileDownloadHelper fileDownloadHelper;
+    @Inject DataverseLocaleBean localeBean;
 
     private static final Logger logger = Logger.getLogger(FileDownloadServiceBean.class.getCanonicalName());   
     
@@ -235,9 +236,8 @@ public class FileDownloadServiceBean implements java.io.Serializable {
                 dataFile = guestbookResponse.getDataFile();
             }
         }
-        
-        DataverseLocaleBean d = new DataverseLocaleBean();
-        String localeCode = d.getLocaleCode();        
+
+        String localeCode = localeBean.getLocaleCode();
         ExternalToolHandler externalToolHandler = new ExternalToolHandler(externalTool, dataFile, apiToken, localeCode);
         // Back when we only had TwoRavens, the downloadType was always "Explore". Now we persist the name of the tool (i.e. "TwoRavens", "Data Explorer", etc.)
         guestbookResponse.setDownloadtype(externalTool.getDisplayName());
