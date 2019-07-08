@@ -260,21 +260,18 @@ var ChartComponent = /** @class */ (function () {
         var obj = this;
         var data = this.data;
         data = [];
-        console.log(_data);
         for (var i = 0; i < _data.length; i++) {
-            //console.log('chart: data.length ' + _data.length);
             var freq = null;
             var freqWeight = null;
             if (typeof _data[i].catStat !== 'undefined') {
-                //console.log(_data[i].catStat);
                 for (var j = 0; j < _data[i].catStat.length; j++) {
-                    var sub_obj = _data[i].catStat[j];
-                    if (sub_obj['@type'] === 'freq' && !sub_obj['@wgtd']) {
-                        freq = sub_obj['#text'];
+                    var subObj = _data[i].catStat[j];
+                    if (subObj['@type'] === 'freq' && !subObj['@wgtd']) {
+                        freq = subObj['#text'];
                     }
                     else {
-                        if (sub_obj['@type'] === 'freq' && sub_obj['@wgtd'] && sub_obj['#text'] !== '') {
-                            freqWeight = sub_obj['#text'];
+                        if (subObj['@type'] === 'freq' && subObj['@wgtd'] && subObj['#text'] !== '') {
+                            freqWeight = subObj['#text'];
                         }
                     }
                 }
@@ -283,21 +280,21 @@ var ChartComponent = /** @class */ (function () {
                     freq = _data[i].catStat['#text'];
                 }
             }
-            var short_name = _data[i].labl['#text'];
-            if (short_name.length > this.maxStringLength) {
-                short_name = short_name.substring(0, this.maxStringLength) + '...';
+            var shortName = _data[i].labl['#text'];
+            if (shortName.length > this.maxStringLength) {
+                shortName = shortName.substring(0, this.maxStringLength) + '...';
             }
-            short_name = short_name;
+            shortName = shortName;
             // switching to weighted frequencies
             if (freqWeight != null) {
                 freq = freqWeight;
             }
             data.push({
-                name: short_name,
+                name: shortName,
                 freq: freq
             });
         }
-        var max_height = (data.length + 1) * 25;
+        var maxHeight = (data.length + 1) * 25;
         // sort bars based on value
         data = data.sort(function (a, b) {
             return d3__WEBPACK_IMPORTED_MODULE_2__["ascending"](a.freq, b.freq);
@@ -305,7 +302,7 @@ var ChartComponent = /** @class */ (function () {
         // set the dimensions and margins of the graph
         var margin = { top: 0, right: 20, bottom: 30, left: 90 };
         var width = 500 - margin.left - margin.right;
-        var height = max_height - margin.top - margin.bottom;
+        var height = maxHeight - margin.top - margin.bottom;
         // set the ranges
         var y = d3__WEBPACK_IMPORTED_MODULE_2__["scaleBand"]()
             .range([height, 0])
@@ -360,7 +357,7 @@ var ChartComponent = /** @class */ (function () {
         svg.append('g').call(d3__WEBPACK_IMPORTED_MODULE_2__["axisLeft"](y));
     };
     ChartComponent.prototype.getColor = function (num) {
-        var color;
+        var color = '';
         if (num < this.colorArray.length) {
             color = this.colorArray[num];
         }
@@ -425,15 +422,12 @@ var DdiService = /** @class */ (function () {
         return this.http.get(url, { responseType: 'text' });
     };
     DdiService.prototype.putDDI = function (url, body, key) {
-        console.log('my url ' + url);
-        console.log('my key ' + key);
         var httpOptions = {
             headers: new _angular_common_http__WEBPACK_IMPORTED_MODULE_2__["HttpHeaders"]({
                 'Content-Type': 'application/xml',
                 'X-Dataverse-key': key
             })
         };
-        console.log('Before sending');
         return this.http.put(url, body, httpOptions);
         // return this.http.post(url,body, httpOptions);
     };
@@ -457,11 +451,11 @@ var DdiService = /** @class */ (function () {
         /*  if (port === '4200') {
             port = '8080';
           }*/
-        var base_url = protocol + '//' + host;
+        var baseUrl = protocol + '//' + host;
         if (port != null || typeof port !== 'undefined') {
-            base_url = base_url + ':' + port;
+            baseUrl = baseUrl + ':' + port;
         }
-        return base_url;
+        return baseUrl;
     };
     DdiService = tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["Injectable"])(),
@@ -481,7 +475,7 @@ var DdiService = /** @class */ (function () {
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = ".interface-header {\n  padding-top: 5px;\n}\n\n.mat-toolbar-row, .mat-toolbar-single-row {\n  min-height: 50px;\n  height: auto;\n}\n\n.headertext {\n  height: auto;\n  font-size: 0.7em;\n  font-weight: 400;\n  white-space: normal;\n  padding-bottom: 15px;\n  line-height: 1.1em;\n}\n\n.headertext.title {\n  font-size: 1.1em;\n  font-weight: 500;\n}\n\n.actionbuttons {\n  float: right;\n  font-size: 0.6em;\n}\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInNyYy9hcHAvaW50ZXJmYWNlL2ludGVyZmFjZS5jb21wb25lbnQuY3NzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBO0VBQ0UsZ0JBQWdCO0FBQ2xCOztBQUVBO0VBQ0UsZ0JBQWdCO0VBQ2hCLFlBQVk7QUFDZDs7QUFFQTtFQUNFLFlBQVk7RUFDWixnQkFBZ0I7RUFDaEIsZ0JBQWdCO0VBQ2hCLG1CQUFtQjtFQUNuQixvQkFBb0I7RUFDcEIsa0JBQWtCO0FBQ3BCOztBQUVBO0VBQ0UsZ0JBQWdCO0VBQ2hCLGdCQUFnQjtBQUNsQjs7QUFFQTtFQUNFLFlBQVk7RUFDWixnQkFBZ0I7QUFDbEIiLCJmaWxlIjoic3JjL2FwcC9pbnRlcmZhY2UvaW50ZXJmYWNlLmNvbXBvbmVudC5jc3MiLCJzb3VyY2VzQ29udGVudCI6WyIuaW50ZXJmYWNlLWhlYWRlciB7XG4gIHBhZGRpbmctdG9wOiA1cHg7XG59XG5cbi5tYXQtdG9vbGJhci1yb3csIC5tYXQtdG9vbGJhci1zaW5nbGUtcm93IHtcbiAgbWluLWhlaWdodDogNTBweDtcbiAgaGVpZ2h0OiBhdXRvO1xufVxuXG4uaGVhZGVydGV4dCB7XG4gIGhlaWdodDogYXV0bztcbiAgZm9udC1zaXplOiAwLjdlbTtcbiAgZm9udC13ZWlnaHQ6IDQwMDtcbiAgd2hpdGUtc3BhY2U6IG5vcm1hbDtcbiAgcGFkZGluZy1ib3R0b206IDE1cHg7XG4gIGxpbmUtaGVpZ2h0OiAxLjFlbTtcbn1cblxuLmhlYWRlcnRleHQudGl0bGUge1xuICBmb250LXNpemU6IDEuMWVtO1xuICBmb250LXdlaWdodDogNTAwO1xufVxuXG4uYWN0aW9uYnV0dG9ucyB7XG4gIGZsb2F0OiByaWdodDtcbiAgZm9udC1zaXplOiAwLjZlbTtcbn0iXX0= */"
+module.exports = ".interface-header {\n  padding-top: 5px;\n  border-bottom: solid 1px rgba(0,0,0,.12);\n}\n\n.mat-toolbar-row, .mat-toolbar-single-row {\n  min-height: 40px;\n  height: auto;\n}\n\n.headertext {\n  height: auto;\n  font-size: 0.7em;\n  font-weight: 400;\n  white-space: normal;\n  padding-bottom: 10px;\n  line-height: 1.1em;\n}\n\n.headertext.title {\n  font-size: 1.1em;\n  font-weight: 500;\n}\n\n.actionbuttons {\n  float: right;\n  font-size: 0.7em;\n}\n\n.groupstoggle {\n  font-size: 0.7em;\n}\n\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInNyYy9hcHAvaW50ZXJmYWNlL2ludGVyZmFjZS5jb21wb25lbnQuY3NzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBO0VBQ0UsZ0JBQWdCO0VBQ2hCLHdDQUF3QztBQUMxQzs7QUFFQTtFQUNFLGdCQUFnQjtFQUNoQixZQUFZO0FBQ2Q7O0FBRUE7RUFDRSxZQUFZO0VBQ1osZ0JBQWdCO0VBQ2hCLGdCQUFnQjtFQUNoQixtQkFBbUI7RUFDbkIsb0JBQW9CO0VBQ3BCLGtCQUFrQjtBQUNwQjs7QUFFQTtFQUNFLGdCQUFnQjtFQUNoQixnQkFBZ0I7QUFDbEI7O0FBRUE7RUFDRSxZQUFZO0VBQ1osZ0JBQWdCO0FBQ2xCOztBQUVBO0VBQ0UsZ0JBQWdCO0FBQ2xCIiwiZmlsZSI6InNyYy9hcHAvaW50ZXJmYWNlL2ludGVyZmFjZS5jb21wb25lbnQuY3NzIiwic291cmNlc0NvbnRlbnQiOlsiLmludGVyZmFjZS1oZWFkZXIge1xuICBwYWRkaW5nLXRvcDogNXB4O1xuICBib3JkZXItYm90dG9tOiBzb2xpZCAxcHggcmdiYSgwLDAsMCwuMTIpO1xufVxuXG4ubWF0LXRvb2xiYXItcm93LCAubWF0LXRvb2xiYXItc2luZ2xlLXJvdyB7XG4gIG1pbi1oZWlnaHQ6IDQwcHg7XG4gIGhlaWdodDogYXV0bztcbn1cblxuLmhlYWRlcnRleHQge1xuICBoZWlnaHQ6IGF1dG87XG4gIGZvbnQtc2l6ZTogMC43ZW07XG4gIGZvbnQtd2VpZ2h0OiA0MDA7XG4gIHdoaXRlLXNwYWNlOiBub3JtYWw7XG4gIHBhZGRpbmctYm90dG9tOiAxMHB4O1xuICBsaW5lLWhlaWdodDogMS4xZW07XG59XG5cbi5oZWFkZXJ0ZXh0LnRpdGxlIHtcbiAgZm9udC1zaXplOiAxLjFlbTtcbiAgZm9udC13ZWlnaHQ6IDUwMDtcbn1cblxuLmFjdGlvbmJ1dHRvbnMge1xuICBmbG9hdDogcmlnaHQ7XG4gIGZvbnQtc2l6ZTogMC43ZW07XG59XG5cbi5ncm91cHN0b2dnbGUge1xuICBmb250LXNpemU6IDAuN2VtO1xufVxuIl19 */"
 
 /***/ }),
 
@@ -492,7 +486,7 @@ module.exports = ".interface-header {\n  padding-top: 5px;\n}\n\n.mat-toolbar-ro
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<div id=\"loading-details\" *ngIf=\"!ddiLoaded\" class=\"row content-area\">\n  <mat-progress-spinner mode=\"indeterminate\"></mat-progress-spinner>\n</div>\n\n<ng-container class=\"interface-container\">\n\n  <mat-toolbar class=\"interface-header\">\n    <mat-toolbar-row>\n      <h1 class=\"headertext title\">{{title}}</h1>\n      <span class=\"fill-space\"></span>\n      <span class=\"actionbuttons\">\n        <button mat-icon-button color=\"accent\" (click)=\"onSave()\" i18n-matTooltip matTooltip=\"Download\">\n          <mat-icon i18n-aria-label aria-label=\"Download\">get_app</mat-icon>\n        </button>\n        <span i18n>Download</span>\n      </span>\n      <span class=\"actionbuttons\">\n        <button mat-icon-button color=\"accent\" (click)=\"sendToDV()\" i18n-matTooltip matTooltip=\"Save\">\n          <mat-icon i18n-aria-label aria-label=\"Save\">save</mat-icon>\n        </button>\n        <span i18n>Save</span>\n      </span>\n    </mat-toolbar-row>\n    <mat-toolbar-row class=\"headertext citation\">\n      <span>{{firstCitat}}<a href=\"{{doi}}\">{{doi}}</a>{{secondCitat}}</span>\n    </mat-toolbar-row>\n    <mat-toolbar-row class=\"headertext\">\n      {{filename}}\n    </mat-toolbar-row>\n  </mat-toolbar>\n\n  <mat-sidenav-container>\n    <mat-sidenav mode=\"side\" opened class=\"side_nav\" #scrollMe>\n      <app-var-group [variableGroups]=\"variableGroups\" (subSetRows)=\"broadcastSubSetRows($event)\" (selectGroup)=\"broadcastSelect($event)\" (draggedGroup)=\"broadcastDraggedGroup($event)\" (disableSelectGroup)=\"broadcastDeselectGroup()\"\n      (parentScrollNav)=\"scrollNav()\"\n      ></app-var-group>\n    </mat-sidenav>\n    <mat-sidenav-content>\n      <app-var [variableGroups]=\"variableGroups\"></app-var>\n    </mat-sidenav-content>\n  </mat-sidenav-container>\n\n</ng-container>\n"
+module.exports = "<div id=\"loading-details\" *ngIf=\"!ddiLoaded\" class=\"row content-area\">\n  <mat-progress-spinner mode=\"indeterminate\"></mat-progress-spinner>\n</div>\n\n<ng-container class=\"interface-container\">\n\n  <mat-toolbar class=\"interface-header\">\n    <mat-toolbar-row>\n      <h1 class=\"headertext title\">{{title}}</h1>\n    </mat-toolbar-row>\n    <mat-toolbar-row class=\"headertext\">\n      {{filename}}\n    </mat-toolbar-row>\n    <mat-toolbar-row class=\"headertext citation\">\n      <span>{{firstCitat}}<a href=\"{{doi}}\">{{doi}}</a>{{secondCitat}}</span>\n    </mat-toolbar-row>\n    <mat-divider></mat-divider>\n    <mat-toolbar-row>\n      <span class=\"groupstoggle\">\n        <ng-container *ngIf=\"sidenav.opened; else showGroups\">\n          <button mat-icon-button color=\"accent\" (click)=\"sidenav.toggle()\">\n            <mat-icon i18n-aria-label aria-label=\"Gide Groups\">keyboard_arrow_left</mat-icon>\n          </button>\n          <span i18n>Hide Groups</span>\n        </ng-container>\n        <ng-template #showGroups>\n          <button mat-icon-button color=\"accent\" (click)=\"sidenav.toggle()\">\n            <mat-icon i18n-aria-label aria-label=\"Show Groups\">keyboard_arrow_right</mat-icon>\n          </button>\n          <span i18n>Show Groups</span>\n        </ng-template>\n      </span>\n      <span class=\"fill-space\"></span>\n      <span class=\"actionbuttons\">\n        <button mat-icon-button color=\"accent\" (click)=\"onSave()\" i18n-matTooltip matTooltip=\"Download\">\n          <mat-icon i18n-aria-label aria-label=\"Download\">get_app</mat-icon>\n        </button>\n        <span i18n>Download</span>\n      </span>\n      <span class=\"actionbuttons\">\n        <button mat-icon-button color=\"accent\" (click)=\"sendToDV()\" i18n-matTooltip matTooltip=\"Save\">\n          <mat-icon i18n-aria-label aria-label=\"Save\">save</mat-icon>\n        </button>\n        <span i18n>Save</span>\n      </span>\n    </mat-toolbar-row>\n  </mat-toolbar>\n\n  <mat-sidenav-container>\n    <mat-sidenav mode=\"side\" opened class=\"side_nav\" #sidenav #scrollMe>\n      <app-var-group [variableGroups]=\"variableGroups\" (subSetRows)=\"broadcastSubSetRows($event)\" (selectGroup)=\"broadcastSelect($event)\" (disableSelectGroup)=\"broadcastDeselectGroup()\"\n      (parentScrollNav)=\"scrollNav()\"\n      ></app-var-group>\n    </mat-sidenav>\n    <mat-sidenav-content>\n      <app-var [variableGroups]=\"variableGroups\"></app-var>\n    </mat-sidenav-content>\n  </mat-sidenav-container>\n\n</ng-container>\n"
 
 /***/ }),
 
@@ -536,25 +530,41 @@ var InterfaceComponent = /** @class */ (function () {
         this._id = null; // file id
         this.metaId = null;
         this.baseUrl = null;
+        this.siteUrl = null;
     }
     InterfaceComponent.prototype.ngOnInit = function () {
         var uri = null;
-        uri = this.ddiService.getParameterByName('uri');
+        this.siteUrl = this.ddiService.getParameterByName('siteUrl');
+        this.baseUrl = this.ddiService.getBaseUrl();
         this._id = this.ddiService.getParameterByName('dfId');
         this.metaId = this.ddiService.getParameterByName('fileMetadataId');
-        this.baseUrl = this.ddiService.getBaseUrl();
-        if (!uri && this._id != null) {
+        if (!this.siteUrl && this._id != null) {
             uri = this.baseUrl + '/api/access/datafile/' + this._id + '/metadata/ddi';
             if (this.metaId != null) {
                 uri = uri + '?fileMetadataId=' + this.metaId;
             }
         }
         else {
-            if (!uri) {
+            if (this.siteUrl) {
+                uri = this.siteUrl + '/api/access/datafile/' + this._id + '/metadata/ddi';
+                if (this.metaId != null) {
+                    uri = uri + '?fileMetadataId=' + this.metaId;
+                }
+            }
+            else {
                 // Just for testing purposes
                 //uri = this.baseUrl + '/assets/FOCN_SPSS_20150525_FORMATTED-ddi.xml';
-                uri = this.baseUrl + '/assets/test_groups.xml';
-                // uri = this.baseUrl + '/assets/arg-drones-E-2014-can.xml';
+                if (!this._id) {
+                    uri = window.location.href;
+                    uri = uri + '/assets/test_groups.xml';
+                    // uri = this.baseUrl + '/assets/arg-drones-E-2014-can.xml';
+                }
+                else {
+                    uri = this.baseUrl + '/api/access/datafile/' + this._id + '/metadata/ddi';
+                    if (this.metaId != null) {
+                        uri = uri + '?fileMetadataId=' + this.metaId;
+                    }
+                }
             }
         }
         this.getDDI(uri);
@@ -595,6 +605,9 @@ var InterfaceComponent = /** @class */ (function () {
             .getElementsByTagName('fileDscr')[0]
             .getElementsByTagName('fileName')[0].textContent;
         this.showDDI();
+        var agency = this.data.getElementsByTagName('IDNo')[0];
+        var obj = JSON.parse(Object(_assets_js_xml2json__WEBPACK_IMPORTED_MODULE_3__["xml2json"])(agency, ''));
+        console.log(obj);
     };
     InterfaceComponent.prototype.showVarsGroups = function () {
         var elm = this.data.getElementsByTagName('varGrp');
@@ -661,9 +674,6 @@ var InterfaceComponent = /** @class */ (function () {
         // set the var table header to show the selection
         this.child.selectGroup(_id);
     };
-    InterfaceComponent.prototype.broadcastDraggedGroup = function (_id) {
-        this.child.draggedGroup(_id);
-    };
     InterfaceComponent.prototype.broadcastDeselectGroup = function () {
         this.child.disableSelectGroup();
     };
@@ -671,9 +681,12 @@ var InterfaceComponent = /** @class */ (function () {
         this.ddiLoaded = true;
     };
     // Create the XML File
-    InterfaceComponent.prototype.makeXML = function () {
+    InterfaceComponent.prototype.makeXML = function (dv) {
         var doc = new xml_writer__WEBPACK_IMPORTED_MODULE_7__();
         doc.startDocument();
+        // if (dv === false) {
+        //   this.addStdyAndfileDscr(doc);
+        // }
         doc.startElement('dataDscr');
         // add groups
         for (var _i = 0, _a = this.variableGroups; _i < _a.length; _i++) {
@@ -826,9 +839,34 @@ var InterfaceComponent = /** @class */ (function () {
         doc.endDocument();
         return doc;
     };
+    InterfaceComponent.prototype.addStdyAndfileDscr = function (doc) {
+        doc.startElement('stdyDscr');
+        doc.startElement('citation');
+        doc.startElement('titlStmt');
+        var titl = this.data.getElementsByTagName('titl')[0].textContent;
+        doc.startElement('titl').text(titl);
+        doc.endElement(); // end titl
+        doc.startElement('IDNo');
+        var agency = this.data.getElementsByTagName('IDNo')[0];
+        var obj = JSON.parse(Object(_assets_js_xml2json__WEBPACK_IMPORTED_MODULE_3__["xml2json"])(agency, ''));
+        doc.writeAttribute('agency', obj.IDNo['@agency']).text(obj.IDNo['#text']);
+        doc.endElement('IDNo'); // end IDNo
+        doc.endElement(); // end titlStmt
+        doc.startElement('rspStmt');
+        var AuthEnty = this.data.getElementsByTagName('AuthEnty')[0].textContent;
+        doc.startElement('AuthEnty').text(AuthEnty);
+        doc.endElement(); // end AuthEnty
+        doc.endElement(); // end rspStmt
+        var biblCit = this.data.getElementsByTagName('biblCit')[0].textContent;
+        doc.startElement('biblCit').text(biblCit);
+        doc.endElement(); // biblCit
+        doc.endElement(); // end citation
+        doc.endElement(); // end stdyDscr
+    };
     // Save the XML file locally
     InterfaceComponent.prototype.onSave = function () {
-        var doc = this.makeXML();
+        var dv = false;
+        var doc = this.makeXML(dv);
         var text = new Blob([doc.toString()], { type: 'application/xml' });
         var tl = this.title + '.xml';
         file_saver__WEBPACK_IMPORTED_MODULE_6__["saveAs"](text, 'dct.xml');
@@ -837,9 +875,16 @@ var InterfaceComponent = /** @class */ (function () {
     InterfaceComponent.prototype.sendToDV = function () {
         var _this = this;
         var key = this.ddiService.getParameterByName('key');
-        var doc = this.makeXML();
+        var dv = true;
+        var doc = this.makeXML(dv);
+        var url = null;
         if (key !== null) {
-            var url = this.baseUrl + '/api/edit/' + this._id; // + "/" + this.metaId;
+            if (this.siteUrl !== null) {
+                url = this.siteUrl + '/api/edit/' + this._id; // + "/" + this.metaId;
+            }
+            else {
+                url = this.baseUrl + '/api/edit/' + this._id;
+            }
             this.ddiService
                 .putDDI(url, doc.toString(), key)
                 .subscribe(function (data) {
@@ -849,9 +894,9 @@ var InterfaceComponent = /** @class */ (function () {
                 console.log('Error');
                 console.log(error);
             }, function () {
-                console.log('Ok');
+                // console.log('Ok');
                 _this.snackBar.open('Saved to Dataverse', '', {
-                    duration: 1000
+                    duration: 2000
                 });
             });
         }
@@ -936,22 +981,20 @@ var VarDialogComponent = /** @class */ (function () {
         this.dialogRef = dialogRef;
         this.ddiService = ddiService;
         this.parentUpdateVar = new _angular_core__WEBPACK_IMPORTED_MODULE_1__["EventEmitter"]();
-        this.edit_objs = [];
+        this.editObjs = [];
     }
     VarDialogComponent.prototype.ngOnInit = function () {
         // Note: data is passed as any array to allow for multi editing
-        console.log('OnInit');
-        console.log(this.data);
         if (this.data.length > 1) {
-            var selected_ids = [];
+            var selectedIds = [];
             for (var j = 0; j < this.data.length; j++) {
-                selected_ids.push(this.data[j]['@ID']);
+                selectedIds.push(this.data[j]['@ID']);
             }
             var obj = {
-                '@ID': selected_ids.join(','),
+                '@ID': selectedIds.join(','),
                 _group_edit: true
             };
-            this.edit_objs = this.data;
+            this.editObjs = this.data;
             this.data = obj;
         }
         else {
@@ -967,7 +1010,6 @@ var VarDialogComponent = /** @class */ (function () {
         }
         this.data['_groups'] = [groups]; // groups;
         this.addOmittedProperties(this.data);
-        //console.log('Universe text ' + this.data.universe['#text']);
         this.form = this.formBuilder.group({
             id: [
                 { value: this.data ? this.data['@ID'] : '', disabled: true },
@@ -989,7 +1031,6 @@ var VarDialogComponent = /** @class */ (function () {
         });
     };
     VarDialogComponent.prototype.isSelected = function (_id) {
-        console.log(_id);
         return true;
     };
     VarDialogComponent.prototype.addOmittedProperties = function (_obj) {
@@ -1029,7 +1070,8 @@ var VarDialogComponent = /** @class */ (function () {
         //
         this.updateObjValue(_obj, '@wgt-var', form.controls.wgt_var);
         //
-        if (form.controls.wgt.value === true) {
+        console.log(form.controls.wgt.value);
+        if (form.controls.wgt.value === true || form.controls.wgt.value === 'wgt') {
             _obj['@wgt'] = 'wgt';
         }
         else {
@@ -1069,10 +1111,11 @@ var VarDialogComponent = /** @class */ (function () {
         }
     };
     VarDialogComponent.prototype.submit = function (form) {
-        if (this.edit_objs.length > 0) {
+        if (this.editObjs.length > 0) {
             // take all the objects from the
-            for (var i = 0; i < this.edit_objs.length; i++) {
-                this.data = this.edit_objs[i];
+            for (var _i = 0, _a = this.editObjs; _i < _a.length; _i++) {
+                var i = _a[_i];
+                this.data = i;
                 this.addOmittedProperties(this.data);
                 this.updateObjValues(this.data, form);
                 this.parentUpdateVar.emit(this.data);
@@ -1100,40 +1143,53 @@ var VarDialogComponent = /** @class */ (function () {
     };
     VarDialogComponent.prototype.calculateWeightedFrequencies = function () {
         var _this = this;
-        console.log('Start calculate freq');
-        console.log(this.data);
-        var weight_variable = this.data['@wgt-var'];
+        var weightVariable = this.data['@wgt-var'];
         var variable = this.data['@ID'];
-        console.log(weight_variable);
-        if (typeof weight_variable !== 'undefined') {
-            console.log('variable defined');
+        if (typeof weightVariable !== 'undefined') {
             var id = this.ddiService.getParameterByName('dfId');
-            var base_url = this.ddiService.getBaseUrl();
+            var baseUrl = this.ddiService.getBaseUrl();
             var key = this.ddiService.getParameterByName('key');
-            var detail_url = base_url +
-                '/api/access/datafile/' +
-                id +
-                '?format=subset&variables=' +
-                variable +
-                ',' +
-                weight_variable +
-                '&key=' +
-                key;
-            console.log(detail_url);
+            var siteUrl = null;
+            siteUrl = this.ddiService.getParameterByName('siteUrl');
+            var detailUrl = null;
+            console.log(siteUrl);
+            if (!siteUrl) {
+                detailUrl =
+                    baseUrl +
+                        '/api/access/datafile/' +
+                        id +
+                        '?format=subset&variables=' +
+                        variable +
+                        ',' +
+                        weightVariable +
+                        '&key=' +
+                        key;
+            }
+            else {
+                detailUrl =
+                    siteUrl +
+                        '/api/access/datafile/' +
+                        id +
+                        '?format=subset&variables=' +
+                        variable +
+                        ',' +
+                        weightVariable +
+                        '&key=' +
+                        key;
+            }
             this.ddiService
-                .getDDI(detail_url)
+                .getDDI(detailUrl)
                 .subscribe(function (data) { return _this.processVariable(data); }, function (error) { return console.log(error); }, function () { return _this.completeVariable(); });
             //  http://localhost:8080/api/access/datafile/41?variables=v885
         }
-        console.log('End calculate freq');
     };
     VarDialogComponent.prototype.processVariable = function (data) {
-        this.weights_and_variable = data.split('\n');
+        this.weightsAndVariable = data.split('\n');
     };
     VarDialogComponent.prototype.completeVariable = function () {
         var map_wf = new Map();
-        for (var i = 1; i < this.weights_and_variable.length; i++) {
-            var vr = this.weights_and_variable[i].split('\t');
+        for (var i = 1; i < this.weightsAndVariable.length; i++) {
+            var vr = this.weightsAndVariable[i].split('\t');
             if (map_wf.has(vr[0])) {
                 var wt = map_wf.get(vr[0]);
                 wt = parseFloat(wt) + parseFloat(vr[1]);
@@ -1143,8 +1199,6 @@ var VarDialogComponent = /** @class */ (function () {
                 map_wf.set(vr[0], vr[1]);
             }
         }
-        // map_wf.forEach((v, k) => {console.log(v + ' ' + k + ';'); });
-        console.log('Complete');
         for (var i = 0; i < this.data.catgry.length; i++) {
             if (!map_wf.has(this.data.catgry[i].catValu)) {
                 map_wf.set(this.data.catgry[i].catValu, 0);
@@ -1198,7 +1252,7 @@ var VarDialogComponent = /** @class */ (function () {
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiIsImZpbGUiOiJzcmMvYXBwL3Zhci1ncm91cC92YXItZ3JvdXAuY29tcG9uZW50LmNzcyJ9 */"
+module.exports = ".groups-list {\n    padding-top: 0;\n}\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInNyYy9hcHAvdmFyLWdyb3VwL3Zhci1ncm91cC5jb21wb25lbnQuY3NzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBO0lBQ0ksY0FBYztBQUNsQiIsImZpbGUiOiJzcmMvYXBwL3Zhci1ncm91cC92YXItZ3JvdXAuY29tcG9uZW50LmNzcyIsInNvdXJjZXNDb250ZW50IjpbIi5ncm91cHMtbGlzdCB7XG4gICAgcGFkZGluZy10b3A6IDA7XG59Il19 */"
 
 /***/ }),
 
@@ -1209,7 +1263,7 @@ module.exports = "\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<mat-nav-list class=\"button-header\" xmlns=\"http://www.w3.org/1999/html\">\n\n  <a mat-list-item (click)=\"addTab()\"><span i18n>Add Group</span><span class=\"fill-space\"></span><mat-icon>playlist_add</mat-icon></a>\n\n</mat-nav-list>\n<mat-nav-list>\n\n  <a mat-list-item (click)=\"showAll()\" [ngClass]=\"{'active': allActive }\" i18n>All</a>\n\n  <a mat-list-item id=\"{{tab.varGrp['@ID']}}\" draggable=\"true\" [disableRipple]=\"true\"  (dragstart)=\"dragstart($event);onGroupClick(tab);trackDragRow(tab)\" (dragenter)=\"dragenter($event,tab)\" (dragend)=\"dragend($event)\"  *ngFor=\"let tab of variableGroups\" (click)=\"onGroupClick(tab)\" (dblclick)=\"onGroupDblClick(tab)\" [ngClass]=\"{'active': tab.active }\" >\n    <mat-icon aria-label=\"drag\" i18n-matTooltip matTooltip=\"Drag Me\" style=\"margin-left:-7px\">drag_indicator</mat-icon>\n    <span *ngIf=\"!tab.editable\">{{tab.varGrp.labl}}</span>\n    <mat-form-field *ngIf=\"tab.editable\" class=\"fixed_width\">\n      <input matInput maxLength=\"50\" value=\"{{tab.varGrp.labl}}\" #titleInput  (keyup.enter) =\"renameGroupComplete(tab,titleInput.value )\">\n        <span button mat-icon-button matSuffix color=\"primary\"> <mat-icon i18n-aria-label aria-label=\"Done\" (click)=\"renameGroupComplete(tab,titleInput.value )\">done</mat-icon></span>\n        <span button mat-icon-button matSuffix color=\"primary\"> <mat-icon i18n-aria-label aria-label=\"Clear\" (click)=\"renameGroupCancel(tab)\">clear</mat-icon></span>\n        <span button mat-icon-button matSuffix color=\"primary\"> <mat-icon i18n-aria-label aria-label=\"Delete\" (click)=\"groupDelete(tab)\">delete</mat-icon></span>\n    </mat-form-field>\n\n    <span class=\"fill-space\"></span>\n    <button *ngIf=\"!tab.editable\" mat-icon-button color=\"primary\"><mat-icon aria-label=\"Edit\" (click)=\"renameGroup(tab)\">edit</mat-icon></button>\n\n  </a>\n\n</mat-nav-list>\n"
+module.exports = "<mat-nav-list class=\"groups-list\">\n  <a mat-list-item (click)=\"addTab()\" class=\"button-header\">\n    <span i18n>Add Group</span>\n    <span class=\"fill-space\"></span>\n    <mat-icon>add</mat-icon>\n  </a>\n  <mat-divider></mat-divider>\n  <a mat-list-item (click)=\"showAll()\" [ngClass]=\"{'active': allActive }\" i18n>All Variables</a>\n  <mat-divider></mat-divider>\n  <a mat-list-item\n  id=\"{{tab.varGrp['@ID']}}\"\n  [disableRipple]=\"true\"\n  *ngFor=\"let tab of variableGroups\"\n  (click)=\"onGroupClick(tab)\"\n  (dblclick)=\"onGroupDblClick(tab)\"\n  [ngClass]=\"{'active': tab.active }\"\n  >\n    <span *ngIf=\"!tab.editable\">{{tab.varGrp.labl}}</span>\n    <mat-form-field\n    *ngIf=\"tab.editable\"\n    class=\"fixed_width\"\n    >\n      <input matInput\n      maxLength=\"50\"\n      value=\"{{tab.varGrp.labl}}\"\n      #titleInput\n      (keyup.enter)=\"renameGroupComplete(tab,titleInput.value)\"\n      >\n      <span button mat-icon-button matSuffix color=\"primary\">\n        <mat-icon i18n-aria-label aria-label=\"Done\" i18n-matTooltip matTooltip=\"Save\" (click)=\"renameGroupComplete(tab,titleInput.value )\">done</mat-icon>\n      </span>\n      <span button mat-icon-button matSuffix color=\"primary\">\n        <mat-icon i18n-aria-label aria-label=\"Cancel\" i18n-matTooltip matTooltip=\"Cancel\" (click)=\"renameGroupCancel(tab)\">clear</mat-icon>\n      </span>\n      <span button mat-icon-button matSuffix color=\"primary\">\n        <mat-icon i18n-aria-label aria-label=\"Delete\" i18n-matTooltip matTooltip=\"Delete\" (click)=\"groupDelete(tab)\">delete</mat-icon>\n      </span>\n    </mat-form-field>\n    <span class=\"fill-space\"></span>\n    <button *ngIf=\"!tab.editable\" mat-icon-button color=\"primary\">\n      <mat-icon i18n-aria-label aria-label=\"Edit Group Name\" i18n-matTooltip matTooltip=\"Edit Group Name\" (click)=\"renameGroup(tab)\">edit</mat-icon>\n    </button>\n  </a>\n</mat-nav-list>\n"
 
 /***/ }),
 
@@ -1233,9 +1287,7 @@ var VarGroupComponent = /** @class */ (function () {
         this.subSetRows = new _angular_core__WEBPACK_IMPORTED_MODULE_1__["EventEmitter"]();
         this.parentScrollNav = new _angular_core__WEBPACK_IMPORTED_MODULE_1__["EventEmitter"]();
         this.selectGroup = new _angular_core__WEBPACK_IMPORTED_MODULE_1__["EventEmitter"]();
-        this.draggedGroup = new _angular_core__WEBPACK_IMPORTED_MODULE_1__["EventEmitter"]();
         this.disableSelectGroup = new _angular_core__WEBPACK_IMPORTED_MODULE_1__["EventEmitter"]();
-        this.dragged_over_dir = 'before';
     }
     VarGroupComponent.prototype.ngOnInit = function () { };
     // Add a new group to the list and scroll to show it!
@@ -1270,7 +1322,6 @@ var VarGroupComponent = /** @class */ (function () {
             obj_1.variableGroups[numberOfGroups].editable = true;
             setTimeout(function () {
                 obj_1.titleInput.nativeElement.focus();
-                console.log('set time out');
                 obj_1.parentScrollNav.emit();
                 obj_1.onGroupClick(var_group_1);
             }, 100);
@@ -1287,24 +1338,20 @@ var VarGroupComponent = /** @class */ (function () {
         this.renameGroup(_obj);
     };
     VarGroupComponent.prototype.renameGroup = function (_obj) {
-        console.log('Rename group');
         _obj.editable = true;
     };
     VarGroupComponent.prototype.renameGroupComplete = function (_obj, _val) {
-        console.log('renameGroupComplete');
         if (_val !== null && _val.trim() !== '') {
             _obj.varGrp.labl = _val.trim();
             _obj.editable = false;
         }
     };
     VarGroupComponent.prototype.renameGroupCancel = function (_obj) {
-        console.log('renameGroupCancel');
         if (_obj.varGrp.labl !== null && _obj.varGrp.labl.trim() !== '') {
             _obj.editable = false;
         }
     };
     VarGroupComponent.prototype.groupDelete = function (_obj) {
-        console.log('delete group');
         for (var i = 0; i < this.variableGroups.length; i++) {
             if (this.variableGroups[i].varGrp['@ID'] === _obj.varGrp['@ID']) {
                 this.variableGroups.splice(i, 1);
@@ -1314,12 +1361,13 @@ var VarGroupComponent = /** @class */ (function () {
     VarGroupComponent.prototype.showActive = function (_id) {
         this.allActive = false;
         // show it's active
-        for (var i = 0; i < this.variableGroups.length; i++) {
-            if (this.variableGroups[i].varGrp['@ID'] === _id) {
-                this.variableGroups[i].active = true;
+        for (var _i = 0, _a = this.variableGroups; _i < _a.length; _i++) {
+            var i = _a[_i];
+            if (i.varGrp['@ID'] === _id) {
+                i.active = true;
             }
             else {
-                this.variableGroups[i].active = false;
+                i.active = false;
             }
         }
     };
@@ -1328,70 +1376,6 @@ var VarGroupComponent = /** @class */ (function () {
         this.allActive = true;
         this.subSetRows.emit();
         this.disableSelectGroup.emit();
-    };
-    VarGroupComponent.prototype.dragstart = function ($event) {
-        this.source = $event.currentTarget;
-        $event.dataTransfer.effectAllowed = 'move';
-    };
-    VarGroupComponent.prototype.trackDragRow = function (_row) {
-        this.draggedObj = _row;
-    };
-    VarGroupComponent.prototype.dragenter = function ($event, _row) {
-        var target = $event.currentTarget;
-        if (!this.source) {
-            // broadcast
-            this.draggedGroup.emit($event.currentTarget.id);
-            return;
-        }
-        if (_row === this.draggedObj) {
-            return;
-        }
-        this.dragged_over_obj = _row; // keep track of the dragged over obj to later update the list
-        // need to determine how
-        if (this.isbefore(this.source, target)) {
-            target.parentNode.insertBefore(this.source, target); // insert before
-            this.dragged_over_dir = 'before';
-        }
-        else {
-            target.parentNode.insertBefore(this.source, target.nextSibling); // insert after
-            this.dragged_over_dir = 'after';
-        }
-    };
-    VarGroupComponent.prototype.isbefore = function (a, b) {
-        if (a.parentNode === b.parentNode) {
-            for (var cur = a; cur; cur = cur.previousSibling) {
-                if (cur === b) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    };
-    VarGroupComponent.prototype.dragend = function ($event) {
-        // make sure we've dragged over something
-        if (!this.dragged_over_obj) {
-            return;
-        }
-        // update the master list
-        // remove the object
-        this.variableGroups.splice(this.variableGroups
-            .map(function (e) {
-            return e.varGrp['@ID'];
-        })
-            .indexOf(this.draggedObj.varGrp['@ID']), 1);
-        var index = this.variableGroups
-            .map(function (e) {
-            return e.varGrp['@ID'];
-        })
-            .indexOf(this.dragged_over_obj.varGrp['@ID']);
-        if (this.dragged_over_dir === 'before') {
-            this.variableGroups.splice(index, 0, this.draggedObj);
-        }
-        else {
-            this.variableGroups.splice(index + 1, 0, this.draggedObj);
-        }
-        delete this.draggedObj;
-        delete this.source; // remove reference
     };
     tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["Input"])(),
@@ -1409,10 +1393,6 @@ var VarGroupComponent = /** @class */ (function () {
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["Output"])(),
         tslib__WEBPACK_IMPORTED_MODULE_0__["__metadata"]("design:type", _angular_core__WEBPACK_IMPORTED_MODULE_1__["EventEmitter"])
     ], VarGroupComponent.prototype, "selectGroup", void 0);
-    tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([
-        Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["Output"])(),
-        tslib__WEBPACK_IMPORTED_MODULE_0__["__metadata"]("design:type", _angular_core__WEBPACK_IMPORTED_MODULE_1__["EventEmitter"])
-    ], VarGroupComponent.prototype, "draggedGroup", void 0);
     tslib__WEBPACK_IMPORTED_MODULE_0__["__decorate"]([
         Object(_angular_core__WEBPACK_IMPORTED_MODULE_1__["Output"])(),
         tslib__WEBPACK_IMPORTED_MODULE_0__["__metadata"]("design:type", _angular_core__WEBPACK_IMPORTED_MODULE_1__["EventEmitter"])
@@ -1443,7 +1423,7 @@ var VarGroupComponent = /** @class */ (function () {
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = ".table-bordered {\n  border: 1px solid #ddd;\n  width: 100%;\n  border-spacing: 0;\n  border-collapse: collapse;\n}\n\n.table-bordered tr > td,\n.table-bordered tr > th {\n  border: 1px solid #ddd;\n  padding: 5px;\n  text-align: left;\n}\n\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInNyYy9hcHAvdmFyLXN0YXQtZGlhbG9nL3Zhci1zdGF0LWRpYWxvZy5jb21wb25lbnQuY3NzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBO0VBQ0Usc0JBQXNCO0VBQ3RCLFdBQVc7RUFDWCxpQkFBaUI7RUFDakIseUJBQXlCO0FBQzNCOztBQUVBOztFQUVFLHNCQUFzQjtFQUN0QixZQUFZO0VBQ1osZ0JBQWdCO0FBQ2xCIiwiZmlsZSI6InNyYy9hcHAvdmFyLXN0YXQtZGlhbG9nL3Zhci1zdGF0LWRpYWxvZy5jb21wb25lbnQuY3NzIiwic291cmNlc0NvbnRlbnQiOlsiLnRhYmxlLWJvcmRlcmVkIHtcbiAgYm9yZGVyOiAxcHggc29saWQgI2RkZDtcbiAgd2lkdGg6IDEwMCU7XG4gIGJvcmRlci1zcGFjaW5nOiAwO1xuICBib3JkZXItY29sbGFwc2U6IGNvbGxhcHNlO1xufVxuXG4udGFibGUtYm9yZGVyZWQgdHIgPiB0ZCxcbi50YWJsZS1ib3JkZXJlZCB0ciA+IHRoIHtcbiAgYm9yZGVyOiAxcHggc29saWQgI2RkZDtcbiAgcGFkZGluZzogNXB4O1xuICB0ZXh0LWFsaWduOiBsZWZ0O1xufVxuIl19 */"
+module.exports = ".table-bordered {\n  border: 1px solid #ddd;\n  width: 100%;\n  border-spacing: 0;\n  border-collapse: collapse;\n}\n\n.table-bordered tr > td,\n.table-bordered tr > th {\n  border: 1px solid #ddd;\n  padding: 5px;\n  text-align: left;\n}\n\n.close-dialog {\n  float: right;\n}\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInNyYy9hcHAvdmFyLXN0YXQtZGlhbG9nL3Zhci1zdGF0LWRpYWxvZy5jb21wb25lbnQuY3NzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBO0VBQ0Usc0JBQXNCO0VBQ3RCLFdBQVc7RUFDWCxpQkFBaUI7RUFDakIseUJBQXlCO0FBQzNCOztBQUVBOztFQUVFLHNCQUFzQjtFQUN0QixZQUFZO0VBQ1osZ0JBQWdCO0FBQ2xCOztBQUVBO0VBQ0UsWUFBWTtBQUNkIiwiZmlsZSI6InNyYy9hcHAvdmFyLXN0YXQtZGlhbG9nL3Zhci1zdGF0LWRpYWxvZy5jb21wb25lbnQuY3NzIiwic291cmNlc0NvbnRlbnQiOlsiLnRhYmxlLWJvcmRlcmVkIHtcbiAgYm9yZGVyOiAxcHggc29saWQgI2RkZDtcbiAgd2lkdGg6IDEwMCU7XG4gIGJvcmRlci1zcGFjaW5nOiAwO1xuICBib3JkZXItY29sbGFwc2U6IGNvbGxhcHNlO1xufVxuXG4udGFibGUtYm9yZGVyZWQgdHIgPiB0ZCxcbi50YWJsZS1ib3JkZXJlZCB0ciA+IHRoIHtcbiAgYm9yZGVyOiAxcHggc29saWQgI2RkZDtcbiAgcGFkZGluZzogNXB4O1xuICB0ZXh0LWFsaWduOiBsZWZ0O1xufVxuXG4uY2xvc2UtZGlhbG9nIHtcbiAgZmxvYXQ6IHJpZ2h0O1xufSJdfQ== */"
 
 /***/ }),
 
@@ -1454,7 +1434,7 @@ module.exports = ".table-bordered {\n  border: 1px solid #ddd;\n  width: 100%;\n
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<div mat-dialog-content>\n\n  <h1 mat-dialog-title>{{data[\"@name\"]}}: {{data[\"labl\"][\"#text\"]}}</h1>\n\n  <app-chart [data]=\"sortedCategories\"></app-chart>\n\n  <table class=\"table-bordered\">\n  <tr>\n      <th i18n>Values</th>\n      <th i18n>Categories</th>\n      <th i18n>Count</th>\n      <th i18n>Weighted Count</th>\n  </tr>\n    <tr *ngFor=\"let row of sortedCategories\">\n      <td>{{row.catValu}}</td>\n      <td>{{row.labl[\"#text\"]}}</td>\n      <td *ngIf=\"isUndefined(row.catStat); else elseBlock\"></td>\n      <ng-template #elseBlock>\n        <td *ngIf=\"isUndefined(row.catStat.length); else elseBlock2\"></td>\n        <ng-template #elseBlock2>\n          <td>{{row.catStat[0][\"#text\"] | number}}</td>\n        </ng-template>\n      </ng-template>\n      <td *ngIf=\"isUndefined(row.catStat); else elseBloc\"></td>\n      <ng-template #elseBloc>\n        <td *ngIf=\"doesExist(row.catStat.length); else elseBloc2\">{{row.catStat[1][\"#text\"] | number }}</td>\n        <ng-template #elseBloc2>\n          <td></td>\n        </ng-template>\n      </ng-template>\n    </tr>\n  </table>\n\n  <mat-dialog-actions>\n    <button mat-button mat-dialog-close i18n>Close</button>\n  </mat-dialog-actions>\n\n</div>\n"
+module.exports = "<div mat-dialog-content>\n\n  <button mat-icon-button mat-dialog-close i18n-matTooltip matTooltip=\"Close\" class=\"close-dialog\">\n      <mat-icon i18n-aria-label aria-label=\"Close\">close</mat-icon>\n  </button>\n\n  <h1 mat-dialog-title>{{data[\"@name\"]}}: {{data[\"labl\"][\"#text\"]}}</h1>\n\n  <app-chart [data]=\"sortedCategories\"></app-chart>\n\n  <table class=\"table-bordered\">\n    <tr>\n        <th i18n>Values</th>\n        <th i18n>Categories</th>\n        <th i18n>Count</th>\n        <th i18n>Weighted Count</th>\n    </tr>\n    <tr *ngFor=\"let row of sortedCategories\">\n      <td>{{row.catValu}}</td>\n      <td>{{row.labl[\"#text\"]}}</td>\n      <td *ngIf=\"isUndefined(row.catStat); else elseBlock\"></td>\n      <ng-template #elseBlock>\n        <td *ngIf=\"isUndefined(row.catStat.length); else elseBlock2\"></td>\n        <ng-template #elseBlock2>\n          <td>{{row.catStat[0][\"#text\"] | number}}</td>\n        </ng-template>\n      </ng-template>\n      <td *ngIf=\"isUndefined(row.catStat); else elseBloc\"></td>\n      <ng-template #elseBloc>\n        <td *ngIf=\"doesExist(row.catStat.length); else elseBloc2\">{{row.catStat[1][\"#text\"] | number }}</td>\n        <ng-template #elseBloc2>\n          <td></td>\n        </ng-template>\n      </ng-template>\n    </tr>\n  </table>\n\n</div>\n"
 
 /***/ }),
 
@@ -1481,18 +1461,15 @@ var VarStatDialogComponent = /** @class */ (function () {
     }
     VarStatDialogComponent.prototype.ngOnInit = function () {
         if (typeof this.data.catgry !== 'undefined') {
-            //console.log(this.data.catgry);
             if (typeof this.data.catgry.length === 'undefined') {
                 this.sortedCategories.push(this.data.catgry);
             }
             else {
                 for (var _i = 0, _a = this.data.catgry; _i < _a.length; _i++) {
                     var i = _a[_i];
-                    //console.log(i);
                     this.sortedCategories.push(i);
                 }
             }
-            //console.log(this.sortedCategories);
             this.sortedCategories.sort(function (a, b) {
                 return a.catValu - b.catValu;
             });
@@ -1527,7 +1504,7 @@ var VarStatDialogComponent = /** @class */ (function () {
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = ".grey .mat-cell {\n  color: #767676;\n}\n\n.active {\n  background: #6d9cff;\n}\n\n.mat-header-cell {\n  color: rgba(0,0,0,.6);\n}\n\n.mat-column-drag {\n  flex:  0 1 50px;\n}\n\n.mat-column-select {\n  flex:  0 1 50px;\n}\n\n.mat-column-control {\n  flex:  0 1 50px;\n}\n\n.mat-column-id {\n  flex:  0 1 100px;\n}\n\n.mat-column-name {\n  flex:  1 1 100px;\n}\n\n.mat-column-labl {\n  flex:  1 1 600px;\n}\n\n.mat-column-wgt-var {\n  flex:  0 1 100px;\n}\n\n.mat-column-view {\n  flex:  0 1 75px;\n}\n\n.mat-column-action {\n  flex:  0 1 75px;\n}\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInNyYy9hcHAvdmFyL3Zhci5jb21wb25lbnQuY3NzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBO0VBQ0UsY0FBYztBQUNoQjs7QUFFQTtFQUNFLG1CQUFtQjtBQUNyQjs7QUFFQTtFQUNFLHFCQUFxQjtBQUN2Qjs7QUFFQTtFQUNFLGVBQWU7QUFDakI7O0FBRUE7RUFDRSxlQUFlO0FBQ2pCOztBQUVBO0VBQ0UsZUFBZTtBQUNqQjs7QUFFQTtFQUNFLGdCQUFnQjtBQUNsQjs7QUFFQTtFQUNFLGdCQUFnQjtBQUNsQjs7QUFFQTtFQUNFLGdCQUFnQjtBQUNsQjs7QUFFQTtFQUNFLGdCQUFnQjtBQUNsQjs7QUFFQTtFQUNFLGVBQWU7QUFDakI7O0FBRUE7RUFDRSxlQUFlO0FBQ2pCIiwiZmlsZSI6InNyYy9hcHAvdmFyL3Zhci5jb21wb25lbnQuY3NzIiwic291cmNlc0NvbnRlbnQiOlsiLmdyZXkgLm1hdC1jZWxsIHtcbiAgY29sb3I6ICM3Njc2NzY7XG59XG5cbi5hY3RpdmUge1xuICBiYWNrZ3JvdW5kOiAjNmQ5Y2ZmO1xufVxuXG4ubWF0LWhlYWRlci1jZWxsIHtcbiAgY29sb3I6IHJnYmEoMCwwLDAsLjYpO1xufVxuXG4ubWF0LWNvbHVtbi1kcmFnIHtcbiAgZmxleDogIDAgMSA1MHB4O1xufVxuXG4ubWF0LWNvbHVtbi1zZWxlY3Qge1xuICBmbGV4OiAgMCAxIDUwcHg7XG59XG5cbi5tYXQtY29sdW1uLWNvbnRyb2wge1xuICBmbGV4OiAgMCAxIDUwcHg7XG59XG5cbi5tYXQtY29sdW1uLWlkIHtcbiAgZmxleDogIDAgMSAxMDBweDtcbn1cblxuLm1hdC1jb2x1bW4tbmFtZSB7XG4gIGZsZXg6ICAxIDEgMTAwcHg7XG59XG5cbi5tYXQtY29sdW1uLWxhYmwge1xuICBmbGV4OiAgMSAxIDYwMHB4O1xufVxuXG4ubWF0LWNvbHVtbi13Z3QtdmFyIHtcbiAgZmxleDogIDAgMSAxMDBweDtcbn1cblxuLm1hdC1jb2x1bW4tdmlldyB7XG4gIGZsZXg6ICAwIDEgNzVweDtcbn1cblxuLm1hdC1jb2x1bW4tYWN0aW9uIHtcbiAgZmxleDogIDAgMSA3NXB4O1xufSJdfQ== */"
+module.exports = ".grey .mat-cell {\n  color: #767676;\n}\n\n.active {\n  background: #6d9cff;\n}\n\n.mat-header-cell {\n  color: rgba(0,0,0,.6);\n}\n\n.mat-column-select {\n  flex:  0 1 70px;\n}\n\n.mat-column-control {\n  flex:  0 1 50px;\n}\n\n.mat-column-id {\n  flex:  0 1 100px;\n}\n\n.mat-column-name {\n  flex:  1 1 100px;\n}\n\n.mat-column-labl {\n  flex:  1 1 600px;\n}\n\n.mat-column-wgt-var {\n  flex:  0 1 100px;\n}\n\n.mat-column-view {\n  flex:  0 1 75px;\n}\n\n.mat-column-action {\n  flex:  0 1 75px;\n}\n/*# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJzb3VyY2VzIjpbInNyYy9hcHAvdmFyL3Zhci5jb21wb25lbnQuY3NzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBO0VBQ0UsY0FBYztBQUNoQjs7QUFFQTtFQUNFLG1CQUFtQjtBQUNyQjs7QUFFQTtFQUNFLHFCQUFxQjtBQUN2Qjs7QUFFQTtFQUNFLGVBQWU7QUFDakI7O0FBRUE7RUFDRSxlQUFlO0FBQ2pCOztBQUVBO0VBQ0UsZ0JBQWdCO0FBQ2xCOztBQUVBO0VBQ0UsZ0JBQWdCO0FBQ2xCOztBQUVBO0VBQ0UsZ0JBQWdCO0FBQ2xCOztBQUVBO0VBQ0UsZ0JBQWdCO0FBQ2xCOztBQUVBO0VBQ0UsZUFBZTtBQUNqQjs7QUFFQTtFQUNFLGVBQWU7QUFDakIiLCJmaWxlIjoic3JjL2FwcC92YXIvdmFyLmNvbXBvbmVudC5jc3MiLCJzb3VyY2VzQ29udGVudCI6WyIuZ3JleSAubWF0LWNlbGwge1xuICBjb2xvcjogIzc2NzY3Njtcbn1cblxuLmFjdGl2ZSB7XG4gIGJhY2tncm91bmQ6ICM2ZDljZmY7XG59XG5cbi5tYXQtaGVhZGVyLWNlbGwge1xuICBjb2xvcjogcmdiYSgwLDAsMCwuNik7XG59XG5cbi5tYXQtY29sdW1uLXNlbGVjdCB7XG4gIGZsZXg6ICAwIDEgNzBweDtcbn1cblxuLm1hdC1jb2x1bW4tY29udHJvbCB7XG4gIGZsZXg6ICAwIDEgNTBweDtcbn1cblxuLm1hdC1jb2x1bW4taWQge1xuICBmbGV4OiAgMCAxIDEwMHB4O1xufVxuXG4ubWF0LWNvbHVtbi1uYW1lIHtcbiAgZmxleDogIDEgMSAxMDBweDtcbn1cblxuLm1hdC1jb2x1bW4tbGFibCB7XG4gIGZsZXg6ICAxIDEgNjAwcHg7XG59XG5cbi5tYXQtY29sdW1uLXdndC12YXIge1xuICBmbGV4OiAgMCAxIDEwMHB4O1xufVxuXG4ubWF0LWNvbHVtbi12aWV3IHtcbiAgZmxleDogIDAgMSA3NXB4O1xufVxuXG4ubWF0LWNvbHVtbi1hY3Rpb24ge1xuICBmbGV4OiAgMCAxIDc1cHg7XG59Il19 */"
 
 /***/ }),
 
@@ -1538,7 +1515,7 @@ module.exports = ".grey .mat-cell {\n  color: #767676;\n}\n\n.active {\n  backgr
 /*! no static exports found */
 /***/ (function(module, exports) {
 
-module.exports = "<mat-grid-list class=\"table-controls\" cols=\"3\" rowHeight=\"64\">\n  <mat-grid-tile>\n    <mat-form-field>\n      <input matInput [formControl]=\"searchFilter\" placeholder=\"Search\" />\n      <span matSuffix><mat-icon>search</mat-icon></span>\n    </mat-form-field>\n  </mat-grid-tile>\n  <mat-paginator [pageSizeOptions]=\"[25, 50, 100]\"></mat-paginator>\n  <mat-divider [vertical]=\"true\"></mat-divider>\n  <mat-grid-tile>\n    <mat-select\n      color=\"primary\"\n      (change)=\"addToGroup($event.value)\"\n      placeholder=\"Add Selected to Group\"\n      #group_select\n      disabled=\"true\"\n      [hidden]=\"group_select.hidden\"\n    >\n      <mat-option *ngFor=\"let g of variableGroups\" [value]=\"g.varGrp['@ID']\">\n        {{ g.varGrp.labl }}\n      </mat-option>\n    </mat-select>\n  </mat-grid-tile>\n</mat-grid-list>\n\n<mat-table class=\"mat-elevation-z8\" [dataSource]=\"datasource\" matSort>\n  <!-- drag Icon Column -->\n  <ng-container matColumnDef=\"drag\">\n    <mat-header-cell *matHeaderCellDef> </mat-header-cell>\n    <mat-cell *matCellDef=\"let row\">\n      <mat-icon aria-label=\"drag\" matTooltip=\"Drag Me\">drag_indicator</mat-icon>\n    </mat-cell>\n  </ng-container>\n\n  <!-- Checkbox Column -->\n  <ng-container matColumnDef=\"select\">\n    <mat-header-cell *matHeaderCellDef>\n      <mat-checkbox\n        (change)=\"$event ? masterToggle() : null\"\n        [checked]=\"selection.hasValue() && isAllSelected()\"\n        [indeterminate]=\"selection.hasValue() && !isAllSelected()\"\n      >\n      </mat-checkbox>\n    </mat-header-cell>\n    <mat-cell *matCellDef=\"let row\">\n      <mat-checkbox\n        (click)=\"$event.stopPropagation()\"\n        (change)=\"$event ? selection.toggle(row) : null; checkSelection()\"\n        [checked]=\"selection.isSelected(row)\"\n        i18n-matTooltip\n        matTooltip=\"Select\"\n      >\n      </mat-checkbox>\n    </mat-cell>\n  </ng-container>\n\n  <!-- MINUS PLUS Column -->\n  <ng-container matColumnDef=\"control\">\n    <mat-header-cell *matHeaderCellDef\n      ><div style=\"width:40px;\"></div\n    ></mat-header-cell>\n    <mat-cell *matCellDef=\"let row; let i = index\">\n      <button\n        *ngIf=\"row._show\"\n        mat-icon-button\n        color=\"accent\"\n        (click)=\"onRemove(row['@ID'])\"\n        i18n-matTooltip\n        matTooltip=\"Remove from Group\"\n      >\n        <mat-icon aria-label=\"remove\">indeterminate_check_box</mat-icon>\n      </button>\n      <button\n        *ngIf=\"!row._show\"\n        mat-icon-button\n        color=\"accent\"\n        (click)=\"onAdd(row['@ID'])\"\n        i18n-matTooltip\n        matTooltip=\"Add to Group\"\n      >\n        <mat-icon aria-label=\"add\">add_box</mat-icon>\n      </button>\n    </mat-cell>\n  </ng-container>\n\n  <!-- ID Column -->\n  <ng-container matColumnDef=\"id\">\n    <mat-header-cell *matHeaderCellDef mat-sort-header i18n> ID </mat-header-cell>\n    <mat-cell *matCellDef=\"let row\"> {{ row['id'] }} </mat-cell>\n  </ng-container>\n\n  <ng-container matColumnDef=\"_order\">\n    <mat-header-cell *matHeaderCellDef mat-sort-header> order </mat-header-cell>\n    <mat-cell *matCellDef=\"let row\"> {{ row['_order'] }} </mat-cell>\n  </ng-container>\n\n  <ng-container matColumnDef=\"name\">\n    <mat-header-cell *matHeaderCellDef mat-sort-header i18n> Name </mat-header-cell>\n    <mat-cell *matCellDef=\"let row\">{{ (row['@name'].length > 30) ? (row['@name'] | slice:0:30) + '...' : (row['@name']) }}  </mat-cell>\n  </ng-container>\n\n  <ng-container matColumnDef=\"labl\">\n    <mat-header-cell *matHeaderCellDef mat-sort-header i18n> Label </mat-header-cell>\n    <mat-cell *matCellDef=\"let row\"> {{ (row.labl['#text'].length > 150) ? (row.labl['#text'] | slice:0:150) + '...' : (row.labl['#text'])}} </mat-cell>\n  </ng-container>\n\n  <ng-container matColumnDef=\"catgry\">\n    <mat-header-cell *matHeaderCellDef mat-sort-header i18n> Category </mat-header-cell>\n    <!--\n      <mat-cell *matCellDef=\"let row\"> <span *ngIf=\"row.catgry\">{{row.catgry.length}}</span> </mat-cell>-->\n    </ng-container>\n\n  <ng-container matColumnDef=\"wgt-var\">\n    <mat-header-cell *matHeaderCellDef mat-sort-header i18n> Weight </mat-header-cell>\n    <mat-cell *matCellDef=\"let row\">\n      <span *ngIf=\"row['@wgt-var']\">{{ row['@wgt-var'] }}</span>\n    </mat-cell>\n  </ng-container>\n\n  <ng-container matColumnDef=\"view\">\n    <mat-header-cell *matHeaderCellDef i18n> View </mat-header-cell>\n    <mat-cell *matCellDef=\"let row; let i = index\">\n      <button\n        mat-icon-button\n        color=\"accent\"\n        (click)=\"onView(row['@ID'])\"\n        i18n-matTooltip\n        matTooltip=\"View\"\n      >\n        <mat-icon i18n-aria-label aria-label=\"View\">visibility</mat-icon>\n      </button>\n    </mat-cell>\n  </ng-container>\n\n  <ng-container matColumnDef=\"action\">\n    <mat-header-cell *matHeaderCellDef>\n      <button\n        mat-icon-button\n        color=\"accent\"\n        (click)=\"onEditSelected()\"\n        i18n-matTooltip\n        matTooltip=\"Group Edit\"\n        #group_edit\n        disabled=\"true\"\n      >\n        <mat-icon i18n-aria-label aria-label=\"Group Edit\">edit</mat-icon>\n      </button>\n    </mat-header-cell>\n\n    <mat-cell *matCellDef=\"let row; let i = index\">\n      <button\n        mat-icon-button\n        color=\"accent\"\n        (click)=\"onEdit(row['@ID'])\"\n        i18n-matTooltip\n        matTooltip=\"Edit\"\n      >\n        <mat-icon i18n-aria-label aria-label=\"Edit\">edit</mat-icon>\n      </button>\n    </mat-cell>\n  </ng-container>\n\n  <mat-header-row *matHeaderRowDef=\"getDisplayedColumns()\"></mat-header-row>\n  <mat-row\n    *matRowDef=\"let row; columns: getDisplayedColumns()\"\n    draggable=\"true\"\n    (dragstart)=\"dragstart($event); highlightRow(row); trackDragRow(row)\"\n    (dragend)=\"dragend($event)\"\n    (dragenter)=\"dragenter($event, row)\"\n    [ngClass]=\"{ grey: row._show != true, active: row._active == true }\"\n  >\n  </mat-row>\n</mat-table>\n"
+module.exports = "<mat-grid-list class=\"table-controls\" cols=\"3\" rowHeight=\"64\">\n  <mat-grid-tile>\n    <mat-form-field>\n      <input matInput [formControl]=\"searchFilter\" i18n-placeholder placeholder=\"Search\" />\n      <span matSuffix><mat-icon>search</mat-icon></span>\n    </mat-form-field>\n  </mat-grid-tile>\n  <mat-paginator [pageSizeOptions]=\"[25, 50, 100]\"></mat-paginator>\n  <mat-divider [vertical]=\"true\"></mat-divider>\n  <mat-grid-tile>\n    <mat-select\n      color=\"primary\"\n      (change)=\"addToGroup($event.value)\"\n      placeholder=\"Add Selected to Group\"\n      #group_select\n      disabled=\"true\"\n      [hidden]=\"group_select.hidden\"\n    >\n      <mat-option *ngFor=\"let g of variableGroups\" [value]=\"g.varGrp['@ID']\">\n        {{ g.varGrp.labl }}\n      </mat-option>\n    </mat-select>\n  </mat-grid-tile>\n</mat-grid-list>\n\n<mat-table class=\"mat-elevation-z8\" [dataSource]=\"datasource\" matSort>\n\n  <!-- Checkbox Column in 'All Variables' view -->\n  <ng-container matColumnDef=\"select\">\n    <mat-header-cell *matHeaderCellDef>\n      <mat-checkbox\n        (change)=\"$event ? masterToggle() : null\"\n        [checked]=\"selection.hasValue() && isAllSelected()\"\n        [indeterminate]=\"selection.hasValue() && !isAllSelected()\"\n      >\n      </mat-checkbox>\n    </mat-header-cell>\n    <mat-cell *matCellDef=\"let row\">\n      <mat-checkbox\n        (click)=\"$event.stopPropagation()\"\n        (change)=\"$event ? selection.toggle(row) : null; checkSelection()\"\n        [checked]=\"selection.isSelected(row)\"\n        i18n-matTooltip\n        matTooltip=\"Select\"\n      >\n      </mat-checkbox>\n    </mat-cell>\n  </ng-container>\n\n  <!-- MINUS PLUS Column in Group view -->\n  <ng-container matColumnDef=\"control\">\n    <mat-header-cell *matHeaderCellDef\n      ><div style=\"width:40px;\"></div\n    ></mat-header-cell>\n    <mat-cell *matCellDef=\"let row; let i = index\">\n      <button\n        *ngIf=\"row._show\"\n        mat-icon-button\n        color=\"accent\"\n        (click)=\"onRemove(row['@ID'])\"\n        i18n-matTooltip\n        matTooltip=\"Remove from Group\"\n      >\n        <mat-icon i18n-aria-label aria-label=\"Remove from Group\">indeterminate_check_box</mat-icon>\n      </button>\n      <button\n        *ngIf=\"!row._show\"\n        mat-icon-button\n        color=\"accent\"\n        (click)=\"onAdd(row['@ID'])\"\n        i18n-matTooltip\n        matTooltip=\"Add to Group\"\n      >\n        <mat-icon i18n-aria-label aria-label=\"Add to Group\">add_box</mat-icon>\n      </button>\n    </mat-cell>\n  </ng-container>\n\n  <!-- ID Column -->\n  <ng-container matColumnDef=\"id\">\n    <mat-header-cell *matHeaderCellDef mat-sort-header i18n> ID </mat-header-cell>\n    <mat-cell *matCellDef=\"let row\"> {{ row['id'] }} </mat-cell>\n  </ng-container>\n\n  <ng-container matColumnDef=\"_order\">\n    <mat-header-cell *matHeaderCellDef mat-sort-header> order </mat-header-cell>\n    <mat-cell *matCellDef=\"let row\"> {{ row['_order'] }} </mat-cell>\n  </ng-container>\n\n  <ng-container matColumnDef=\"name\">\n    <mat-header-cell *matHeaderCellDef mat-sort-header i18n> Name </mat-header-cell>\n    <mat-cell *matCellDef=\"let row\">{{ (row['@name'].length > 30) ? (row['@name'] | slice:0:30) + '...' : (row['@name']) }}  </mat-cell>\n  </ng-container>\n\n  <ng-container matColumnDef=\"labl\">\n    <mat-header-cell *matHeaderCellDef mat-sort-header i18n> Label </mat-header-cell>\n    <mat-cell *matCellDef=\"let row\"> {{ (row.labl['#text'].length > 150) ? (row.labl['#text'] | slice:0:150) + '...' : (row.labl['#text'])}} </mat-cell>\n  </ng-container>\n\n  <ng-container matColumnDef=\"catgry\">\n    <mat-header-cell *matHeaderCellDef mat-sort-header i18n> Category </mat-header-cell>\n    <!--\n      <mat-cell *matCellDef=\"let row\"> <span *ngIf=\"row.catgry\">{{row.catgry.length}}</span> </mat-cell>-->\n    </ng-container>\n\n  <ng-container matColumnDef=\"wgt-var\">\n    <mat-header-cell *matHeaderCellDef mat-sort-header i18n> Weight </mat-header-cell>\n    <mat-cell *matCellDef=\"let row\">\n      <span *ngIf=\"row['@wgt-var'] ; else elseBlock\">{{ row['@wgt-var'] }} </span>\n      <ng-template #elseBlock>\n        <span *ngIf=\"row['@wgt']\">{{ row['@wgt'] }}</span>\n      </ng-template>\n    </mat-cell>\n  </ng-container>\n\n  <ng-container matColumnDef=\"view\">\n    <mat-header-cell *matHeaderCellDef i18n> View </mat-header-cell>\n    <mat-cell *matCellDef=\"let row; let i = index\">\n      <button\n        mat-icon-button\n        color=\"accent\"\n        (click)=\"onView(row['@ID'])\"\n        i18n-matTooltip\n        matTooltip=\"View\"\n      >\n        <mat-icon i18n-aria-label aria-label=\"View\">visibility</mat-icon>\n      </button>\n    </mat-cell>\n  </ng-container>\n\n  <ng-container matColumnDef=\"action\">\n    <mat-header-cell *matHeaderCellDef>\n      <button\n        mat-icon-button\n        color=\"accent\"\n        (click)=\"onEditSelected()\"\n        i18n-matTooltip\n        matTooltip=\"Group Edit\"\n        #group_edit\n        disabled=\"true\"\n      >\n        <mat-icon i18n-aria-label aria-label=\"Group Edit\">edit</mat-icon>\n      </button>\n    </mat-header-cell>\n\n    <mat-cell *matCellDef=\"let row; let i = index\">\n      <button\n        mat-icon-button\n        color=\"accent\"\n        (click)=\"onEdit(row['@ID'])\"\n        i18n-matTooltip\n        matTooltip=\"Edit\"\n      >\n        <mat-icon i18n-aria-label aria-label=\"Edit\">edit</mat-icon>\n      </button>\n    </mat-cell>\n  </ng-container>\n\n  <mat-header-row *matHeaderRowDef=\"getDisplayedColumns()\"></mat-header-row>\n  <mat-row\n    *matRowDef=\"let row; columns: getDisplayedColumns()\"\n    [ngClass]=\"{ grey: row._show != true, active: row._active == true }\"\n  >\n  </mat-row>\n</mat-table>\n"
 
 /***/ }),
 
@@ -1575,14 +1552,12 @@ var VarComponent = /** @class */ (function () {
         this.selection = new _angular_cdk_collections__WEBPACK_IMPORTED_MODULE_6__["SelectionModel"](true, []);
         this.filterValues = { search: '', _show: true };
         this.mode = 'all';
-        this.dragged_over_dir = 'before';
         this.variableGroupsVars = [];
     }
     VarComponent.prototype.getDisplayedColumns = function () {
         var displayedColumns = []; // 'order_arrows'
         if (this.mode === 'all') {
             displayedColumns = [
-                'drag',
                 'select',
                 'id',
                 'name',
@@ -1594,7 +1569,6 @@ var VarComponent = /** @class */ (function () {
         }
         else {
             displayedColumns = [
-                'drag',
                 'control',
                 'id',
                 'name',
@@ -1637,7 +1611,6 @@ var VarComponent = /** @class */ (function () {
     // Entry point - when data has been loaded
     VarComponent.prototype.onUpdateVars = function (data) {
         this._variables = data;
-        console.log(this._variables);
         // make sure all the data is set to show
         for (var i = 0; i < this._variables.length; i++) {
             this._variables[i]._show = true;
@@ -1743,13 +1716,9 @@ var VarComponent = /** @class */ (function () {
         this.ref.detectChanges();
     };
     VarComponent.prototype.removeWeightedFreq = function () {
-        console.log('Start removeWeightedFreq');
         var weights = this.getWeights();
         var weightsSet = new Set(weights);
-        console.log(weights);
-        console.log(this._variables);
         for (var i = 0; i < this._variables.length; i++) {
-            console.log('wgt-var:' + this._variables[i]['@wgt-var']);
             if (typeof this._variables[i]['@wgt-var'] !== 'undefined') {
                 if (this._variables[i]['@wgt-var'] !== '') {
                     if (!weightsSet.has(this._variables[i]['@wgt-var'])) {
@@ -1761,7 +1730,6 @@ var VarComponent = /** @class */ (function () {
                 }
             }
         }
-        console.log('End removeWeightedFreq');
     };
     // get the var
     VarComponent.prototype.getObjByID = function (_id, _data) {
@@ -1785,14 +1753,11 @@ var VarComponent = /** @class */ (function () {
     };
     VarComponent.prototype.getWeights = function () {
         var weights = [];
-        console.log('Get weights ' + this._variables.length);
         for (var i = 0; i < this._variables.length; i++) {
             if (this._variables[i]['@wgt'] === 'wgt') {
                 weights.push(this._variables[i]['@ID']);
-                console.log(this._variables[i]['@ID']);
             }
         }
-        console.log('End get weights');
         return weights;
     };
     VarComponent.prototype.openDialog = function (data) {
@@ -1802,9 +1767,7 @@ var VarComponent = /** @class */ (function () {
             data: data,
             panelClass: 'field_width'
         });
-        console.log('Open dialog');
         var weights = this.getWeights();
-        console.log('w ' + weights.length);
         this.dialogRef.componentInstance.weights = weights;
         this.dialogRef.componentInstance.variableGroups = this.variableGroups;
         var sub = this.dialogRef.componentInstance.parentUpdateVar.subscribe(function () {
@@ -1883,65 +1846,8 @@ var VarComponent = /** @class */ (function () {
         this.sort.sort({ id: '', start: 'asc', disableClear: false });
         this.sort.sort({ id: '_order', start: 'asc', disableClear: false });
     };
-    VarComponent.prototype.dragstart = function ($event) {
-        this.source = $event.currentTarget;
-        $event.dataTransfer.effectAllowed = 'move';
-    };
-    VarComponent.prototype.trackDragRow = function (_row) {
-        this.draggedObj = _row;
-    };
-    //
-    VarComponent.prototype.dragenter = function ($event, _row) {
-        var target = $event.currentTarget;
-        // let new_dragged_over_obj=false;
-        if (_row === this.draggedObj) {
-            return;
-        }
-        this.dragged_over_obj = _row; // keep track of the dragged over obj to later update the list
-        //
-        if (this.isbefore(this.source, target)) {
-            target.parentNode.insertBefore(this.source, target); // insert before
-            this.dragged_over_dir = 'before';
-        }
-        else {
-            // note that "after" triggers once per new_dragged_over_obj and thus must be stored to ensure proper placement of dragged object
-            target.parentNode.insertBefore(this.source, target.nextSibling); // insert after
-            this.dragged_over_dir = 'after';
-        }
-    };
-    VarComponent.prototype.isbefore = function (a, b) {
-        if (a.parentNode === b.parentNode) {
-            for (var cur = a; cur; cur = cur.previousSibling) {
-                if (cur === b) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    };
     VarComponent.prototype.highlightRow = function (_row) {
         _row._active = true;
-    };
-    VarComponent.prototype.dragend = function ($event) {
-        this.draggedObj._active = false; // remove the highlight
-        var id = this.draggedObj['@ID'];
-        if (this.dragged_group) {
-            // add the dragged var to the dragged group
-            var objgr = this.getObjByIDNested(this.dragged_group, this.variableGroups);
-            var vars = objgr.varGrp['@var'].split(' ');
-            vars.push(id);
-            objgr.varGrp['@var'] = vars.join(' ');
-            // if we are currently looking at the group which has been dragged to update it
-            if (this.group_select['value'] === this.dragged_group) {
-                this.updateGroupsVars();
-                this.onSubset(vars);
-            }
-            delete this.dragged_group;
-            return;
-        }
-        // take the last dragged over item and place the dragged item either before or after
-        var obj = this.updateGroupVars('drag', id);
-        this.showMSG('Changed the position of ' + id);
     };
     VarComponent.prototype.onAdd = function (_id) {
         var obj = this.updateGroupVars('add', _id);
@@ -1961,24 +1867,6 @@ var VarComponent = /** @class */ (function () {
         else if (_type === 'add') {
             vars.push(_id); // add to end of array
         }
-        else if (_type === 'drag') {
-            // check if this.dragged_over_obj is not part of the group
-            // check to see if this var is part of the group -- otherwise add it.
-            if (vars.indexOf(_id) > -1) {
-                vars.splice(vars.indexOf(_id), 1); // remove from array
-            }
-            // find out the position of the dragged_over_obj
-            var index = vars.indexOf(this.dragged_over_obj['@ID']);
-            if (this.dragged_over_dir === 'before' && this.dragged_over_obj._show) {
-                // case 1. add before
-                vars.splice(index, 0, _id);
-            }
-            else if (this.dragged_over_dir === 'after' &&
-                this.dragged_over_obj._show) {
-                // case 2. add after
-                vars.splice(index + 1, 0, _id);
-            }
-        }
         //
         obj.varGrp['@var'] = vars.join(' ');
         // reset the table
@@ -1995,9 +1883,6 @@ var VarComponent = /** @class */ (function () {
             selectedObjs.push(selected);
         }
         this.openDialog(selectedObjs);
-    };
-    VarComponent.prototype.draggedGroup = function (_id) {
-        this.dragged_group = _id;
     };
     VarComponent.prototype.onView = function (_id) {
         var data = this.getObjByID(_id, this._variables);
