@@ -29,38 +29,24 @@ public class AffiliationGroupProvider implements GroupProvider<AffiliationGroup>
 
     @Override
     public Set<AffiliationGroup> groupsFor(RoleAssignee ra, DvObject dvo) {
-        return Collections.emptySet();
+        return groupsFor(ra);
     }
 
     @Override
     public Set<AffiliationGroup> groupsFor(DataverseRequest req, DvObject dvo) {
-        AuthenticatedUser authenticatedUser = req.getAuthenticatedUser();
-        if (authenticatedUser != null) {
-            AffiliationGroup group = affiliationGroupService.getByDisplayName(authenticatedUser.getAffiliation());
-            if (group != null) {
-                Set<AffiliationGroup> set = new HashSet<>(Arrays.asList(group));
-                return updateProvider(set);
-            }
-        }
-        return Collections.emptySet();
+        return groupsFor(req);
     }
 
     @Override
     public Set<AffiliationGroup> groupsFor(RoleAssignee ra) {
-        return Collections.emptySet();
+        AuthenticatedUser authenticatedUser = (AuthenticatedUser) ra;
+        return getAffiliationGroups(authenticatedUser);
     }
 
     @Override
     public Set<AffiliationGroup> groupsFor(DataverseRequest req) {
         AuthenticatedUser authenticatedUser = req.getAuthenticatedUser();
-        if (authenticatedUser != null) {
-            AffiliationGroup group = affiliationGroupService.getByGroupName(authenticatedUser.getAffiliation());
-            if (group != null) {
-                Set<AffiliationGroup> set = new HashSet<>(Arrays.asList(group));
-                return updateProvider(set);
-            }
-        }
-        return Collections.emptySet();
+        return getAffiliationGroups(authenticatedUser);
     }
 
     @Override
@@ -112,5 +98,16 @@ public class AffiliationGroupProvider implements GroupProvider<AffiliationGroup>
 
     public AffiliationGroup findByAlias(String alias) {
         return affiliationGroupService.getByGroupName(alias);
+    }
+
+    private Set<AffiliationGroup> getAffiliationGroups(AuthenticatedUser authenticatedUser) {
+        if (authenticatedUser != null) {
+            AffiliationGroup group = affiliationGroupService.getByDisplayName(authenticatedUser.getAffiliation());
+            if (group != null) {
+                Set<AffiliationGroup> set = new HashSet<>(Arrays.asList(group));
+                return updateProvider(set);
+            }
+        }
+        return Collections.emptySet();
     }
 }
