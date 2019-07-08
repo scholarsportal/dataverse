@@ -34,6 +34,14 @@ public class AffiliationGroupProvider implements GroupProvider<AffiliationGroup>
 
     @Override
     public Set<AffiliationGroup> groupsFor(DataverseRequest req, DvObject dvo) {
+        AuthenticatedUser authenticatedUser = req.getAuthenticatedUser();
+        if (authenticatedUser != null) {
+            AffiliationGroup group = affiliationGroupService.getByDisplayName(authenticatedUser.getAffiliation());
+            if (group != null) {
+                Set<AffiliationGroup> set = new HashSet<>(Arrays.asList(group));
+                return updateProvider(set);
+            }
+        }
         return Collections.emptySet();
     }
 
