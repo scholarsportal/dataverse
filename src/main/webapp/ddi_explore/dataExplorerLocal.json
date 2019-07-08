@@ -1,0 +1,19 @@
+{
+  "displayName": "Data Explorer",
+  "description": "The Data Explorer provides a GUI which lists the variables in a tabular data file allowing searching, charting and cross tabulation analysis.",
+  "type": "explore",
+  "toolUrl": "ddi_explore/index.html",
+  "toolParameters": {
+    "queryParameters": [
+     {  
+        "dfId": "{fileId}"  
+     },   
+     {  
+       "key": "{apiToken}"  
+     },
+     {
+       "fileMetadataId": "{fileMetadataId}"
+     }
+    ]
+  }
+}
