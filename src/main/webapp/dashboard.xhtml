@@ -8,6 +8,7 @@
 <h:head>
 </h:head>
 
+<<<<<<< HEAD
 <h:body>
     <ui:composition template="/dataverse_template.xhtml">
         <ui:param name="pageTitle"
@@ -41,6 +42,46 @@
                                                 <f:param value="#{dashboardPage.numberOfConfiguredHarvestClients}"/>
                                             </h:outputFormat>
                                         </p>
+=======
+    <h:body>
+        <ui:composition template="/dataverse_template.xhtml">
+            <ui:param name="pageTitle" value="#{bundle['dashboard.title']} - #{dataverseServiceBean.findRootDataverse().name}"/>
+            <ui:param name="showDataverseHeader" value="false"/>
+            <ui:define name="body">
+                <f:metadata>
+                    <f:viewParam name="dataverseId" value="#{dashboardPage.dataverseId}"/>
+                    <f:viewAction action="#{dataverseSession.updateLocaleInViewRoot}"/>
+                    <f:viewAction action="#{dashboardPage.init}"/>
+                    <f:viewAction action="#{dataverseHeaderFragment.initBreadcrumbs(dataverseServiceBean.findRootDataverse(), bundle['dashboard.title'])}"/>
+                </f:metadata>
+               
+                <div id="dashboard-block" class="content">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="card-box">
+                                    <h4 class="header-title">#{bundle['dashboard.card.harvestingclients.header']}</h4>
+                                    <div class="row text-center">
+                                        <div class="col-xs-12" jsf:rendered="#{dashboardPage.numberOfConfiguredHarvestClients lt 1}">
+                                            <p class="small text-muted">#{bundle['harvestclients.noClients.label']}</p>
+                                        </div>
+                                        <div class="col-xs-6" jsf:rendered="#{dashboardPage.numberOfConfiguredHarvestClients gt 0}">
+                                            #{dashboardPage.numberOfConfiguredHarvestClients}
+                                            <p class="small text-muted">
+                                                <h:outputFormat value="#{bundle['dashboard.card.harvestingclients.clients']}">
+                                                    <f:param value="#{dashboardPage.numberOfConfiguredHarvestClients}"/>
+                                                </h:outputFormat>
+                                            </p>
+                                        </div>
+                                        <div class="col-xs-6" jsf:rendered="#{dashboardPage.numberOfConfiguredHarvestClients gt 0}">
+                                            #{dashboardPage.numberOfHarvestedDatasets}
+                                            <p class="small text-muted">
+                                                <h:outputFormat value="#{bundle['dashboard.card.harvestingclients.datasets']}">
+                                                    <f:param value="#{dashboardPage.numberOfOaiSets}"/>
+                                                </h:outputFormat>
+                                            </p>
+                                        </div>
+>>>>>>> email-domain-validation
                                     </div>
                                     <div class="col-xs-6"
                                          jsf:rendered="#{dashboardPage.numberOfConfiguredHarvestClients gt 0}">
@@ -158,6 +199,7 @@
                         </div>
                     </div>
                 </div>
+<<<<<<< HEAD
             </div>
 
             <script type="text/javascript">
@@ -169,3 +211,15 @@
     </ui:composition>
 </h:body>
 </html>
+=======
+                
+                <script type="text/javascript">
+                    $(document).ready(function () {
+                        $('#dashboard-block div.row > div.col-md-4 > div.card-box').matchHeight();
+                    });
+                </script>
+            </ui:define>
+        </ui:composition>
+    </h:body>
+</html>
+>>>>>>> email-domain-validation

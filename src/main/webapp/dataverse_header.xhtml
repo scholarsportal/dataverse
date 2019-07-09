@@ -79,14 +79,20 @@
                                 </p:commandLink>
                             </o:form>
                         </ui:fragment>
+<<<<<<< HEAD
 
                         <li class="dropdown" jsf:rendered="#{dataverseLocaleBean.useLocale()}">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown" title="#{bundle.language}">#{dataverseLocaleBean.localeTitle} <b class="caret"></b></a>
+=======
+                        
+                        <li class="dropdown" jsf:rendered="#{settingsWrapper.localesConfigured}">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown" title="#{bundle.language}">#{dataverseSession.localeTitle} <b class="caret"></b></a>
+>>>>>>> email-domain-validation
                             <ul class="dropdown-menu">
                                 <h:form class="form-inline">
-                                    <ui:repeat value="#{dataverseLocaleBean.dataverseLocales.entrySet().toArray()}" var="language">
-                                        <li class="#{dataverseLocaleBean.localeTitle == language.value ? 'active' : ''}">
-                                            <h:commandLink value="#{language.value}" actionListener="#{dataverseLocaleBean.countryLocaleCodeChanged(language.key)}" action="submit()"
+                                    <ui:repeat value="#{settingsWrapper.configuredLocales.entrySet().toArray()}" var="language">
+                                        <li class="#{dataverseSession.localeTitle == language.value ? 'active' : ''}">
+                                            <h:commandLink value="#{language.value}" actionListener="#{dataverseSession.updateLocaleInViewRootAndRedirect(language.key)}" action="submit()"
                                                            style="padding: 3px 20px;
                                                                     clear: both;
                                                                     font-weight: 400;
@@ -181,7 +187,18 @@
                 </div>
             </div>
         </nav>
+<<<<<<< HEAD
     </div>        
+=======
+        <!-- Noscript Error -->
+        <noscript>
+            <div id="noscript-alert" class="bg-danger">
+                <div class="alert container text-danger no-margin-bottom">
+                    <h:outputText value="#{bundle['header.noscript']}"/>
+                </div>
+            </div>
+        </noscript>
+>>>>>>> email-domain-validation
         <!-- Status Alert -->
         <o:form class="form-inline">
             <div id="status-alert" class="bg-warning" jsf:rendered="#{!empty settingsWrapper.get(':StatusMessageText') and !empty settingsWrapper.get(':StatusMessageHeader') and !dataverseSession.isStatusDismissed()}">
