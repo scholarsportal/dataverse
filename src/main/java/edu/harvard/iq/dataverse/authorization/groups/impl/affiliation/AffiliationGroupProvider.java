@@ -39,8 +39,12 @@ public class AffiliationGroupProvider implements GroupProvider<AffiliationGroup>
 
     @Override
     public Set<AffiliationGroup> groupsFor(RoleAssignee ra) {
-        AuthenticatedUser authenticatedUser = (AuthenticatedUser) ra;
-        return getAffiliationGroups(authenticatedUser);
+        if (ra instanceof AuthenticatedUser) {
+            AuthenticatedUser authenticatedUser = (AuthenticatedUser) ra;
+            return getAffiliationGroups(authenticatedUser);
+        } else {
+            return Collections.emptySet();
+        }
     }
 
     @Override
