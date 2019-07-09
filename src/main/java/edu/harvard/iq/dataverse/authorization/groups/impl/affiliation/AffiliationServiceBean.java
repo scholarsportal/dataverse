@@ -5,31 +5,24 @@
  */
 package edu.harvard.iq.dataverse.authorization.groups.impl.affiliation;
 
-import edu.harvard.iq.dataverse.DataverseLocaleBean;
+import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.authorization.AuthenticatedUserDisplayInfo;
 import edu.harvard.iq.dataverse.authorization.groups.impl.ipaddress.IpGroup;
 import edu.harvard.iq.dataverse.authorization.groups.impl.ipaddress.IpGroupsServiceBean;
 import edu.harvard.iq.dataverse.authorization.groups.impl.ipaddress.ip.IpAddress;
 import edu.harvard.iq.dataverse.util.BundleUtil;
+import org.apache.commons.lang.StringUtils;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
-import java.util.ResourceBundle;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.servlet.http.HttpServletRequest;
-
-import org.apache.commons.lang.StringUtils;
+import java.io.Serializable;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author manikons
@@ -44,7 +37,7 @@ public class AffiliationServiceBean implements Serializable {
     IpGroupsServiceBean ipGroupsService;
 
     @Inject
-    DataverseLocaleBean bean;
+    DataverseSession session;
 
     public void convertAffiliation(AuthenticatedUserDisplayInfo userDisplayInfo, ResourceBundle fromBundle, ResourceBundle toBundle) {
         Enumeration<String> enumeration = fromBundle.getKeys();
@@ -110,7 +103,7 @@ public class AffiliationServiceBean implements Serializable {
     }
 
     public String getLocalizedAffiliation(String affiliation) {
-        String localeCode = bean.getLocaleCode();
+        String localeCode = session.getLocaleCode();
         logger.log(Level.INFO, "getLocalizedAffiliation() Locale. {0}", localeCode);
         if (!localeCode.equalsIgnoreCase("en")) {
             ResourceBundle bundle = BundleUtil.getResourceBundle("affiliation", localeCode);
