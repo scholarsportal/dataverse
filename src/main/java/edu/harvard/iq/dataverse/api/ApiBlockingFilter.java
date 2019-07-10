@@ -159,6 +159,8 @@ public class ApiBlockingFilter implements javax.servlet.Filter {
             }
         }
         try {
+            ((HttpServletResponse) sr1).addHeader("Access-Control-Allow-Origin", "*");
+            ((HttpServletResponse) sr1).addHeader("Access-Control-Allow-Methods","PUT");
             fc.doFilter(sr, sr1);
         } catch ( ServletException se ) {
             logger.log(Level.WARNING, "Error processing " + requestURI +": " + se.getMessage(), se);
