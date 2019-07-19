@@ -403,7 +403,9 @@ public class SettingsServiceBean {
         /*
         *
         */
-        MDCLogPath
+        MDCLogPath,
+        AffiliationDropDown,
+        CommaDelimitedEmailDomains
         ;
 
         @Override

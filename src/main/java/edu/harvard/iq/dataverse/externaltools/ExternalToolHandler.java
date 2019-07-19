@@ -31,6 +31,7 @@ public class ExternalToolHandler {
     private final FileMetadata fileMetadata;
 
     private ApiToken apiToken;
+    private String localeCode;
 
     /**
      * @param externalTool The database entity.
@@ -51,6 +52,11 @@ public class ExternalToolHandler {
         this.fileMetadata = fileMetadata;
     }
 
+    public ExternalToolHandler(ExternalTool externalTool, DataFile dataFile, ApiToken apiToken, FileMetadata fileMetadata, String localeCode) {
+        this(externalTool, dataFile, apiToken, fileMetadata);
+        this.localeCode = localeCode;
+    }
+
     public DataFile getDataFile() {
         return dataFile;
     }
@@ -61,6 +67,10 @@ public class ExternalToolHandler {
 
     public ApiToken getApiToken() {
         return apiToken;
+    }
+
+    public String getLocaleCode() {
+        return localeCode;
     }
 
     // TODO: rename to handleRequest() to someday handle sending headers as well as query parameters.
@@ -117,6 +127,8 @@ public class ExternalToolHandler {
                 return key + "=" + version;
             case FILE_METADATA_ID:
                 return key + "=" + fileMetadata.getId();
+            case LOCALE_CODE:
+                return key + "=" + getLocaleCode();
             default:
                 break;
         }

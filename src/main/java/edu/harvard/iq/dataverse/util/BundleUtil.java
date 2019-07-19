@@ -70,7 +70,24 @@ public class BundleUtil {
         return getStringFromBundleNoMissingCheck(key, null, bundle);
     }
 
-    public static ResourceBundle getResourceBundle(String propertyFileName) {
+    public static ResourceBundle getResourceBundle(String propertyFileName, String localeCode) {
+        Locale bundle_locale = new Locale(localeCode);
+        String filesRootDirectory = System.getProperty("dataverse.lang.directory");
+        File bundleFileDir = new File(filesRootDirectory);
+        URL[] urls = null;
+        try {
+            urls = new URL[]{bundleFileDir.toURI().toURL()};
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        ClassLoader loader = new URLClassLoader(urls);
+        ResourceBundle bundle = ResourceBundle.getBundle(propertyFileName, bundle_locale, loader);
+        return bundle;
+    }  
+
+    public static ResourceBundle getResourceBundle(String propertyFileName)
+    {
         ResourceBundle bundle;
 
         String filesRootDirectory = System.getProperty("dataverse.lang.directory");

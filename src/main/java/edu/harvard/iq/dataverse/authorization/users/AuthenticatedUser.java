@@ -87,6 +87,10 @@ public class AuthenticatedUser implements User, Serializable {
     @Column(nullable = false, unique=true)
     private String email;
     private String affiliation;
+    
+    @Transient
+    private String localizedAffiliation;
+    
     private String position;
     
     @NotBlank(message = "{user.lastName}")
@@ -436,5 +440,13 @@ public class AuthenticatedUser implements User, Serializable {
     
     public void setCart(Cart cart) {
         this.cart = cart;
+    }
+
+    public String getLocalizedAffiliation() {
+        return localizedAffiliation;
+    }
+
+    public void setLocalizedAffiliation(String localizedAffiliation) {
+        this.localizedAffiliation = localizedAffiliation;
     }
 }

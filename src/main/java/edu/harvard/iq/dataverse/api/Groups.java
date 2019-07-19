@@ -1,5 +1,7 @@
 package edu.harvard.iq.dataverse.api;
 
+import edu.harvard.iq.dataverse.authorization.groups.impl.affiliation.AffiliationGroup;
+import edu.harvard.iq.dataverse.authorization.groups.impl.affiliation.AffiliationGroupProvider;
 import edu.harvard.iq.dataverse.authorization.groups.impl.ipaddress.IpGroup;
 import edu.harvard.iq.dataverse.authorization.groups.impl.ipaddress.IpGroupProvider;
 import edu.harvard.iq.dataverse.authorization.groups.impl.shib.ShibGroup;
@@ -35,6 +37,7 @@ public class Groups extends AbstractApiBean {
 
     private IpGroupProvider ipGroupPrv;
     private ShibGroupProvider shibGroupPrv;
+    private AffiliationGroupProvider affiliationGroupPrv;
 
     Pattern legalGroupName = Pattern.compile("^[-_a-zA-Z0-9]+$");
 
@@ -42,6 +45,7 @@ public class Groups extends AbstractApiBean {
     void postConstruct() {
         ipGroupPrv = groupSvc.getIpGroupProvider();
         shibGroupPrv = groupSvc.getShibGroupProvider();
+        affiliationGroupPrv = groupSvc.getAffiliationGroupProvider();
     }
 
     /**
@@ -209,4 +213,85 @@ public class Groups extends AbstractApiBean {
         }
     }
 
+    @GET
+    @Path("affiliation")
+    public Response listAffiliationGroups() {
+        return ok(affiliationGroupPrv.findGlobalGroups()
+                .stream().map(g -> json(g)).collect(toJsonArray()));
+    }
+
+    @GET
+    @Path("affiliation/{groupId}")
+    public Response getAffiliationGroup(@PathParam("groupId") String groupId) {
+        AffiliationGroup grp;
+        if (isNumeric(groupId)) {
+            grp = affiliationGroupPrv.get(Long.parseLong(groupId));
+        } else {
+            grp = affiliationGroupPrv.get(groupId);
+        }
+
+        return (grp == null) ? notFound("Group " + groupId + " not found") : ok(json(grp));
+    }
+
+    @POST
+    @Path("affiliation")
+    public Response postAffiliationGroup(JsonObject dto) {
+        AffiliationGroup grp = new JsonParser().parseAffiliationGroup(dto);
+        grp.setGroupProvider(affiliationGroupPrv);
+        affiliationGroupPrv.store(grp);
+        return created("/groups/affiliation" + grp.getPersistedGroupAlias(), json(grp));
+    }
+
+    @PUT
+    @Path("affiliation/{groupName}")
+    public Response putAffiliationGroups(@PathParam("groupName") String groupName, JsonObject dto) {
+        try {
+            if (groupName == null || groupName.trim().isEmpty()) {
+                return badRequest("Affiliation group name cannot be empty");
+            }
+            if (!legalGroupName.matcher(groupName).matches()) {
+                return badRequest("Affiliation group name can contain only letters, digits, and the chars '-' and '_'");
+            }
+            AffiliationGroup grp = new JsonParser().parseAffiliationGroup(dto);
+            grp.setGroupProvider(affiliationGroupPrv);
+            grp.setPersistedGroupAlias(groupName);
+            affiliationGroupPrv.store(grp);
+            return created("/groups/ip/" + grp.getPersistedGroupAlias(), json(grp));
+
+        } catch (Exception e) {
+            logger.log(Level.WARNING, "Error while updating Affiliation group: " + e.getMessage(), e);
+            return error(Response.Status.INTERNAL_SERVER_ERROR, "Error: " + e.getMessage());
+
+        }
+    }
+
+    @DELETE
+    @Path("affiliation/{groupId}")
+    public Response deleteAffiliationGroup(@PathParam("groupId") String groupId) {
+        AffiliationGroup grp;
+        if (isNumeric(groupId)) {
+            grp = affiliationGroupPrv.get(Long.parseLong(groupId));
+        } else {
+            grp = affiliationGroupPrv.get(groupId);
+        }
+
+        if (grp == null) return notFound("Group " + groupId + " not found");
+
+        try {
+            affiliationGroupPrv.deleteGroup(grp);
+            return ok("Group " + grp.getAlias() + " deleted.");
+        } catch (Exception topExp) {
+            // get to the cause (unwraps EJB exception wrappers).
+            Throwable e = topExp;
+            while (e.getCause() != null) {
+                e = e.getCause();
+            }
+
+            if (e instanceof IllegalArgumentException) {
+                return error(Response.Status.BAD_REQUEST, e.getMessage());
+            } else {
+                throw topExp;
+            }
+        }
+    }
 }

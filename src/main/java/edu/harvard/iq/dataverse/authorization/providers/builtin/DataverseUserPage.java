@@ -65,6 +65,10 @@ import javax.inject.Named;
 import org.apache.commons.lang.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
 import org.primefaces.event.TabChangeEvent;
+import edu.harvard.iq.dataverse.authorization.groups.impl.affiliation.AffiliationServiceBean;
+import edu.harvard.iq.dataverse.authorization.groups.impl.ipaddress.IpGroupsServiceBean;
+import java.util.ResourceBundle;
+import java.text.Normalizer;
 
 /**
  *
@@ -116,6 +120,10 @@ public class DataverseUserPage implements java.io.Serializable {
 
     @EJB
     AuthenticationServiceBean authSvc;
+    @EJB
+    IpGroupsServiceBean ipGroupsService;
+    @Inject
+    AffiliationServiceBean affiliationServiceBean;
 
     private AuthenticatedUser currentUser;
     private BuiltinUser builtinUser;    
@@ -123,6 +131,7 @@ public class DataverseUserPage implements java.io.Serializable {
     private transient AuthenticationProvider userAuthProvider;
     private EditMode editMode;
     private String redirectPage = "dataverse.xhtml";
+    private List<String> affiliationList = new ArrayList<String>();
 
     @NotBlank(message = "{password.retype}")
     private String inputPassword;
@@ -163,7 +172,11 @@ public class DataverseUserPage implements java.io.Serializable {
         }
 
         if ( session.getUser().isAuthenticated() ) {
-            setCurrentUser((AuthenticatedUser) session.getUser());
+            AuthenticatedUser user = (AuthenticatedUser) session.getUser();            
+            String userAffiliation = user.getAffiliation();
+            String affl = affiliationServiceBean.getLocalizedAffiliation(userAffiliation);
+            user.setLocalizedAffiliation(affl);
+            setCurrentUser(user);
             userAuthProvider = authenticationService.lookupProvider(currentUser);
             notificationsList = userNotificationService.findByUser(currentUser.getId());
             
@@ -240,6 +253,17 @@ public class DataverseUserPage implements java.io.Serializable {
             logger.info("Email is not valid: " + userEmail);
             return;
         }
+        
+        String domain = userEmail.substring(userEmail.indexOf("@")+1).trim();
+        boolean domainValid = isEmailDomainAllowed(domain);
+        if (!domainValid) {
+            ((UIInput) toValidate).setValid(false);
+            FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, BundleUtil.getStringFromBundle("user.email.domain.invalid"), null);
+            context.addMessage(toValidate.getClientId(context), message);
+            logger.info("Invalid email domain: " + userEmail);
+            return;
+        }        
+        
         boolean userEmailFound = false;
         AuthenticatedUser aUser = authenticationService.getAuthenticatedUserByEmail(userEmail);
         if (editMode == EditMode.CREATE) {
@@ -346,6 +370,17 @@ public class DataverseUserPage implements java.io.Serializable {
             
             if ("/loginpage.xhtml".equals(redirectPage) || "loginpage.xhtml".equals(redirectPage)) {
                 redirectPage = "/dataverse.xhtml";
+            }
+            
+            String userAffiliation = au.getAffiliation();
+            String alias = affiliationServiceBean.getAlias(userAffiliation);
+            Dataverse dv = dataverseService.findByAlias(alias);            
+            if (dv == null || !dv.isReleased()) {
+                alias = "";                
+            }
+            if (!alias.equals("") && redirectPage.contains("/dataverse.xhtml")) {
+                redirectPage = "%2Fdataverse.xhtml%3Falias%3D" + alias;
+                logger.log(Level.FINE, "redirect {0} to affiliate {1} dataverse", new Object[] {redirectPage, alias});
             }
             
             if ("dataverse.xhtml".equals(redirectPage)) {
@@ -577,6 +612,12 @@ public class DataverseUserPage implements java.io.Serializable {
     }
 
     public AuthenticatedUserDisplayInfo getUserDisplayInfo() {
+        String localeCode = session.getLocaleCode();
+        if (!localeCode.equalsIgnoreCase("en")) {
+            ResourceBundle fromBundle = BundleUtil.getResourceBundle("affiliation", "en");
+            ResourceBundle toBundle = BundleUtil.getResourceBundle("affiliation");
+            affiliationServiceBean.convertAffiliation(userDisplayInfo, fromBundle, toBundle);
+        }
         return userDisplayInfo;
     }
 
@@ -705,5 +746,40 @@ public class DataverseUserPage implements java.io.Serializable {
         if(notification == null) return BundleUtil.getStringFromBundle("notification.email.info.unavailable");;
         if(notification.getRequestor() == null) return BundleUtil.getStringFromBundle("notification.email.info.unavailable");;
         return notification.getRequestor().getEmail() != null ? notification.getRequestor().getEmail() : BundleUtil.getStringFromBundle("notification.email.info.unavailable");
+    }
+     
+    public List<String> getAffiliationList() {
+        affiliationList.clear();
+        ResourceBundle bundle = BundleUtil.getResourceBundle("affiliation");
+        affiliationList = affiliationServiceBean.getValues(bundle);
+        affiliationList.sort((String o1, String o2) -> {
+            o1 = Normalizer.normalize(o1, Normalizer.Form.NFD);
+            o2 = Normalizer.normalize(o2, Normalizer.Form.NFD);
+            return o1.compareTo(o2);
+        });
+        if (editMode == EditMode.CREATE) {
+            String ipAffiliation = affiliationServiceBean.getAffiliationFromIPAddress();
+            if(StringUtils.isNotBlank(ipAffiliation)) {
+                getUserDisplayInfo().setAffiliation(ipAffiliation);
+            }
+        } else if (editMode == EditMode.EDIT) {
+            String language = bundle.getLocale().getLanguage();
+            if (StringUtils.isNotBlank(language) && !language.equalsIgnoreCase("en")) {
+                ResourceBundle enBundle = BundleUtil.getResourceBundle("affiliation", "en");
+                affiliationServiceBean.convertAffiliation(userDisplayInfo, enBundle, bundle);
+            }
+        }
+        return affiliationList;
+    }
+    
+   private boolean isEmailDomainAllowed(String userEmail) {
+        String validEmailDomains = settingsWrapper.getValueForKey(SettingsServiceBean.Key.CommaDelimitedEmailDomains);
+        if (StringUtils.isNotBlank(validEmailDomains)) {
+            List<String> list = Arrays.asList(validEmailDomains.toLowerCase().split("\\s*,\\s*"));
+            if(list.contains(userEmail.toLowerCase())) {
+                return true;
+            }
+        }
+        return false;
     }
 }
