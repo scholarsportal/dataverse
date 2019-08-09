@@ -8,26 +8,20 @@ import edu.harvard.iq.dataverse.authorization.groups.impl.shib.ShibGroup;
 import edu.harvard.iq.dataverse.authorization.groups.impl.shib.ShibGroupProvider;
 import edu.harvard.iq.dataverse.util.json.JsonParser;
 
-import javax.ejb.Stateless;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.core.Response;
-
-import static edu.harvard.iq.dataverse.util.json.JsonPrinter.*;
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.regex.Pattern;
 import javax.annotation.PostConstruct;
+import javax.ejb.Stateless;
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.json.JsonString;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.PathParam;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Response;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
+import static edu.harvard.iq.dataverse.util.json.JsonPrinter.json;
+import static edu.harvard.iq.dataverse.util.json.JsonPrinter.toJsonArray;
 import static org.apache.commons.lang.StringUtils.isNumeric;
 
 /**
@@ -241,10 +235,30 @@ public class Groups extends AbstractApiBean {
     @POST
     @Path("affiliation")
     public Response postAffiliationGroup(JsonObject dto) {
-        AffiliationGroup grp = new JsonParser().parseAffiliationGroup(dto);
-        grp.setGroupProvider(affiliationGroupPrv);
-        affiliationGroupPrv.store(grp);
-        return created("/groups/affiliation" + grp.getPersistedGroupAlias(), json(grp));
+        try {
+            AffiliationGroup grp = new JsonParser().parseAffiliationGroup(dto);
+            grp.setGroupProvider(affiliationGroupPrv);
+            affiliationGroupPrv.store(grp);
+            return created("/groups/affiliation" + grp.getPersistedGroupAlias(), json(grp));
+        } catch (Exception e) {
+            logger.log(Level.WARNING, "Error while storing a new Affiliation group: " + e.getMessage(), e);
+            return error(Response.Status.INTERNAL_SERVER_ERROR, "Error: " + e.getMessage());
+        }
+    }
+
+    @POST
+    @Path("affiliations")
+    public Response postAffiliationGroups(JsonObject dto) {
+        try {
+            new JsonParser().parseAffiliationGroups(dto).forEach(group -> {
+                group.setGroupProvider(affiliationGroupPrv);
+                affiliationGroupPrv.store(group);
+            });
+        } catch (Exception e) {
+            logger.log(Level.WARNING, "Error while storing a new Affiliation group: " + e.getMessage(), e);
+            return error(Response.Status.INTERNAL_SERVER_ERROR, "Error: " + e.getMessage());
+        }
+        return ok("/groups/affiliations");
     }
 
     @PUT

@@ -30,9 +30,7 @@ public class SettingsServiceBean {
      * over your shoulder when typing strings in various places of a large app. 
      * So there.
      */
-    public enum Key {        
-        AffiliationDropDown,
-        
+    public enum Key {
         AllowApiTokenLookupViaApi,
         /**
          * Ordered, comma-separated list of custom fields to show above the fold
@@ -396,8 +394,7 @@ public class SettingsServiceBean {
          * /api/admin/dataverse/{alias}/addRolesToChildren. Default is "", no
          * inheritance. "*" means inherit assignments for all roles
          */
-        InheritParentRoleAssignments,
-        CommaDelimitedEmailDomains
+        InheritParentRoleAssignments
         
         ;
 

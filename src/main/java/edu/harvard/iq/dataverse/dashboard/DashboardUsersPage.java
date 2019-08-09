@@ -7,6 +7,7 @@ import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.groups.GroupServiceBean;
 import edu.harvard.iq.dataverse.authorization.groups.impl.affiliation.AffiliationGroup;
 import edu.harvard.iq.dataverse.authorization.groups.impl.affiliation.AffiliationGroupProvider;
+import edu.harvard.iq.dataverse.authorization.groups.impl.affiliation.AffiliationGroupServiceBean;
 import edu.harvard.iq.dataverse.authorization.groups.impl.affiliation.AffiliationServiceBean;
 import edu.harvard.iq.dataverse.authorization.groups.impl.ipaddress.IpGroup;
 import edu.harvard.iq.dataverse.authorization.groups.impl.ipaddress.IpGroupProvider;
@@ -19,6 +20,7 @@ import edu.harvard.iq.dataverse.userdata.UserListMaker;
 import edu.harvard.iq.dataverse.userdata.UserListResult;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.JsfHelper;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.EJB;
@@ -31,12 +33,11 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.text.Normalizer;
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @ViewScoped
@@ -57,12 +58,18 @@ public class DashboardUsersPage implements java.io.Serializable {
     DataverseRequestServiceBean dvRequestService;
     @Inject
     GroupServiceBean groupSvc;
+
+
     @Inject
     AffiliationServiceBean affiliationServiceBean;
+    @Inject
+    AffiliationGroupServiceBean affiliationGroupServiceBean;
 
     private String alias = "";
     private String description = "";
     private String displayname = "";
+    private String emaildomain = "";
+    private UIInput emaildomainField;
 
     public enum PageMode {
         CREATE, EDIT
@@ -175,6 +182,7 @@ public class DashboardUsersPage implements java.io.Serializable {
 
     public List<AffiliationGroup> getAffiliationGroups() {
         affiliationGroups = affGroupProvider.getAffiliationGroups();
+        affiliationGroups.sort(AffiliationGroup::compare);
         return affiliationGroups;
     }
 
@@ -270,6 +278,7 @@ public class DashboardUsersPage implements java.io.Serializable {
         alias = affiliationGroup.getPersistedGroupAlias();
         description = affiliationGroup.getDescription();
         displayname = affiliationGroup.getDisplayName();
+        emaildomain = affiliationGroup.getEmaildomain();
         setDisplayname(displayname);
     }
 
@@ -344,6 +353,10 @@ public class DashboardUsersPage implements java.io.Serializable {
         group.setPersistedGroupAlias(alias);
         group.setDescription(description);
         group.setDisplayName(displayname);
+        if (StringUtils.isNotBlank(emaildomain)) {
+            emaildomain = StringUtils.stripStart(emaildomain.trim(), "@");
+            group.setEmaildomain(emaildomain);
+        }
         affGroupProvider.store(group);
     }
 
@@ -372,10 +385,6 @@ public class DashboardUsersPage implements java.io.Serializable {
 
     public Long getAffiliationsCount() {
         return affGroupProvider.getAffiliationGroupsCount();
-    }
-
-    public int getIpGroupsCount() {
-        return 0;
     }
 
     public String getAlias() {
@@ -424,10 +433,57 @@ public class DashboardUsersPage implements java.io.Serializable {
         }
     }
 
+    public void validateEmailDomain(FacesContext context, UIComponent component, Object value) {
+        Object oldValue = ((UIInput) component).getValue();
+        if (oldValue == null || value.toString().equalsIgnoreCase(oldValue.toString()) ) {
+            return;
+        }
+        String emaildomain = ((String) value).trim();
+        emaildomain = StringUtils.stripStart(emaildomain, "@");
+        if (!isValidEmailDomain(emaildomain)) {
+            ((UIInput) component).setValid(false);
+            FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, "Non-affiliated email.", null);
+            context.addMessage(component.getClientId(context), message);
+        }
+        if (emailDomainExists(emaildomain)) {
+            ((UIInput) component).setValid(false);
+            FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, "Email domain exists.", null);
+            context.addMessage(component.getClientId(context), message);
+        }
+    }
+
+    private boolean isValidEmailDomain(String emailStr) {
+        Pattern VALID_EMAIL_DOMAIN_REGEX = Pattern.compile("^[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
+        Matcher matcher = VALID_EMAIL_DOMAIN_REGEX.matcher(emailStr);
+        return matcher.find();
+    }
+
+    private boolean emailDomainExists(String emaildomain) {
+        AffiliationGroup emailDomain = affiliationGroupServiceBean.getByEmailDomain(emaildomain);
+        return (emailDomain != null);
+    }
+
     public void reset() {
         alias = "";
         displayname = "";
         description = "";
+        emaildomain = "";
         setPageMode(PageMode.CREATE);
+    }
+
+    public String getEmaildomain() {
+        return emaildomain;
+    }
+
+    public void setEmaildomain(String emaildomain) {
+        this.emaildomain = emaildomain;
+    }
+
+    public UIInput getEmaildomainField() {
+        return emaildomainField;
+    }
+
+    public void setEmaildomainField(UIInput emaildomainField) {
+        this.emaildomainField = emaildomainField;
     }
 }

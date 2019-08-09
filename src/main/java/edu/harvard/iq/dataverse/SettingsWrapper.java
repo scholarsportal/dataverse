@@ -237,9 +237,5 @@ public class SettingsWrapper implements java.io.Serializable {
             // do we want to know? - probably not
         }
     }
-
-    public boolean isAffiliationSelectable() {
-        return isTrueForKey(Key.AffiliationDropDown, false);
-    }
 }
 
