@@ -1,58 +1,27 @@
 package edu.harvard.iq.dataverse.authorization.providers.builtin;
 
-import edu.harvard.iq.dataverse.DataFile;
-import edu.harvard.iq.dataverse.DataFileServiceBean;
-import edu.harvard.iq.dataverse.Dataset;
-import edu.harvard.iq.dataverse.DatasetServiceBean;
-import edu.harvard.iq.dataverse.DatasetVersion;
-import edu.harvard.iq.dataverse.DatasetVersionServiceBean;
-import edu.harvard.iq.dataverse.Dataverse;
-import edu.harvard.iq.dataverse.DataverseServiceBean;
-import edu.harvard.iq.dataverse.DataverseSession;
-import edu.harvard.iq.dataverse.DvObject;
-import edu.harvard.iq.dataverse.EMailValidator;
-import edu.harvard.iq.dataverse.PermissionServiceBean;
-import edu.harvard.iq.dataverse.PermissionsWrapper;
-import edu.harvard.iq.dataverse.RoleAssignment;
-import edu.harvard.iq.dataverse.SettingsWrapper;
-import edu.harvard.iq.dataverse.UserNameValidator;
-import edu.harvard.iq.dataverse.UserNotification;
-import static edu.harvard.iq.dataverse.UserNotification.Type.CREATEDV;
-import edu.harvard.iq.dataverse.UserNotificationServiceBean;
-import edu.harvard.iq.dataverse.UserServiceBean;
-import edu.harvard.iq.dataverse.authorization.AuthUtil;
-import edu.harvard.iq.dataverse.authorization.AuthenticatedUserDisplayInfo;
-import edu.harvard.iq.dataverse.authorization.AuthenticationProvider;
-import edu.harvard.iq.dataverse.authorization.AuthenticationProviderDisplayInfo;
-import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
-import edu.harvard.iq.dataverse.authorization.UserRecordIdentifier;
+import edu.harvard.iq.dataverse.*;
+import edu.harvard.iq.dataverse.authorization.*;
 import edu.harvard.iq.dataverse.authorization.groups.Group;
 import edu.harvard.iq.dataverse.authorization.groups.GroupServiceBean;
-import edu.harvard.iq.dataverse.authorization.providers.shib.ShibAuthenticationProvider;
+import edu.harvard.iq.dataverse.authorization.groups.impl.affiliation.AffiliationGroup;
+import edu.harvard.iq.dataverse.authorization.groups.impl.affiliation.AffiliationGroupServiceBean;
+import edu.harvard.iq.dataverse.authorization.groups.impl.affiliation.AffiliationServiceBean;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.confirmemail.ConfirmEmailData;
 import edu.harvard.iq.dataverse.confirmemail.ConfirmEmailException;
 import edu.harvard.iq.dataverse.confirmemail.ConfirmEmailServiceBean;
 import edu.harvard.iq.dataverse.confirmemail.ConfirmEmailUtil;
 import edu.harvard.iq.dataverse.mydata.MyDataPage;
-import edu.harvard.iq.dataverse.passwordreset.PasswordValidator;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.JsfHelper;
-import static edu.harvard.iq.dataverse.util.JsfHelper.JH;
 import edu.harvard.iq.dataverse.util.SystemConfig;
 import edu.harvard.iq.dataverse.validation.PasswordValidatorServiceBean;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.commons.lang.StringUtils;
+import org.hibernate.validator.constraints.NotBlank;
+import org.primefaces.event.TabChangeEvent;
+
 import javax.ejb.EJB;
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
@@ -62,13 +31,15 @@ import javax.faces.event.ActionEvent;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
-import org.apache.commons.lang.StringUtils;
-import org.hibernate.validator.constraints.NotBlank;
-import org.primefaces.event.TabChangeEvent;
-import edu.harvard.iq.dataverse.authorization.groups.impl.affiliation.AffiliationServiceBean;
-import edu.harvard.iq.dataverse.authorization.groups.impl.ipaddress.IpGroupsServiceBean;
-import java.util.ResourceBundle;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.sql.Timestamp;
 import java.text.Normalizer;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static edu.harvard.iq.dataverse.util.JsfHelper.JH;
 
 /**
  *
@@ -120,10 +91,10 @@ public class DataverseUserPage implements java.io.Serializable {
 
     @EJB
     AuthenticationServiceBean authSvc;
-    @EJB
-    IpGroupsServiceBean ipGroupsService;
     @Inject
     AffiliationServiceBean affiliationServiceBean;
+    @Inject
+    AffiliationGroupServiceBean affiliationGroupServiceBean;
 
     private AuthenticatedUser currentUser;
     private BuiltinUser builtinUser;    
@@ -143,7 +114,7 @@ public class DataverseUserPage implements java.io.Serializable {
     private int activeIndex;
     private String selectTab = "somedata";
     UIInput usernameField;
-
+    UIInput emailField;
     
     private String username;
     boolean nonLocalLoginEnabled;
@@ -253,17 +224,18 @@ public class DataverseUserPage implements java.io.Serializable {
             logger.info("Email is not valid: " + userEmail);
             return;
         }
-        
+
         String domain = userEmail.substring(userEmail.indexOf("@")+1).trim();
-        boolean domainValid = isEmailDomainAllowed(domain);
-        if (!domainValid) {
-            ((UIInput) toValidate).setValid(false);
-            FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, BundleUtil.getStringFromBundle("user.email.domain.invalid"), null);
+        AffiliationGroup group = affiliationGroupServiceBean.getByEmailDomain(domain);
+        if (group == null) {
+            ((UIInput) toValidate).setValid(true);
+            FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_WARN, BundleUtil.getStringFromBundle("user.email.domain.invalid"), null);
             context.addMessage(toValidate.getClientId(context), message);
-            logger.info("Invalid email domain: " + userEmail);
-            return;
-        }        
-        
+            logger.info("Non-affiliated email domain. " + userEmail);
+        }
+        String affiliation = (group == null) ? "OTHER" : group.getDisplayName();
+        userDisplayInfo.setAffiliation(affiliation);
+
         boolean userEmailFound = false;
         AuthenticatedUser aUser = authenticationService.getAuthenticatedUserByEmail(userEmail);
         if (editMode == EditMode.CREATE) {
@@ -273,7 +245,7 @@ public class DataverseUserPage implements java.io.Serializable {
         } else {
 
             // In edit mode...
-            // if there's a match on edit make sure that the email belongs to the 
+            // if there's a match on edit make sure that the email belongs to the
             // user doing the editing by checking ids
             if ( aUser!=null && ! aUser.getId().equals(currentUser.getId()) ){
                 userEmailFound = true;
@@ -334,7 +306,13 @@ public class DataverseUserPage implements java.io.Serializable {
             builtinUser.setUserName( getUsername() );
             builtinUser.updateEncryptedPassword(PasswordEncryption.get().encrypt(inputPassword),
                                                 PasswordEncryption.getLatestVersionNumber());
-            
+
+            String userEmail = userDisplayInfo.getEmailAddress();
+            String domain = userEmail.substring(userEmail.indexOf("@")+1).trim();
+            AffiliationGroup group = affiliationGroupServiceBean.getByEmailDomain(domain);
+            String affiliation = (group == null) ? "OTHER" : group.getDisplayName();
+            userDisplayInfo.setAffiliation(affiliation);
+
             AuthenticatedUser au = authenticationService.createAuthenticatedUser(
                     new UserRecordIdentifier(BuiltinAuthenticationProvider.PROVIDER_ID, builtinUser.getUserName()),
                     builtinUser.getUserName(), userDisplayInfo, false);
@@ -757,11 +735,12 @@ public class DataverseUserPage implements java.io.Serializable {
             o2 = Normalizer.normalize(o2, Normalizer.Form.NFD);
             return o1.compareTo(o2);
         });
+        String affiliationOther = bundle.getString("affiliation.other");
+        affiliationList.remove(affiliationOther);
+        affiliationList.add(affiliationList.size(), affiliationOther);
         if (editMode == EditMode.CREATE) {
             String ipAffiliation = affiliationServiceBean.getAffiliationFromIPAddress();
-            if(StringUtils.isNotBlank(ipAffiliation)) {
-                getUserDisplayInfo().setAffiliation(ipAffiliation);
-            }
+            String affiliation = StringUtils.isEmpty(ipAffiliation) ? affiliationOther : ipAffiliation;
         } else if (editMode == EditMode.EDIT) {
             String language = bundle.getLocale().getLanguage();
             if (StringUtils.isNotBlank(language) && !language.equalsIgnoreCase("en")) {
@@ -771,15 +750,12 @@ public class DataverseUserPage implements java.io.Serializable {
         }
         return affiliationList;
     }
-    
-   private boolean isEmailDomainAllowed(String userEmail) {
-        String validEmailDomains = settingsWrapper.getValueForKey(SettingsServiceBean.Key.CommaDelimitedEmailDomains);
-        if (StringUtils.isNotBlank(validEmailDomains)) {
-            List<String> list = Arrays.asList(validEmailDomains.toLowerCase().split("\\s*,\\s*"));
-            if(list.contains(userEmail.toLowerCase())) {
-                return true;
-            }
-        }
-        return false;
+
+    public UIInput getEmailField() {
+        return emailField;
+    }
+
+    public void setEmailField(UIInput emailField) {
+        this.emailField = emailField;
     }
 }

@@ -10,6 +10,7 @@ import javax.persistence.Entity;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Transient;
+import java.text.Normalizer;
 
 @NamedQueries({
         @NamedQuery(name = "AffiliationGroup.findAll",
@@ -18,6 +19,8 @@ import javax.persistence.Transient;
                 query = "SELECT g FROM AffiliationGroup g WHERE g.persistedGroupAlias=:persistedGroupAlias"),
         @NamedQuery(name = "AffiliationGroup.findByDisplayName",
                 query = "SELECT g from AffiliationGroup g where g.displayName=:displayName"),
+        @NamedQuery(name = "AffiliationGroup.findByEmailDomain",
+                query = "SELECT g from AffiliationGroup g where g.emaildomain=:emailDomain"),
         @NamedQuery(name = "AffiliationGroup.getCount",
                 query = "SELECT COUNT(g) from AffiliationGroup g")
 })
@@ -54,6 +57,12 @@ public class AffiliationGroup extends PersistedGlobalGroup {
 
     public void setGroupProvider(AffiliationGroupProvider prv) {
         provider = prv;
+    }
+
+    public int compare(AffiliationGroup group) {
+        String s1 = Normalizer.normalize(this.getDisplayName(), Normalizer.Form.NFD);
+        String s2 = Normalizer.normalize(group.getDisplayName(), Normalizer.Form.NFD);
+        return s1.compareTo(s2);
     }
 
     @Override

@@ -1,23 +1,7 @@
 package edu.harvard.iq.dataverse.util.json;
 
 import com.google.gson.Gson;
-import edu.harvard.iq.dataverse.ControlledVocabularyValue;
-import edu.harvard.iq.dataverse.DataFile;
-import edu.harvard.iq.dataverse.DataFileCategory;
-import edu.harvard.iq.dataverse.Dataset;
-import edu.harvard.iq.dataverse.DatasetField;
-import edu.harvard.iq.dataverse.DatasetFieldConstant;
-import edu.harvard.iq.dataverse.DatasetFieldCompoundValue;
-import edu.harvard.iq.dataverse.DatasetFieldServiceBean;
-import edu.harvard.iq.dataverse.DatasetFieldType;
-import edu.harvard.iq.dataverse.DatasetFieldValue;
-import edu.harvard.iq.dataverse.DatasetVersion;
-import edu.harvard.iq.dataverse.Dataverse;
-import edu.harvard.iq.dataverse.DataverseContact;
-import edu.harvard.iq.dataverse.DataverseTheme;
-import edu.harvard.iq.dataverse.FileMetadata;
-import edu.harvard.iq.dataverse.MetadataBlockServiceBean;
-import edu.harvard.iq.dataverse.TermsOfUseAndAccess;
+import edu.harvard.iq.dataverse.*;
 import edu.harvard.iq.dataverse.TermsOfUseAndAccess.License;
 import edu.harvard.iq.dataverse.api.Util;
 import edu.harvard.iq.dataverse.api.dto.FieldDTO;
@@ -30,26 +14,15 @@ import edu.harvard.iq.dataverse.harvest.client.HarvestingClient;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.workflow.Workflow;
 import edu.harvard.iq.dataverse.workflow.step.WorkflowStepData;
+
+import javax.json.*;
+import javax.json.JsonValue.ValueType;
 import java.io.StringReader;
 import java.sql.Timestamp;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.logging.Logger;
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
-import javax.json.JsonString;
-import javax.json.JsonValue;
-import javax.json.JsonValue.ValueType;
+import java.util.stream.Stream;
 
 /**
  * Parses JSON objects into domain objects.
@@ -247,11 +220,18 @@ public class JsonParser {
         return retVal;
     }
 
+    public Stream<AffiliationGroup> parseAffiliationGroups(JsonObject object) {
+        JsonArray jsonArray = object.getJsonArray("affiliations");
+        Stream<AffiliationGroup> affiliationGroupStream = jsonArray.stream().map(jsonValue -> (JsonObject) jsonValue).map(this::parseAffiliationGroup);
+        return affiliationGroupStream;
+    }
+
     public AffiliationGroup parseAffiliationGroup(JsonObject object) {
         AffiliationGroup group = new AffiliationGroup();
         group.setDisplayName(object.getString("name", null));
         group.setDescription(object.getString("description", null));
         group.setPersistedGroupAlias(object.getString("alias", null));
+        group.setEmaildomain(object.getString("emaildomain", null));
         return group;
     }
 

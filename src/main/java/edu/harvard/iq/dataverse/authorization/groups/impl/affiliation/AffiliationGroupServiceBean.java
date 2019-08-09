@@ -50,6 +50,16 @@ public class AffiliationGroupServiceBean {
         }
     }
 
+    public AffiliationGroup getByEmailDomain(String emaildomain) {
+        try {
+            TypedQuery<AffiliationGroup> namedQuery = em.createNamedQuery("AffiliationGroup.findByEmailDomain", AffiliationGroup.class);
+            namedQuery.setParameter("emailDomain", emaildomain);
+            return namedQuery.getSingleResult();
+        } catch (NoResultException nre) {
+            return null;
+        }
+    }
+
     public List<AffiliationGroup> findAll() {
         return em.createNamedQuery("AffiliationGroup.findAll", AffiliationGroup.class).getResultList();
     }
@@ -65,6 +75,7 @@ public class AffiliationGroupServiceBean {
         } else {
             existing.setDescription(grp.getDescription());
             existing.setPersistedGroupAlias(grp.getPersistedGroupAlias());
+            existing.setEmaildomain(grp.getEmaildomain());
             actionLogSvc.log(alr.setActionSubType("affUpdate"));
             return existing;
         }
