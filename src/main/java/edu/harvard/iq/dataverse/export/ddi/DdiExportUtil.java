@@ -1639,7 +1639,7 @@ public class DdiExportUtil {
 
         try {
             Document document;
-            InputStream  styleSheetInput = DdiExportUtil.class.getResourceAsStream("codebook2-0.xsl");
+            InputStream  styleSheetInput = DdiExportUtil.class.getClassLoader().getResourceAsStream("edu/harvard/iq/dataverse/codebook2-0.xsl");
             Path cachedMetadataFilePath = Paths.get(version.getDataset().getFileSystemDirectory().toString(), "export_ddi" + ".cached");
             File datafile = cachedMetadataFilePath.toFile();
 
