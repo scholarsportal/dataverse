@@ -64,7 +64,7 @@ Show Contents of a Dataverse
 
 |CORS| Lists all the DvObjects under dataverse ``id``. ::
 
-    GET http://$SERVER/api/dataverses/$id/contents
+``curl -H "X-Dataverse-key:$API_TOKEN" http://$SERVER_URL/api/dataverses/$id/contents``
 
 
 Report the data (file) size of a Dataverse
@@ -72,7 +72,7 @@ Report the data (file) size of a Dataverse
 
 Shows the combined size in bytes of all the files uploaded into the dataverse ``id``. ::
 
-    GET http://$SERVER/api/dataverses/$id/storagesize
+``curl -H "X-Dataverse-key:$API_TOKEN" http://$SERVER_URL/api/dataverses/$id/storagesize``
 
 Both published and unpublished files will be counted, in the dataverse specified, and in all its sub-dataverses, recursively. 
 By default, only the archival files are counted - i.e., the files uploaded by users (plus the tab-delimited versions generated for tabular data files on ingest). If the optional argument ``includeCached=true`` is specified, the API will also add the sizes of all the extra files generated and cached by Dataverse - the resized thumbnail versions for image files, the metadata exports for published datasets, etc. 
@@ -1386,10 +1386,13 @@ if validation fails, will report the specific database entity and the offending 
    
    {"status":"OK","data":{"entityClassDatabaseTableRowId":"[DatasetVersion id:73]","field":"archiveNote","invalidValue":"random text, not a url"}} 
 
+If the optional argument ``variables=true`` is specified, the API will also validate the metadata associated with any tabular data files found in the dataset specified. (For example: an invalid or empty variable name). 
 
 Validate all the datasets in the Dataverse, report any constraint violations found::
 
   curl $SERVER_URL/api/admin/validate/datasets
+
+If the optional argument ``variables=true`` is specified, the API will also validate the metadata associated with any tabular data files. (For example: an invalid or empty variable name). Note that validating all the tabular metadata may significantly increase the run time of the full validation pass. 
 
 This API streams its output in real time, i.e. it will start producing the output immediately and will be reporting on the progress as it validates one dataset at a time. For example:: 
 
