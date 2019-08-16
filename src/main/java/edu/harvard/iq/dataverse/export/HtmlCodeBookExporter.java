@@ -1,6 +1,7 @@
 package edu.harvard.iq.dataverse.export;
 
 import com.google.auto.service.AutoService;
+import edu.harvard.iq.dataverse.Dataset;
 import edu.harvard.iq.dataverse.DatasetVersion;
 import edu.harvard.iq.dataverse.export.ddi.DdiExportUtil;
 import edu.harvard.iq.dataverse.export.spi.Exporter;
@@ -8,10 +9,13 @@ import edu.harvard.iq.dataverse.util.BundleUtil;
 
 import javax.json.JsonObject;
 import javax.ws.rs.core.MediaType;
-import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @AutoService(Exporter.class)
 public class HtmlCodeBookExporter implements Exporter {
@@ -29,8 +33,13 @@ public class HtmlCodeBookExporter implements Exporter {
     @Override
     public void exportDataset(DatasetVersion version, JsonObject json, OutputStream outputStream) throws ExportException {
         try {
-
-            DdiExportUtil.datasetHtmlDDI(json, version, outputStream);
+            InputStream ddiInputStream;
+            try {
+                ddiInputStream = ExportService.getInstance(null).getExport(version.getDataset(), "ddi");
+            } catch(ExportException | IOException e) {
+                throw new ExportException ("Cannot open export_ddi cached file");
+            }
+            DdiExportUtil.datasetHtmlDDI(ddiInputStream, outputStream);
         } catch (XMLStreamException xse) {
             throw new ExportException ("Caught XMLStreamException performing DDI export");
         }

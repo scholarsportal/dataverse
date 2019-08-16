@@ -29,6 +29,7 @@ Once a dataset has been published its metadata is exported in a variety of forma
 
 - Dublin Core
 - DDI (Data Documentation Initiative)
+- DDI HTML Codebook
 - DataCite 4
 - JSON (native Dataverse format)
 - OAI_ORE
@@ -66,7 +67,7 @@ If there are multiple upload options available, then you must choose which one t
 
 You can upload files to a dataset while first creating that dataset. You can also upload files after creating a dataset by clicking the "Edit" button at the top of the dataset page and from the dropdown list selecting "Files (Upload)" or clicking the "Upload Files" button above the files table in the Files tab. From either option you will be brought to the Upload Files page for that dataset.
 
-Certain file types in Dataverse are supported by additional functionality, which can include downloading in different formats, subsets, file-level metadata preservation, file-level data citation; and exploration through data visualization and analysis. See the File Handling section of this page for more information.
+Certain file types in Dataverse are supported by additional functionality, which can include downloading in different formats, subsets, file-level metadata preservation, file-level data citation with UNFs, and exploration through data visualization and analysis. See the File Handling section of this page for more information.
 
 
 HTTP Upload
@@ -476,12 +477,14 @@ Once you have more than one version (this can simply be version 1 and a draft), 
 
 .. _dataset-metrics-user:
 
-Dataset Metrics
+Dataset Metrics and Make Data Count
 ===============
 
-All installations of Dataverse track file downloads using the Guestbook feature described above and in the :ref:`Dataset Guestbooks <dataset-guestbooks>` section of the Dataverse Management page.
+All installations of Dataverse count file downloads. These file download counts are aggregated and reported at the Dataset level as well as at the file level.
 
-Some installations of Dataverse also have support for metrics at the dataset level for views, file downloads, and citations using Make Data Count standards. For more details on this feature, see the :doc:`/admin/make-data-count` section of the Admin Guide. For the specific API calls, see :ref:`Dataset Metrics <dataset-metrics-api>` in the :doc:`/api/native-api` section of the API Guide.
+Some installations of Dataverse also have support for expanded metrics at the dataset level for views, file downloads, and citations using Make Data Count standards. `Make Data Count`_ is a project to collect and standardize metrics on data use, especially views, downloads, and citations. Citations for datasets are retrieved from `Crossref`_ via DataCite using Make Data Count standards.
+
+For the specific API calls for Make Data Count, see :ref:`Dataset Metrics <dataset-metrics-api>` in the :doc:`/api/native-api` section of the API Guide.
 
 .. _cloud-storage:
 
@@ -529,3 +532,7 @@ If you deaccession the most recently published version of the dataset but not al
    :class: img-responsive
 .. |image-file-tree-view| image:: ./img/file-tree-view.png
    :class: img-responsive
+   
+.. _Make Data Count: https://makedatacount.org
+.. _Crossref: https://crossref.org
+
