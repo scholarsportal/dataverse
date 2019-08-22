@@ -98,12 +98,12 @@ public class EditDDI  extends AbstractApiBean {
             dataFile = findDataFileOrDie(fileId);
 
         } catch (WrappedResponse ex) {
-            return allowCors(ex.getResponse());
+            return ex.getResponse();
         }
         User apiTokenUser = checkAuth(dataFile);
 
         if (apiTokenUser == null) {
-            return allowCors(unauthorized("Cannot edit metadata, access denied" ));
+            return unauthorized("Cannot edit metadata, access denied" );
         }
 
         Map<Long, VariableMetadata> mapVarToVarMet = new HashMap<Long, VariableMetadata>();
@@ -112,7 +112,7 @@ public class EditDDI  extends AbstractApiBean {
             readXML(body, mapVarToVarMet,varGroupMap);
         } catch (XMLStreamException e) {
             logger.warning(e.getMessage());
-            return allowCors(error(Response.Status.NOT_ACCEPTABLE, "bad xml file" ));
+            return error(Response.Status.NOT_ACCEPTABLE, "bad xml file" );
         }
 
         DatasetVersion latestVersion = dataFile.getOwner().getLatestVersion();
@@ -129,10 +129,10 @@ public class EditDDI  extends AbstractApiBean {
             boolean varUpdate = varUpdates(mapVarToVarMet, latestFml, neededToUpdateVM, true);
             if (varUpdate || groupUpdate) {
                 if (!createNewDraftVersion(neededToUpdateVM,  varGroupMap, dataset, dataFile, apiTokenUser)) {
-                    allowCors(error(Response.Status.INTERNAL_SERVER_ERROR, "Failed to create new draft version" ));
+                    return error(Response.Status.INTERNAL_SERVER_ERROR, "Failed to create new draft version" );
                 }
             } else {
-                return allowCors(ok("Nothing to update"));
+                return ok("Nothing to update");
             }
         } else {
 
@@ -142,14 +142,14 @@ public class EditDDI  extends AbstractApiBean {
             if (varUpdate || groupUpdate) {
 
                 if (!updateDraftVersion(neededToUpdateVM, varGroupMap, dataset, latestVersion, groupUpdate, fml)) {
-                    return allowCors(error(Response.Status.INTERNAL_SERVER_ERROR, "Failed to update draft version" ));
+                    return error(Response.Status.INTERNAL_SERVER_ERROR, "Failed to update draft version" );
                 }
             } else {
-                return allowCors(ok("Nothing to update"));
+                return ok("Nothing to update");
             }
 
         }
-        return allowCors(ok("Updated"));
+        return ok("Updated");
     }
 
     private boolean varUpdates( Map<Long, VariableMetadata> mapVarToVarMet , FileMetadata fm, ArrayList<VariableMetadata> neededToUpdateVM, boolean newVersion) {
