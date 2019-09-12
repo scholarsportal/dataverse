@@ -51,7 +51,7 @@ public class DataverseUserPage implements java.io.Serializable {
     private static final Logger logger = Logger.getLogger(DataverseUserPage.class.getCanonicalName());
 
     public enum EditMode {
-        CREATE, EDIT, CHANGE_PASSWORD, FORGOT
+        CREATE, EDIT, CHANGE_PASSWORD, FORGOT, SUPPORT
     };
 
     @Inject
@@ -191,6 +191,11 @@ public class DataverseUserPage implements java.io.Serializable {
 
     public void forgotPassword(ActionEvent e) {
         editMode = EditMode.FORGOT;
+    }
+
+    public void supportMode( ) {
+        System.out.println(" Support mode is here --------------------");
+        editMode = EditMode.SUPPORT;
     }
 
     public void validateUserName(FacesContext context, UIComponent toValidate, Object value) {

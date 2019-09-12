@@ -1,9 +1,9 @@
 <ui:composition xmlns:h="http://java.sun.com/jsf/html"
-    xmlns:f="http://java.sun.com/jsf/core"
-    xmlns:ui="http://java.sun.com/jsf/facelets"
-    xmlns:c="http://java.sun.com/jsp/jstl/core"
-    xmlns:p="http://primefaces.org/ui"
-    xmlns:jsf="http://xmlns.jcp.org/jsf">
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:jsf="http://xmlns.jcp.org/jsf">
     <!-- Dialog Contact Form -->
     <p:dialog id="contactDialog" header="#{sendFeedbackDialog.getFormHeader()}" widgetVar="contactForm" modal="true">
         <p:fragment>
@@ -17,7 +17,7 @@
                     </div>
                 </div>
                 <ui:fragment rendered="#{sendFeedbackDialog.isLoggedIn()}">
-                <!-- from email (logged in + auto-filled) -->
+                    <!-- from email (logged in + auto-filled) -->
                     <div class="form-group">
                         <label for="userEmailStatic" class="col-sm-3 control-label">#{bundle['contact.from']}</label>
                         <div class="col-sm-9">
@@ -26,13 +26,13 @@
                     </div>
                 </ui:fragment>
                 <ui:fragment rendered="#{!sendFeedbackDialog.isLoggedIn()}">
-                <!-- from email (not logged in) -->
+                    <!-- from email (not logged in) -->
                     <div class="form-group">
                         <label for="userEmail" class="col-sm-3 control-label">#{bundle['contact.from']} <span class="glyphicon glyphicon-asterisk text-danger" title="#{bundle.requiredField}"/></label>
                         <div class="col-sm-9">
                             <p:inputText id="userEmail" styleClass="form-control" size="30" value="#{sendFeedbackDialog.userEmail}"
                                          validator="#{sendFeedbackDialog.validateUserEmail}" validatorMessage="#{bundle['contact.from.invalid']}" requiredMessage="#{bundle['contact.from.required']}" required="#{param['DO_VALIDATION']}"/>
-                        <h:message for="userEmail" styleClass="bg-danger text-danger"/>
+                            <h:message for="userEmail" styleClass="bg-danger text-danger"/>
                         </div>
                     </div>
                 </ui:fragment>
@@ -41,19 +41,32 @@
                     <label for="messageSubject" class="col-sm-3 control-label">#{bundle['contact.subject']} <span class="glyphicon glyphicon-asterisk text-danger" title="#{bundle.requiredField}"/></label>
                     <div class="col-sm-9">
                         <p:inputText id="messageSubject" styleClass="form-control" value="#{sendFeedbackDialog.messageSubject}"
-                                     requiredMessage="#{bundle['contact.subject.required']}" required="#{param['DO_VALIDATION']}"/>                        
+                                     requiredMessage="#{bundle['contact.subject.required']}" required="#{param['DO_VALIDATION']}"/>
                         <h:message for="messageSubject" styleClass="bg-danger text-danger"/>
                     </div>
-                </div>   
+                </div>
+
+                <!-- affiliation -->
+                <div class="form-group" jsf:rendered="#{DataverseUserPage.editMode == 'SUPPORT'}">
+                    <label for="messageAffiliation" class="col-sm-3 control-label">#{bundle.affiliation}<span class="glyphicon glyphicon-asterisk text-danger" title="#{bundle.requiredField}"/></label>
+                    <div class="col-sm-9">
+                        <p:selectOneMenu id="messageAffiliation" styleClass="form-control" value="#{sendFeedbackDialog.messageAffiliation}">
+                            <f:selectItems styleClass="form-control" value="#{DataverseUserPage.affiliationList}" />
+                        </p:selectOneMenu>
+                        <p:message for="messageAffiliation" display="text" />
+                    </div>
+                </div>
+
                 <!-- message -->
                 <div class="form-group">
-                    <label for="userMessage" class="col-sm-3 control-label">#{bundle['contact.msg']} <span class="glyphicon glyphicon-asterisk text-danger" title="#{bundle.requiredField}"/></label>
+                    <label for="userMessage" class="col-sm-3 control-label">#{bundle['contact.msg']} <span class="glyphicon glyph icon-asterisk text-danger" title="#{bundle.requiredField}"/></label>
                     <div class="col-sm-9">
                         <p:inputTextarea id="userMessage" styleClass="form-control" value="#{sendFeedbackDialog.userMessage}"
-                            required="#{param['DO_VALIDATION']}" requiredMessage="#{bundle['contact.msg.required']}" autoResize="false" rows="10"/>
+                                         required="#{param['DO_VALIDATION']}" requiredMessage="#{bundle['contact.msg.required']}" autoResize="false" rows="10"/>
                         <h:message for="userMessage" styleClass="bg-danger text-danger"/>
                     </div>
                 </div>
+
                 <!-- validation -->
                 <div class="form-group">
                     <div class="col-sm-offset-3 col-sm-9">
