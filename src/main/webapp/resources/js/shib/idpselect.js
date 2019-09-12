@@ -1319,6 +1319,12 @@ function IdPSelectUI() {
             //
 
             idpData = JSON.parse(jsonData);
+            var idpBlackList = ["https://idp.testshib.org/idp/shibboleth"];
+            idpData = idpData.filter(function (obj) {
+                console.log(obj.entityID);
+                return !idpBlackList.includes(obj.entityID);
+            });
+
 
         }else{
             fatal(getLocalizedMessage('fatal.loadFailed') + dataSource + '.');
