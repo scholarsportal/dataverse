@@ -15,6 +15,7 @@ import org.apache.commons.lang.StringUtils;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -86,7 +87,8 @@ public class AffiliationServiceBean implements Serializable {
 
     public String getAffiliationFromIPAddress() {
         ResourceBundle bundle = BundleUtil.getResourceBundle("affiliation", "en");
-        HttpServletRequest httpServletRequest = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+        ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
+        HttpServletRequest httpServletRequest = (HttpServletRequest) externalContext.getRequest();
         String remoteAddressFromRequest = httpServletRequest.getRemoteAddr();
         IpAddress sourceAddress = null;
         if (remoteAddressFromRequest != null) {
@@ -101,7 +103,7 @@ public class AffiliationServiceBean implements Serializable {
                 }
             }
         }
-        logger.log(Level.WARNING, "IPAddress not found. {0}", Optional.ofNullable(sourceAddress.toString()));
+        logger.log(Level.WARNING, "IPAddress not found. {0}");
         return StringUtils.EMPTY;
     }
 
