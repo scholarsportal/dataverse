@@ -1,34 +1,23 @@
 package edu.harvard.iq.dataverse.mocks;
 
-import edu.harvard.iq.dataverse.DataFile;
-import edu.harvard.iq.dataverse.DataFileCategory;
-import edu.harvard.iq.dataverse.Dataset;
-import edu.harvard.iq.dataverse.DatasetField;
-import edu.harvard.iq.dataverse.DatasetFieldType;
+import edu.harvard.iq.dataverse.*;
 import edu.harvard.iq.dataverse.DatasetFieldType.FieldType;
-import edu.harvard.iq.dataverse.DatasetVersion;
-import edu.harvard.iq.dataverse.Dataverse;
-import edu.harvard.iq.dataverse.DataverseFieldTypeInputLevel;
-import edu.harvard.iq.dataverse.FileMetadata;
-import edu.harvard.iq.dataverse.MetadataBlock;
 import edu.harvard.iq.dataverse.authorization.DataverseRole;
 import edu.harvard.iq.dataverse.authorization.Permission;
+import edu.harvard.iq.dataverse.authorization.groups.impl.affiliation.AffiliationGroup;
 import edu.harvard.iq.dataverse.authorization.groups.impl.explicit.ExplicitGroup;
 import edu.harvard.iq.dataverse.authorization.groups.impl.explicit.ExplicitGroupProvider;
+import edu.harvard.iq.dataverse.authorization.groups.impl.ipaddress.IpGroup;
 import edu.harvard.iq.dataverse.authorization.groups.impl.ipaddress.ip.IpAddress;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.authorization.users.GuestUser;
 import edu.harvard.iq.dataverse.authorization.users.User;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
+
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.Month;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -113,7 +102,7 @@ public class MocksFactory {
     public static DataverseRequest makeRequest( User u ) {
         return new DataverseRequest( u, IpAddress.valueOf("1.2.3.4") );
     }
-    
+
     public static Dataverse makeDataverse() {
         Dataverse retVal = new Dataverse();
         retVal.setId( nextId() );
@@ -236,5 +225,21 @@ public class MocksFactory {
     
     public static ExplicitGroup makeExplicitGroup( ExplicitGroupProvider prv ) {
         return makeExplicitGroup(null, prv);
+    }
+
+    public static IpGroup makeIpGroup() {
+        IpGroup ipGroup = new IpGroup();
+        ipGroup.setId(1L);
+        ipGroup.setDisplayName("University of Toronto");
+        ipGroup.setPersistedGroupAlias("toronto");
+        return ipGroup;
+    }
+
+    public static AffiliationGroup makeAffiliationGroup() {
+        AffiliationGroup affGroup = new AffiliationGroup();
+        affGroup.setId(1L);
+        affGroup.setDisplayName("University of Toronto");
+        affGroup.setPersistedGroupAlias("toronto");
+        return affGroup;
     }
 }
