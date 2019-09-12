@@ -786,7 +786,6 @@
                 <configuration>
                     <!-- testsToExclude come from the profile-->
                     <excludedGroups>${testsToExclude}</excludedGroups>
-                    <skipTests>true</skipTests>
                 </configuration>
             </plugin>
             <plugin>
