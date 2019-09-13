@@ -33,10 +33,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import java.text.Normalizer;
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
@@ -194,7 +191,7 @@ public class DashboardUsersPage implements java.io.Serializable {
     }
 
     public List<String> getAffiliationList() {
-        ResourceBundle bundle = BundleUtil.getResourceBundle("affiliation", "en");
+        ResourceBundle bundle = BundleUtil.getResourceBundle("affiliation", new Locale("en"));
         List<String> values = affiliationServiceBean.getValues(bundle);
         if (affiliationGroups.isEmpty()) {
             affiliationGroups = affGroupProvider.getAffiliationGroups();

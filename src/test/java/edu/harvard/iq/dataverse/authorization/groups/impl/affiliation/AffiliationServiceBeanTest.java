@@ -74,7 +74,7 @@ public class AffiliationServiceBeanTest {
         assertEquals("", alias);
 
         PowerMockito.mockStatic(BundleUtil.class);
-        when(BundleUtil.getResourceBundle("affiliation", "en")).thenReturn(bundle);
+        when(BundleUtil.getResourceBundle("affiliation", new Locale("en"))).thenReturn(bundle);
 
         alias = bean.getAlias("York University");
         assertEquals("york", alias);
@@ -88,7 +88,7 @@ public class AffiliationServiceBeanTest {
 
         // Mock static methods
         PowerMockito.mockStatic(BundleUtil.class);
-        when(BundleUtil.getResourceBundle("affiliation", "en")).thenReturn(bundle);
+        when(BundleUtil.getResourceBundle("affiliation", new Locale("en"))).thenReturn(bundle);
 
         PowerMockito.mockStatic(FacesContext.class);
         when(FacesContext.getCurrentInstance()).thenReturn(mockFacesContext);
@@ -115,8 +115,8 @@ public class AffiliationServiceBeanTest {
         when(mockDataverseSession.getLocaleCode()).thenReturn("fr");
 
         PowerMockito.mockStatic(BundleUtil.class);
-        when(BundleUtil.getResourceBundle("affiliation", "en")).thenReturn(bundle);
-        when(BundleUtil.getResourceBundle("affiliation", "fr")).thenReturn(bundle_fr);
+        when(BundleUtil.getResourceBundle("affiliation", new Locale("en"))).thenReturn(bundle);
+        when(BundleUtil.getResourceBundle("affiliation", new Locale("fr"))).thenReturn(bundle_fr);
 
         String affiliation = "York University";
         String localizedAffiliation = bean.getLocalizedAffiliation(affiliation);

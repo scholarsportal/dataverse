@@ -594,7 +594,7 @@ public class DataverseUserPage implements java.io.Serializable {
     public AuthenticatedUserDisplayInfo getUserDisplayInfo() {
         String localeCode = session.getLocaleCode();
         if (!localeCode.equalsIgnoreCase("en")) {
-            ResourceBundle fromBundle = BundleUtil.getResourceBundle("affiliation", "en");
+            ResourceBundle fromBundle = BundleUtil.getResourceBundle("affiliation", new Locale("en"));
             ResourceBundle toBundle = BundleUtil.getResourceBundle("affiliation");
             affiliationServiceBean.convertAffiliation(userDisplayInfo, fromBundle, toBundle);
         }
@@ -746,7 +746,7 @@ public class DataverseUserPage implements java.io.Serializable {
         } else if (editMode == EditMode.EDIT) {
             String language = bundle.getLocale().getLanguage();
             if (StringUtils.isNotBlank(language) && !language.equalsIgnoreCase("en")) {
-                ResourceBundle enBundle = BundleUtil.getResourceBundle("affiliation", "en");
+                ResourceBundle enBundle = BundleUtil.getResourceBundle("affiliation", new Locale("en"));
                 affiliationServiceBean.convertAffiliation(userDisplayInfo, enBundle, bundle);
             }
         }

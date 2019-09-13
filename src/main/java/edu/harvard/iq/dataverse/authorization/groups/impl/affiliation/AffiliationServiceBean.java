@@ -61,7 +61,7 @@ public class AffiliationServiceBean implements Serializable {
         if ("OTHER".equalsIgnoreCase(userAffiliation.toUpperCase())) {
             return "";
         }
-        ResourceBundle bundle = BundleUtil.getResourceBundle("affiliation", "en");
+        ResourceBundle bundle = BundleUtil.getResourceBundle("affiliation", new Locale("en"));
         Enumeration<String> enumeration = bundle.getKeys();
         while (enumeration.hasMoreElements()) {
             String next = enumeration.nextElement();
@@ -86,7 +86,7 @@ public class AffiliationServiceBean implements Serializable {
     }
 
     public String getAffiliationFromIPAddress() {
-        ResourceBundle bundle = BundleUtil.getResourceBundle("affiliation", "en");
+        ResourceBundle bundle = BundleUtil.getResourceBundle("affiliation", new Locale("en"));
         ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
         HttpServletRequest httpServletRequest = (HttpServletRequest) externalContext.getRequest();
         String remoteAddressFromRequest = httpServletRequest.getRemoteAddr();
@@ -111,8 +111,8 @@ public class AffiliationServiceBean implements Serializable {
         String localeCode = session.getLocaleCode();
         logger.log(Level.INFO, "getLocalizedAffiliation() Locale. {0}", localeCode);
         if (!localeCode.equalsIgnoreCase("en")) {
-            ResourceBundle bundle = BundleUtil.getResourceBundle("affiliation", localeCode);
-            ResourceBundle enBundle = BundleUtil.getResourceBundle("affiliation", "en");
+            ResourceBundle bundle = BundleUtil.getResourceBundle("affiliation", new Locale(localeCode));
+            ResourceBundle enBundle = BundleUtil.getResourceBundle("affiliation", new Locale("en"));
             Enumeration<String> enumeration = enBundle.getKeys();
             while (enumeration.hasMoreElements()) {
                 String next = enumeration.nextElement();

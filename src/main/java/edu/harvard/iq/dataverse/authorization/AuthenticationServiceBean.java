@@ -33,17 +33,7 @@ import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.validation.PasswordValidatorServiceBean;
 import edu.harvard.iq.dataverse.workflows.WorkflowComment;
 import java.sql.Timestamp;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.ResourceBundle;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
@@ -909,7 +899,7 @@ public class AuthenticationServiceBean {
         ResourceBundle bundle = BundleUtil.getResourceBundle("affiliation");
         String language = bundle.getLocale().getLanguage();
         if (StringUtils.isNotBlank(language) && !language.equalsIgnoreCase("en")) {
-            ResourceBundle enBundle = BundleUtil.getResourceBundle("affiliation", "en");
+            ResourceBundle enBundle = BundleUtil.getResourceBundle("affiliation", new Locale("en"));
             affiliationBean.convertAffiliation(userDisplayInfo, bundle, enBundle);
         }
     }
