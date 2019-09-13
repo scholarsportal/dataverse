@@ -740,10 +740,7 @@ public class DataverseUserPage implements java.io.Serializable {
         String affiliationOther = bundle.getString("affiliation.other");
         affiliationList.remove(affiliationOther);
         affiliationList.add(affiliationList.size(), affiliationOther);
-        if (editMode == EditMode.CREATE) {
-            String ipAffiliation = affiliationServiceBean.getAffiliationFromIPAddress();
-            String affiliation = StringUtils.isEmpty(ipAffiliation) ? affiliationOther : ipAffiliation;
-        } else if (editMode == EditMode.EDIT) {
+        if (editMode == EditMode.EDIT) {
             String language = bundle.getLocale().getLanguage();
             if (StringUtils.isNotBlank(language) && !language.equalsIgnoreCase("en")) {
                 ResourceBundle enBundle = BundleUtil.getResourceBundle("affiliation", new Locale("en"));
