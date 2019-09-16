@@ -1319,6 +1319,21 @@ function IdPSelectUI() {
             //
 
             idpData = JSON.parse(jsonData);
+            var idpBlackList = [
+                "https://idp.canarie.ca/idp/shibboleth",
+                "https://idp.unb.ca/idp/shibboleth",
+                "https://idp.usask.ca/idp/shibboleth",
+                "https://idp.sfu.ca/entity",
+                "https://idp.computecanada.ca/idp/shibboleth",
+                "http://federation.langara.ca/adfs/services/trust",
+                "https://prdshib.macewan.ca/idp/shibboleth"
+            ];
+
+            idpData = idpData.filter(function (obj) {
+                console.log(obj.entityID);
+                return !idpBlackList.includes(obj.entityID);
+            });
+
 
         }else{
             fatal(getLocalizedMessage('fatal.loadFailed') + dataSource + '.');
