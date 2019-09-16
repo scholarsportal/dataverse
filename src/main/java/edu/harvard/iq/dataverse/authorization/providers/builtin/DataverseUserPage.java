@@ -194,7 +194,6 @@ public class DataverseUserPage implements java.io.Serializable {
     }
 
     public void supportMode( ) {
-        System.out.println(" Support mode is here --------------------");
         editMode = EditMode.SUPPORT;
     }
 
