@@ -14,7 +14,15 @@ public class BrandingUtil {
         if (systemAddress != null) {
             String personalName = systemAddress.getPersonal();
             if (personalName != null) {
-                return personalName;
+                String result = BundleUtil.getStringFromBundle(personalName);
+                if(result == null)
+                {
+                    return personalName;
+                }
+                else
+                {
+                    return result;
+                }
             }
         }
         if (rootDataverseName != null && !rootDataverseName.isEmpty()) {
