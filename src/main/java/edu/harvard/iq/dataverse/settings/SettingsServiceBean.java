@@ -5,6 +5,7 @@ import edu.harvard.iq.dataverse.actionlogging.ActionLogServiceBean;
 import edu.harvard.iq.dataverse.api.ApiBlockingFilter;
 import edu.harvard.iq.dataverse.util.StringUtil;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -21,13 +22,13 @@ import javax.persistence.PersistenceContext;
 @Stateless
 @Named
 public class SettingsServiceBean {
-    
+
     private static final Logger logger = Logger.getLogger(SettingsServiceBean.class.getCanonicalName());
-    
+
     /**
-     * Some convenient keys for the settings. Note that the setting's 
+     * Some convenient keys for the settings. Note that the setting's
      * name is really a {@code String}, but it's good to have the compiler look
-     * over your shoulder when typing strings in various places of a large app. 
+     * over your shoulder when typing strings in various places of a large app.
      * So there.
      */
     public enum Key {
@@ -48,7 +49,7 @@ public class SettingsServiceBean {
         CloudEnvironmentName,
         /**
          * Defines the base for a computing environment URL.
-         * The container name will be appended to this on the "Compute" button 
+         * The container name will be appended to this on the "Compute" button
          */
         ComputeBaseUrl,
         /**
@@ -112,19 +113,19 @@ public class SettingsServiceBean {
          * API endpoints that are not accessible. Comma separated list.
          */
         BlockedApiEndpoints,
-        
+
         /**
          * A key that, with the right {@link ApiBlockingFilter.BlockPolicy},
          * allows calling blocked APIs.
          */
         BlockedApiKey,
-        
-        
+
+
         /**
          * How to treat blocked APIs. One of drop, localhost-only, unblock-key
          */
         BlockedApiPolicy,
-        
+
         /**
          * For development only (see dev guide for details). Backed by an enum
          * of possible account types.
@@ -195,7 +196,7 @@ public class SettingsServiceBean {
          * some other metrics app.
          */
         MetricsUrl,
-        
+
         /**
          * Number of minutes before a metrics query can be rerun. Otherwise a cached value is returned.
          * Previous month dates always return cache. Only applies to new internal caching system (not miniverse).
@@ -207,13 +208,13 @@ public class SettingsServiceBean {
         ZipDownloadLimit,
         /* zip upload number of files limit */
         ZipUploadFilesLimit,
-        /* the number of files the GUI user is allowed to upload in one batch, 
+        /* the number of files the GUI user is allowed to upload in one batch,
             via drag-and-drop, or through the file select dialog */
         MultipleUploadFilesLimit,
         /* Size limits for generating thumbnails on the fly */
-        /* (i.e., we'll attempt to generate a thumbnail on the fly if the 
+        /* (i.e., we'll attempt to generate a thumbnail on the fly if the
          * size of the file is less than this)
-        */
+         */
         ThumbnailSizeLimitImage,
         ThumbnailSizeLimitPDF,
         /* status message that will appear on the home page */
@@ -221,32 +222,32 @@ public class SettingsServiceBean {
         /* full text of status message, to appear in popup */
         StatusMessageText,
         /* return email address for system emails such as notifications */
-        SystemEmail, 
+        SystemEmail,
         /* size limit for Tabular data file ingests */
-        /* (can be set separately for specific ingestable formats; in which 
+        /* (can be set separately for specific ingestable formats; in which
         case the actual stored option will be TabularIngestSizeLimit:{FORMAT_NAME}
-        where {FORMAT_NAME} is the format identification tag returned by the 
-        getFormatName() method in the format-specific plugin; "sav" for the 
+        where {FORMAT_NAME} is the format identification tag returned by the
+        getFormatName() method in the format-specific plugin; "sav" for the
         SPSS/sav format, "RData" for R, etc.
         for example: :TabularIngestSizeLimit:RData */
         TabularIngestSizeLimit,
         /**
-        Whether to allow user to create GeoConnect Maps
-        This boolean effects whether the user sees the map button on 
-        the dataset page and if the ingest will create a shape file
-        Default is false
-        */
+         Whether to allow user to create GeoConnect Maps
+         This boolean effects whether the user sees the map button on
+         the dataset page and if the ingest will create a shape file
+         Default is false
+         */
         GeoconnectCreateEditMaps,
         /**
-        Whether to allow a user to view existing maps
-        This boolean effects whether a user may see the 
-        Explore World Map Button
-        Default is false;
-        */
+         Whether to allow a user to view existing maps
+         This boolean effects whether a user may see the
+         Explore World Map Button
+         Default is false;
+         */
         GeoconnectViewMaps,
         /**
          The message added to a popup upon dataset publish
-         * 
+         *
          */
         DatasetPublishPopupCustomText,
         /*
@@ -257,10 +258,10 @@ public class SettingsServiceBean {
         Whether Harvesting (OAI) service is enabled
         */
         OAIServerEnabled,
-        
+
         /**
-        * Whether Shibboleth passive authentication mode is enabled
-        */
+         * Whether Shibboleth passive authentication mode is enabled
+         */
         ShibPassiveLoginEnabled,
         /**
          * Whether Export should exclude FieldType.EMAIL
@@ -290,10 +291,10 @@ public class SettingsServiceBean {
          Location and name of installation logo customization file
         */
         LogoCustomizationFile,
-        
+
         // Option to override the navbar url underlying the "About" link
         NavbarAboutUrl,
-        
+
         // Option to override multiple guides with a single url
         NavbarGuidesUrl,
 
@@ -340,7 +341,7 @@ public class SettingsServiceBean {
          * The number of M characteristics
          */
         PVNumberOfCharacteristics,
-        
+
         /**
          * The number of consecutive digits allowed for a password
          */
@@ -350,20 +351,20 @@ public class SettingsServiceBean {
          */
         PVCustomPasswordResetAlertMessage,
         /*
-        String to describe DOI format for data files. Default is DEPENDENT. 
+        String to describe DOI format for data files. Default is DEPENDENT.
         'DEPENEDENT' means the DOI will be the Dataset DOI plus a file DOI with a slash in between.
         'INDEPENDENT' means a new global id, completely independent from the dataset-level global id.
         */
-        DataFilePIDFormat, 
+        DataFilePIDFormat,
         /* Json array of supported languages
-        */
+         */
         Languages,
         /*
         Number for the minimum number of files to send PID registration to asynchronous workflow
         */
         PIDAsynchRegFileCount,
         /**
-         * 
+         *
          */
         FilePIDsEnabled,
 
@@ -375,22 +376,22 @@ public class SettingsServiceBean {
         /**
          * Archiving can be configured by providing an Archiver class name (class must extend AstractSubmitToArchiverCommand)
          * and a list of settings that should be passed to the Archiver.
-         * Note: 
+         * Note:
          * Configuration may also require adding Archiver-specific jvm-options (i.e. for username and password) in glassfish.
-         * 
+         *
          * To automate the submission of an archival copy step as part of publication, a post-publication workflow must also be configured.
-         * 
+         *
          * For example:
          * ArchiverClassName - "edu.harvard.iq.dataverse.engine.command.impl.DPNSubmitToArchiveCommand"
          * ArchiverSettings - "DuraCloudHost, DuraCloudPort, DuraCloudContext"
-         * 
-         * Note: Dataverse must be configured with values for these dynamically defined settings as well, e.g. 
-         * 
+         *
+         * Note: Dataverse must be configured with values for these dynamically defined settings as well, e.g.
+         *
          * DuraCloudHost , eg. "qdr.duracloud.org", a non-null value enables submission
          * DuraCloudPort, default is 443
          * DuraCloudContext, default is "durastore"
          */
-        
+
         ArchiverClassName,
         ArchiverSettings,
         /**
@@ -401,8 +402,8 @@ public class SettingsServiceBean {
          */
         InheritParentRoleAssignments,
         /*
-        *
-        */
+         *
+         */
         MDCLogPath,
 
         /**
@@ -416,23 +417,29 @@ public class SettingsServiceBean {
             return ":" + name();
         }
     }
-    
+
     @PersistenceContext
     EntityManager em;
-    
+
     @EJB
     ActionLogServiceBean actionLogSvc;
-    
+
     /**
      * Basic functionality - get the name, return the setting, or {@code null}.
      * @param name of the setting
      * @return the actual setting, or {@code null}.
      */
     public String get( String name ) {
-        Setting s = em.find( Setting.class, name );
-        return (s!=null) ? s.getContent() : null;
+        List<Setting> tokens = em.createNamedQuery("Setting.findByName", Setting.class)
+                .setParameter("name", name )
+                .getResultList();
+        String val = null;
+        if(tokens.size() > 0) {
+            val = tokens.get(0).getContent();
+        }
+        return (val!=null) ? val : null;
     }
-    
+
     /**
      * Same as {@link #get(java.lang.String)}, but with static checking.
      * @param key Enum value of the name.
@@ -441,18 +448,18 @@ public class SettingsServiceBean {
     public String getValueForKey( Key key ) {
         return get(key.toString());
     }
-    
-    
+
+
     /**
      * Attempt to convert the value to an integer
      *  - Applicable for keys such as MaxFileUploadSizeInBytes
-     * 
+     *
      * On failure (key not found or string not convertible to a long), returns null
      * @param key
-     * @return 
+     * @return
      */
-       public Long getValueForKeyAsLong(Key key){
-        
+    public Long getValueForKeyAsLong(Key key){
+
         String val = this.getValueForKey(key);
 
         if (val == null){
@@ -466,15 +473,15 @@ public class SettingsServiceBean {
             logger.log(Level.WARNING, "Incorrect setting.  Could not convert \"{0}\" from setting {1} to long.", new Object[]{val, key.toString()});
             return null;
         }
-        
+
     }
-    
-    
+
+
     /**
      * Return the value stored, or the default value, in case no setting by that
      * name exists. The main difference between this method and the other {@code get()}s
      * is that is never returns null (unless {@code defaultValue} is {@code null}.
-     * 
+     *
      * @param name Name of the setting.
      * @param defaultValue The value to return if no setting is found in the DB.
      * @return Either the stored value, or the default value.
@@ -483,23 +490,47 @@ public class SettingsServiceBean {
         String val = get(name);
         return (val!=null) ? val : defaultValue;
     }
-    
+
+    public String get(String name, String lang, String defaultValue ) {
+        List<Setting> tokens = em.createNamedQuery("Setting.findByNameAndLang", Setting.class)
+                .setParameter("name", name )
+                .setParameter("lang", lang )
+                .getResultList();
+        String val = null;
+        if(tokens.size() > 0) {
+            val = tokens.get(0).getContent();
+        }
+        return (val!=null) ? val : defaultValue;
+    }
+
     public String getValueForKey( Key key, String defaultValue ) {
         return get( key.toString(), defaultValue );
     }
-     
+
+    public String getValueForKey( Key key, String lang, String defaultValue ) {
+        return get( key.toString(), lang, defaultValue );
+    }
+
     public Setting set( String name, String content ) {
         Setting s = new Setting( name, content );
         s = em.merge(s);
         actionLogSvc.log( new ActionLogRecord(ActionLogRecord.ActionType.Setting, "set")
-                            .setInfo(name + ": " + content));
+                .setInfo(name + ": " + content));
         return s;
     }
-    
+
+    public Setting set( String name, String lang, String content ) {
+        Setting s = new Setting( name, lang, content );
+        em.merge(s);
+        actionLogSvc.log( new ActionLogRecord(ActionLogRecord.ActionType.Setting, "set")
+                .setInfo(name + ": " +lang + ": " + content));
+        return s;
+    }
+
     public Setting setValueForKey( Key key, String content ) {
         return set( key.toString(), content );
     }
-    
+
     /**
      * The correct way to decide whether a string value in the
      * settings table should be considered as {@code true}.
@@ -511,7 +542,7 @@ public class SettingsServiceBean {
         String val = get(name);
         return ( val==null ) ? defaultValue : StringUtil.isTrue(val);
     }
-    
+
     public boolean isTrueForKey( Key key, boolean defaultValue ) {
         return isTrue( key.toString(), defaultValue );
     }
@@ -519,22 +550,31 @@ public class SettingsServiceBean {
     public boolean isFalseForKey( Key key, boolean defaultValue ) {
         return ! isTrue( key.toString(), defaultValue );
     }
-            
+
     public void deleteValueForKey( Key name ) {
         delete( name.toString() );
     }
-    
+
     public void delete( String name ) {
         actionLogSvc.log( new ActionLogRecord(ActionLogRecord.ActionType.Setting, "delete")
-                            .setInfo(name));
+                .setInfo(name));
         em.createNamedQuery("Setting.deleteByName")
                 .setParameter("name", name)
                 .executeUpdate();
     }
-    
+
+    public void delete( String name, String lang ) {
+        actionLogSvc.log( new ActionLogRecord(ActionLogRecord.ActionType.Setting, "delete")
+                .setInfo(name));
+        em.createNamedQuery("Setting.deleteByNameAndLang")
+                .setParameter("name", name)
+                .setParameter("lang", lang)
+                .executeUpdate();
+    }
+
     public Set<Setting> listAll() {
         return new HashSet<>(em.createNamedQuery("Setting.findAll", Setting.class).getResultList());
     }
-    
-    
+
+
 }
