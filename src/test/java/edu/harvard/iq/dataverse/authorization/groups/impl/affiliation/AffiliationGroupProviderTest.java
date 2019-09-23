@@ -6,10 +6,8 @@ import edu.harvard.iq.dataverse.mocks.MocksFactory;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.sql.Timestamp;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -42,10 +40,19 @@ public class AffiliationGroupProviderTest {
         authenticatedUser.setAffiliation("University of Toronto");
         AffiliationGroup group = MocksFactory.makeAffiliationGroup();
         when(mockAffiliationGroupService.getByDisplayName(authenticatedUser.getAffiliation())).thenReturn(group);
-        Set<AffiliationGroup> set1 = new HashSet<>(Arrays.asList(group));
         affiliationGroups = provider.groupsFor(authenticatedUser);
-        assertEquals(set1,affiliationGroups);
+        assertEquals(Collections.emptySet(), affiliationGroups);
+
+        long nowInMilliseconds = new Date().getTime();
+        Timestamp emailConfirmed = new Timestamp(nowInMilliseconds);
+        authenticatedUser.setEmailConfirmed(emailConfirmed);
+        affiliationGroups = provider.groupsFor(authenticatedUser);
+
+        Set<AffiliationGroup> set1 = new HashSet<>(Arrays.asList(group));
+        assertEquals(set1, affiliationGroups);
         AffiliationGroup next = affiliationGroups.iterator().next();
+        assertNotNull(next.getGroupProvider());
+        next = affiliationGroups.iterator().next();
         assertNotNull(next.getGroupProvider());
     }
 }
