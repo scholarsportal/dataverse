@@ -105,7 +105,7 @@ public class AffiliationGroupProvider implements GroupProvider<AffiliationGroup>
     }
 
     private Set<AffiliationGroup> getAffiliationGroups(AuthenticatedUser authenticatedUser) {
-        if (authenticatedUser != null) {
+        if (authenticatedUser != null && authenticatedUser.getEmailConfirmed() != null) {
             AffiliationGroup group = affiliationGroupService.getByDisplayName(authenticatedUser.getAffiliation());
             if (group != null) {
                 Set<AffiliationGroup> set = new HashSet<>(Arrays.asList(group));
