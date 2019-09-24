@@ -39,7 +39,7 @@ public class ExternalToolHandler {
      * @param apiToken The apiToken can be null because "explore" tools can be
      * used anonymously.
      */
-    public ExternalToolHandler(ExternalTool externalTool, DataFile dataFile, ApiToken apiToken, FileMetadata fileMetadata) {
+    public ExternalToolHandler(ExternalTool externalTool, DataFile dataFile, ApiToken apiToken, FileMetadata fileMetadata, String localeCode) {
         this.externalTool = externalTool;
         if (dataFile == null) {
             String error = "A DataFile is required.";
@@ -50,10 +50,6 @@ public class ExternalToolHandler {
         this.apiToken = apiToken;
         dataset = getDataFile().getFileMetadata().getDatasetVersion().getDataset();
         this.fileMetadata = fileMetadata;
-    }
-
-    public ExternalToolHandler(ExternalTool externalTool, DataFile dataFile, ApiToken apiToken, FileMetadata fileMetadata, String localeCode) {
-        this(externalTool, dataFile, apiToken, fileMetadata);
         this.localeCode = localeCode;
     }
 
