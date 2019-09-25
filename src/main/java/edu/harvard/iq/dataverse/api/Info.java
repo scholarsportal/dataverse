@@ -59,11 +59,11 @@ public class Info extends AbstractApiBean {
 
     @GET
     @Path("idpignorelist")
-    public Response getIdpIgnoreList() {
+    public Response getShibInstitutionIgnoreList() {
         JsonArrayBuilder arrBld = Json.createArrayBuilder();
-        String idpCSV = settingsService.getValueForKey(SettingsServiceBean.Key.ShibIdpIgnoreList);
+        String idpCSV = settingsService.getValueForKey(SettingsServiceBean.Key.ShibInstitutionIgnoreList);
         if (idpCSV != null) {
-            List<String> shibIdpIgnoreList = Arrays.asList(idpCSV.split(","));
+            List<String> shibIdpIgnoreList = Arrays.asList(idpCSV.split("\\|"));
             shibIdpIgnoreList.forEach(idp -> arrBld.add(idp));
             return ok(arrBld);
         } else {

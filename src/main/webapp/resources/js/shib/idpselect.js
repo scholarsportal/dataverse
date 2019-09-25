@@ -1364,11 +1364,14 @@ function IdPSelectUI() {
 
             idpData = JSON.parse(jsonData);
             var list = loadIdpIgnoreList();
-            if (list) {
+            if (list && list.data) {
                 idpBlackList = list.data;
                 idpData = idpData.filter(function (obj) {
-                    // console.log(obj.entityID);
-                    return !idpBlackList.includes(obj.entityID);
+                    if (obj.DisplayNames && obj.DisplayNames[0] && obj.DisplayNames[0].value) {
+                        return !idpBlackList.includes(obj.DisplayNames[0].value);
+                    } else {
+                        return true;
+                    }
                 });
             }
         } else {
