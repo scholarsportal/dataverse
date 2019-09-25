@@ -16,6 +16,7 @@ import javax.json.JsonObject;
 import javax.json.JsonString;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -151,6 +152,15 @@ public class Groups extends AbstractApiBean {
                 throw topExp;
             }
         }
+    }
+
+    @GET
+    @Path("idpignorelist")
+    public Response getIdpIgnoreList() {
+        JsonArrayBuilder arrBld = Json.createArrayBuilder();
+        List<String> shibIdpIgnoreList = shibGroupPrv.getShibIdpIgnoreList();
+        shibIdpIgnoreList.forEach(idp -> arrBld.add(idp));
+        return ok(arrBld);
     }
 
     @GET
