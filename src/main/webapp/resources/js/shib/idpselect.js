@@ -1279,7 +1279,8 @@ function IdPSelectUI() {
             fatal(getLocalizedMessage('fatal.noXMLHttpRequest'));
             return false;
         }
-        var url = "/api/admin/groups/idpignorelist";
+        var url = window.location.origin+"/api/admin/groups/idpignorelist";
+        console.log(url);
         xhr.open('GET', url, false);
         xhr.send(null);
         if(xhr.status == 200) {
