@@ -94,8 +94,4 @@ public class ShibGroupProvider implements GroupProvider<ShibGroup> {
         boolean response = shibGroupService.delete(doomed);
         return response;
     }
-
-    public List<String> getShibIdpIgnoreList() {
-        return shibGroupService.getShibIdpIgnoreList();
-    }
 }

@@ -155,15 +155,6 @@ public class Groups extends AbstractApiBean {
     }
 
     @GET
-    @Path("idpignorelist")
-    public Response getIdpIgnoreList() {
-        JsonArrayBuilder arrBld = Json.createArrayBuilder();
-        List<String> shibIdpIgnoreList = shibGroupPrv.getShibIdpIgnoreList();
-        shibIdpIgnoreList.forEach(idp -> arrBld.add(idp));
-        return ok(arrBld);
-    }
-
-    @GET
     @Path("shib")
     public Response listShibGroups() {
         JsonArrayBuilder arrBld = Json.createArrayBuilder();
