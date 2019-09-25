@@ -1367,7 +1367,8 @@ function IdPSelectUI() {
             if (list) {
                 idpBlackList = list.data;
                 idpData = idpData.filter(function (obj) {
-                    // console.log(obj.entityID);
+                    console.log(obj.entityID);
+                    console.log(obj.DisplayNames[0].value);
                     return !idpBlackList.includes(obj.entityID);
                 });
             }
