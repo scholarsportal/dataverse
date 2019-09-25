@@ -122,13 +122,4 @@ public class ShibGroupServiceBean {
             throw new Exception(message);
         }
     }
-
-    public List<String> getShibIdpIgnoreList() {
-        String idpCSV = settingService.getValueForKey(SettingsServiceBean.Key.ShibIdpIgnoreList);
-        if (idpCSV != null) {
-            return Arrays.asList(idpCSV.split(","));
-        } else {
-            return null;
-        }
-    }
 }
