@@ -412,7 +412,7 @@ public class SettingsServiceBean {
          *
          */
         AllowCors,
-        ShibIdpIgnoreList;
+        ShibInstitutionIgnoreList;
 
         @Override
         public String toString() {
