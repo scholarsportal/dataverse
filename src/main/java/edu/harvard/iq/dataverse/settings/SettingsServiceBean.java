@@ -411,7 +411,8 @@ public class SettingsServiceBean {
          * Allow CORS flag (true or false). It is true by default
          *
          */
-        AllowCors;
+        AllowCors,
+        ShibIdpIgnoreList;
 
         @Override
         public String toString() {

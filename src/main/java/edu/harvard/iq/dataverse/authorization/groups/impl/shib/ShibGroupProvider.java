@@ -6,9 +6,8 @@ import edu.harvard.iq.dataverse.authorization.groups.GroupProvider;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.authorization.users.User;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+
+import java.util.*;
 import java.util.logging.Logger;
 
 public class ShibGroupProvider implements GroupProvider<ShibGroup> {
@@ -96,4 +95,7 @@ public class ShibGroupProvider implements GroupProvider<ShibGroup> {
         return response;
     }
 
+    public List<String> getShibIdpIgnoreList() {
+        return shibGroupService.getShibIdpIgnoreList();
+    }
 }

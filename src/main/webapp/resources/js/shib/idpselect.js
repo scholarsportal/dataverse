@@ -887,6 +887,7 @@ function IdPSelectUI() {
     // module locals
     //
     var idpData;
+    var idpBlackList;
     var base64chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
     var idpSelectDiv;
     var lang;
@@ -1252,6 +1253,49 @@ function IdPSelectUI() {
     } ;
 
 
+    var loadIdpIgnoreList = function () {
+        var xhr = null;
+
+        try {
+            xhr = new XMLHttpRequest();
+        } catch (e) {}
+        if (null == xhr) {
+            //
+            // EDS24. try to get 'Microsoft.XMLHTTP'
+            //
+            try {
+                xhr = new ActiveXObject("Microsoft.XMLHTTP");
+            } catch (e) {}
+        }
+        if (null == xhr) {
+            //
+            // EDS35. try to get 'Microsoft.XMLHTTP'
+            //
+            try {
+                xhr = new  ActiveXObject('MSXML2.XMLHTTP.3.0');
+            } catch (e) {}
+        }
+        if (null == xhr) {
+            fatal(getLocalizedMessage('fatal.noXMLHttpRequest'));
+            return false;
+        }
+        var url = "/api/admin/groups/idpignorelist";
+        xhr.open('GET', url, false);
+        xhr.send(null);
+        if(xhr.status == 200) {
+            var jsonData = xhr.responseText;
+            if(jsonData === null){
+                return false;
+            }
+            idpBlackList = JSON.parse(jsonData);
+            return idpBlackList;
+        } else {
+            getLocalizedMessage('Failed to load idpIgnoreList.');
+            return false;
+        }
+        return false;
+    };
+
     /**
        Loads the data used by the IdP selection UI.  Data is loaded
        from a JSON document fetched from the given url.
@@ -1319,23 +1363,15 @@ function IdPSelectUI() {
             //
 
             idpData = JSON.parse(jsonData);
-            var idpBlackList = [
-                "https://idp.canarie.ca/idp/shibboleth",
-                "https://idp.unb.ca/idp/shibboleth",
-                "https://idp.usask.ca/idp/shibboleth",
-                "https://idp.sfu.ca/entity",
-                "https://idp.computecanada.ca/idp/shibboleth",
-                "http://federation.langara.ca/adfs/services/trust",
-                "https://prdshib.macewan.ca/idp/shibboleth"
-            ];
-
-            idpData = idpData.filter(function (obj) {
-                console.log(obj.entityID);
-                return !idpBlackList.includes(obj.entityID);
-            });
-
-
-        }else{
+            var list = loadIdpIgnoreList();
+            if (list) {
+                idpBlackList = list.data;
+                idpData = idpData.filter(function (obj) {
+                    // console.log(obj.entityID);
+                    return !idpBlackList.includes(obj.entityID);
+                });
+            }
+        } else {
             fatal(getLocalizedMessage('fatal.loadFailed') + dataSource + '.');
             return false;
         }
