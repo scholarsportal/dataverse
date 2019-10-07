@@ -58,8 +58,8 @@ public class SystemConfig {
 
     /**
      * A JVM option for specifying the "official" URL of the site.
-     * Unlike the FQDN option above, this would be a complete URL,
-     * with the protocol, port number etc.
+     * Unlike the FQDN option above, this would be a complete URL, 
+     * with the protocol, port number etc. 
      */
     public static final String SITE_URL = "dataverse.siteUrl";
 
@@ -92,6 +92,7 @@ public class SystemConfig {
      */
     private static final int defaultZipUploadFilesLimit = 1000;
     private static final int defaultMultipleUploadFilesLimit = 1000;
+    private static final int defaultLoginSessionTimeout = 480; // = 8 hours
 
     private static String appVersionString = null;
     private static String buildNumberString = null;
@@ -431,7 +432,17 @@ public class SystemConfig {
         String limitOption = settingsService.getValueForKey(SettingsServiceBean.Key.ZipUploadFilesLimit);
         return getIntLimitFromStringOrDefault(limitOption, defaultZipUploadFilesLimit);
     }
-
+    
+    /**
+     * Session timeout, in minutes. 
+     * (default value provided)
+     */
+    public int getLoginSessionTimeout() {
+        return getIntLimitFromStringOrDefault(
+                settingsService.getValueForKey(SettingsServiceBean.Key.LoginSessionTimeout), 
+                defaultLoginSessionTimeout); 
+    }
+    
     /*
     `   the number of files the GUI user is allowed to upload in one batch,
         via drag-and-drop, or through the file select dialog
@@ -492,9 +503,10 @@ public class SystemConfig {
         String language = BundleUtil.getCurrentLocale().getLanguage();
         String saneDefaultForAppTermsOfUse = BundleUtil.getStringFromBundle("system.app.terms");
         String appTermsOfUse = "";
+
         if(language.equalsIgnoreCase(BundleUtil.getDefaultLocale().getLanguage()) )
         {
-            appTermsOfUse = settingsService.getValueForKey(SettingsServiceBean.Key.ApplicationTermsOfUse, saneDefaultForAppTermsOfUse);
+             appTermsOfUse = settingsService.getValueForKey(SettingsServiceBean.Key.ApplicationTermsOfUse, saneDefaultForAppTermsOfUse);
         }
         else
         {

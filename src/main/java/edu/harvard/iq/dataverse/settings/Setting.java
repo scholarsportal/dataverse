@@ -15,15 +15,15 @@ import javax.persistence.GenerationType;
  * @author michael
  */
 @NamedQueries({
-        @NamedQuery( name="Setting.deleteByName",
+    @NamedQuery( name="Setting.deleteByName",
                 query="DELETE FROM Setting s WHERE s.name=:name AND s.lang IS NULL"),
-        @NamedQuery( name="Setting.findAll",
+    @NamedQuery( name="Setting.findAll",
                 query="SELECT s FROM Setting s"),
-        @NamedQuery( name="Setting.findByName",
-                query = "SELECT s FROM Setting s WHERE s.name=:name AND s.lang IS NULL" ),
-        @NamedQuery( name="Setting.deleteByNameAndLang",
-                query="DELETE FROM Setting s WHERE s.name=:name AND s.lang=:lang"),
-        @NamedQuery( name="Setting.findByNameAndLang",
+    @NamedQuery( name="Setting.findByName",
+            query = "SELECT s FROM Setting s WHERE s.name=:name AND s.lang IS NULL" ),
+    @NamedQuery( name="Setting.deleteByNameAndLang",
+            query="DELETE FROM Setting s WHERE s.name=:name AND s.lang=:lang"),
+    @NamedQuery( name="Setting.findByNameAndLang",
                 query = "SELECT s FROM Setting s WHERE s.name=:name AND s.lang=:lang" )
 
 })
@@ -47,8 +47,14 @@ public class Setting implements Serializable {
     }
 
     public Setting(String name, String content) {
+       this.name = name;
+       this.content = content;
+    }
+
+    public Setting(String name, String lang, String content) {
         this.name = name;
         this.content = content;
+        this.lang = lang;
     }
 
     public Setting(String name, String lang, String content) {

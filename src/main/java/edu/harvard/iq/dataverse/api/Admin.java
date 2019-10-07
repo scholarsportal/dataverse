@@ -1216,41 +1216,41 @@ public class Admin extends AbstractApiBean {
 		return authSvc.isOrcidEnabled() ? ok("Orcid is enabled") : ok("no orcid for you.");
 	}
 
-	@POST
-	@Path("{id}/reregisterHDLToPID")
-	public Response reregisterHdlToPID(@PathParam("id") String id) {
-		logger.info("Starting to reregister  " + id + " Dataset Id. (from hdl to doi)" + new Date());
-		try {
-			if (settingsSvc.get(SettingsServiceBean.Key.Protocol.toString()).equals(GlobalId.HDL_PROTOCOL)) {
-				logger.info("Bad Request protocol set to handle  " );
-				return error(Status.BAD_REQUEST, BundleUtil.getStringFromBundle("admin.api.migrateHDL.failure.must.be.set.for.doi"));
-			}
+  @POST
+  @Path("{id}/reregisterHDLToPID")
+  public Response reregisterHdlToPID(@PathParam("id") String id) {
+      logger.info("Starting to reregister  " + id + " Dataset Id. (from hdl to doi)" + new Date());
+      try {
+          if (settingsSvc.get(SettingsServiceBean.Key.Protocol.toString()).equals(GlobalId.HDL_PROTOCOL)) {
+              logger.info("Bad Request protocol set to handle  " );
+              return error(Status.BAD_REQUEST, BundleUtil.getStringFromBundle("admin.api.migrateHDL.failure.must.be.set.for.doi"));
+          }
 
-			User u = findUserOrDie();
-			if (!u.isSuperuser()) {
-				logger.info("Bad Request Unauthor " );
-				return error(Status.UNAUTHORIZED, BundleUtil.getStringFromBundle("admin.api.auth.mustBeSuperUser"));
-			}
+          User u = findUserOrDie();
+          if (!u.isSuperuser()) {
+              logger.info("Bad Request Unauthor " );
+              return error(Status.UNAUTHORIZED, BundleUtil.getStringFromBundle("admin.api.auth.mustBeSuperUser"));
+          }
 
-			DataverseRequest r = createDataverseRequest(u);
-			Dataset ds = findDatasetOrDie(id);
-			if (ds.getIdentifier() != null && !ds.getIdentifier().isEmpty() && ds.getProtocol().equals(GlobalId.HDL_PROTOCOL)) {
-				execCommand(new RegisterDvObjectCommand(r, ds, true));
-			} else {
-				return error(Status.BAD_REQUEST, BundleUtil.getStringFromBundle("admin.api.migrateHDL.failure.must.be.hdl.dataset"));
-			}
+          DataverseRequest r = createDataverseRequest(u);
+          Dataset ds = findDatasetOrDie(id);
+          if (ds.getIdentifier() != null && !ds.getIdentifier().isEmpty() && ds.getProtocol().equals(GlobalId.HDL_PROTOCOL)) {
+              execCommand(new RegisterDvObjectCommand(r, ds, true));
+          } else {
+              return error(Status.BAD_REQUEST, BundleUtil.getStringFromBundle("admin.api.migrateHDL.failure.must.be.hdl.dataset"));
+          }
 
-		} catch (WrappedResponse r) {
-			logger.info("Failed to migrate Dataset Handle id: " + id);
-			return badRequest(BundleUtil.getStringFromBundle("admin.api.migrateHDL.failure", Arrays.asList(id)));
-		} catch (Exception e) {
-			logger.info("Failed to migrate Dataset Handle id: " + id + " Unexpected Exception " + e.getMessage());
-			List<String> args = Arrays.asList(id,e.getMessage());
-			return badRequest(BundleUtil.getStringFromBundle("admin.api.migrateHDL.failureWithException", args));
-		}
-		System.out.print("before the return ok...");
-		return ok(BundleUtil.getStringFromBundle("admin.api.migrateHDL.success"));
-	}
+      } catch (WrappedResponse r) {
+          logger.info("Failed to migrate Dataset Handle id: " + id);
+          return badRequest(BundleUtil.getStringFromBundle("admin.api.migrateHDL.failure", Arrays.asList(id)));
+      } catch (Exception e) {
+          logger.info("Failed to migrate Dataset Handle id: " + id + " Unexpected Exception " + e.getMessage());
+          List<String> args = Arrays.asList(id,e.getMessage());
+          return badRequest(BundleUtil.getStringFromBundle("admin.api.migrateHDL.failureWithException", args));
+      }
+
+      return ok(BundleUtil.getStringFromBundle("admin.api.migrateHDL.success"));
+  }
 
 	@GET
 	@Path("{id}/registerDataFile")
@@ -1431,6 +1431,133 @@ public class Admin extends AbstractApiBean {
 
 		return ok("Datafile rehashing complete." + successes + " of  " + rehashed + " files successfully rehashed.");
 	}
+        
+    @POST
+    @Path("/computeDataFileHashValue/{fileId}/algorithm/{alg}")
+    public Response computeDataFileHashValue(@PathParam("fileId") String fileId, @PathParam("alg") String alg) {
+
+        try {
+            User u = findAuthenticatedUserOrDie();
+            if (!u.isSuperuser()) {
+                return error(Status.UNAUTHORIZED, "must be superuser");
+            }
+        } catch (WrappedResponse e1) {
+            return error(Status.UNAUTHORIZED, "api key required");
+        }
+
+        DataFile fileToUpdate = null;
+        try {
+            fileToUpdate = findDataFileOrDie(fileId);
+        } catch (WrappedResponse r) {
+            logger.info("Could not find file with the id: " + fileId);
+            return error(Status.BAD_REQUEST, "Could not find file with the id: " + fileId);
+        }
+
+        if (fileToUpdate.isHarvested()) {
+            return error(Status.BAD_REQUEST, "File with the id: " + fileId + " is harvested.");
+        }
+
+        DataFile.ChecksumType cType = null;
+        try {
+            cType = DataFile.ChecksumType.fromString(alg);
+        } catch (IllegalArgumentException iae) {
+            return error(Status.BAD_REQUEST, "Unknown algorithm: " + alg);
+        }
+
+        String newChecksum = "";
+
+        InputStream in = null;
+        try {
+
+            StorageIO<DataFile> storage = fileToUpdate.getStorageIO();
+            storage.open(DataAccessOption.READ_ACCESS);
+            if (!fileToUpdate.isTabularData()) {
+                in = storage.getInputStream();
+            } else {
+                in = storage.getAuxFileAsInputStream(FileUtil.SAVED_ORIGINAL_FILENAME_EXTENSION);
+            }
+            if (in == null) {
+                return error(Status.NOT_FOUND, "Could not retrieve file with the id: " + fileId);
+            }
+            newChecksum = FileUtil.calculateChecksum(in, cType);
+            fileToUpdate.setChecksumType(cType);
+            fileToUpdate.setChecksumValue(newChecksum);
+
+        } catch (Exception e) {
+            logger.warning("Unexpected Exception: " + e.getMessage());
+
+        } finally {
+            IOUtils.closeQuietly(in);
+        }
+
+        return ok("Datafile rehashing complete. " + fileId + "  successfully rehashed. New hash value is: " + newChecksum);
+    }
+    
+    @POST
+    @Path("/validateDataFileHashValue/{fileId}")
+    public Response validateDataFileHashValue(@PathParam("fileId") String fileId) {
+
+        try {
+            User u = findAuthenticatedUserOrDie();
+            if (!u.isSuperuser()) {
+                return error(Status.UNAUTHORIZED, "must be superuser");
+            }
+        } catch (WrappedResponse e1) {
+            return error(Status.UNAUTHORIZED, "api key required");
+        }
+
+        DataFile fileToValidate = null;
+        try {
+            fileToValidate = findDataFileOrDie(fileId);
+        } catch (WrappedResponse r) {
+            logger.info("Could not find file with the id: " + fileId);
+            return error(Status.BAD_REQUEST, "Could not find file with the id: " + fileId);
+        }
+
+        if (fileToValidate.isHarvested()) {
+            return error(Status.BAD_REQUEST, "File with the id: " + fileId + " is harvested.");
+        }
+
+        DataFile.ChecksumType cType = null;
+        try {
+            String checkSumTypeFromDataFile = fileToValidate.getChecksumType().toString();
+            cType = DataFile.ChecksumType.fromString(checkSumTypeFromDataFile);
+        } catch (IllegalArgumentException iae) {
+            return error(Status.BAD_REQUEST, "Unknown algorithm");
+        }
+
+        String currentChecksum = fileToValidate.getChecksumValue();
+        String calculatedChecksum = "";
+        InputStream in = null;
+        try {
+
+            StorageIO<DataFile> storage = fileToValidate.getStorageIO();
+            storage.open(DataAccessOption.READ_ACCESS);
+            if (!fileToValidate.isTabularData()) {
+                in = storage.getInputStream();
+            } else {
+                in = storage.getAuxFileAsInputStream(FileUtil.SAVED_ORIGINAL_FILENAME_EXTENSION);
+            }
+            if (in == null) {
+                return error(Status.NOT_FOUND, "Could not retrieve file with the id: " + fileId);
+            }
+            calculatedChecksum = FileUtil.calculateChecksum(in, cType);
+
+        } catch (Exception e) {
+            logger.warning("Unexpected Exception: " + e.getMessage());
+            return error(Status.BAD_REQUEST, "Checksum Validation Unexpected Exception: " + e.getMessage());
+        } finally {
+            IOUtils.closeQuietly(in);
+
+        }
+
+        if (currentChecksum.equals(calculatedChecksum)) {
+            return ok("Datafile validation complete for " + fileId + ". The hash value is: " + calculatedChecksum);
+        } else {
+            return error(Status.EXPECTATION_FAILED, "Datafile validation failed for " + fileId + ". The saved hash value is: " + currentChecksum + " while the recalculated hash value for the stored file is: " + calculatedChecksum);
+        }
+
+    }
 
 	@GET
 	@Path("/submitDataVersionToArchive/{id}/{version}")

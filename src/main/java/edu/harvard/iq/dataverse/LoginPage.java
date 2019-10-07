@@ -183,6 +183,7 @@ public class LoginPage implements java.io.Serializable {
                 redirectPage = "%2Fdataverse.xhtml%3Falias%3D" + alias;
                 logger.log(Level.FINE, "redirect to affiliate dataverse", redirectPage);
             }
+            session.configureSessionTimeout();
             
             if ("dataverse.xhtml".equals(redirectPage)) {
                 redirectPage = redirectToRoot();
