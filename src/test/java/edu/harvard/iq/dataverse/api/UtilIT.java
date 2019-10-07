@@ -822,6 +822,22 @@ public class UtilIT {
         return response;
     }
 
+    static Response createAffiliationGroup(JsonObject jsonObject) {
+        Response response = given()
+                .body(jsonObject.toString())
+                .contentType(ContentType.JSON)
+                .post("api/admin/groups/affiliations");
+        return response;
+    }
+
+    static Response updateAffiliationGroup(String alias, JsonObject jsonObject) {
+        Response response = given()
+                .body(jsonObject.toString())
+                .contentType(ContentType.JSON)
+                .put("api/admin/groups/affiliation/" + alias);
+        return response;
+    }
+
     static Response deleteIpGroup(String ipGroupIdentifier) {
         Response response = given()
                 .delete("api/admin/groups/ip/" + ipGroupIdentifier);

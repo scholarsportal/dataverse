@@ -9,7 +9,7 @@ Settings within Dataverse itself are managed via JVM options or by manipulating 
 Once you have finished securing and configuring your Dataverse installation, you may proceed to the :doc:`/admin/index` for more information on the ongoing administration of a Dataverse installation. Advanced configuration topics are covered in the :doc:`r-rapache-tworavens`, :doc:`shibboleth` and :doc:`oauth2` sections.
 
 .. contents:: |toctitle|
-  :local:
+:local:
 
 Securing Your Installation
 --------------------------
@@ -326,7 +326,7 @@ for more info on this process.
 (You can skip this step when running on EC2, see below.)
 
 .. TIP::
-  If you are hosting Dataverse on an AWS EC2 instance alongside storage in S3, it is possible to use IAM Roles instead
+If you are hosting Dataverse on an AWS EC2 instance alongside storage in S3, it is possible to use IAM Roles instead
   of the credentials file (the file at ``~/.aws/credentials`` mentioned below). Please note that you will still need the
   ``~/.aws/config`` file to specify the region. For more information on this option, see
   http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/iam-roles-for-amazon-ec2.html
@@ -760,7 +760,7 @@ The workflow id returned in this call (or available by doing a GET of /api/admin
 
 ``curl -X PUT -d {id} http://localhost:8080/api/admin/workflows/default/PostPublishDataset``
 
-Once these steps are taken, new publication requests will automatically trigger submission of an archival copy to the specified archiver, Chronopolis' DuraCloud component in this example. For Chronopolis, as when using the API, it is currently the admin's responsibility to snap-shot the DuraCloud space and monitor the result. Failure of the workflow, (e.g. if DuraCloud is unavailable, the configuration is wrong, or the space for this dataset already exists due to a prior publication action or use of the API), will create a failure message but will not affect publication itself.  
+Once these steps are taken, new publication requests will automatically trigger submission of an archival copy to the specified archiver, Chronopolis' DuraCloud component in this example. For Chronopolis, as when using the API, it is currently the admin's responsibility to snap-shot the DuraCloud space and monitor the result. Failure of the workflow, (e.g. if DuraCloud is unavailable, the configuration is wrong, or the space for this dataset already exists due to a prior publication action or use of the API), will create a failure message but will not affect publication itself.
 
 Going Live: Launching Your Production Deployment
 ------------------------------------------------
@@ -952,7 +952,7 @@ Then, to switch to production DataCite, you can issue the following command:
 See also these related database settings below:
 
 - :ref:`:DoiProvider`
-- :ref:`:Protocol`  
+- :ref:`:Protocol`
 - :ref:`:Authority`
 - :ref:`:Shoulder`
 
@@ -1302,7 +1302,7 @@ Set ``:ExcludeEmailFromExport`` to prevent email addresses for contacts from bei
 :NavbarAboutUrl
 +++++++++++++++
 
-Set ``NavbarAboutUrl`` to a fully-qualified URL which will be used for the "About" link in the navbar. 
+Set ``NavbarAboutUrl`` to a fully-qualified URL which will be used for the "About" link in the navbar.
 
 Note: The "About" link will not appear in the navbar until this option is set.
 
@@ -1727,7 +1727,7 @@ This setting is experimental and related to Repository Storage Abstraction Layer
 :GuestbookResponsesPageDisplayLimit
 +++++++++++++++++++++++++++++++++++
 
-Limit on how many guestbook entries to display on the guestbook-responses page. By default, only the 5000 most recent entries will be shown. Use the standard settings API in order to change the limit. For example, to set it to 10,000, make the following API call: 
+Limit on how many guestbook entries to display on the guestbook-responses page. By default, only the 5000 most recent entries will be shown. Use the standard settings API in order to change the limit. For example, to set it to 10,000, make the following API call:
 
 ``curl -X PUT -d 10000 http://localhost:8080/api/admin/settings/:GuestbookResponsesPageDisplayLimit``
 
@@ -1738,7 +1738,7 @@ You can replace the default dataset metadata fields that are displayed above fil
 
 ``curl http://localhost:8080/api/admin/settings/:CustomDatasetSummaryFields -X PUT -d 'producer,subtitle,alternativeTitle'``
 
-You have to put the datasetFieldType name attribute in the :CustomDatasetSummaryFields setting for this to work. 
+You have to put the datasetFieldType name attribute in the :CustomDatasetSummaryFields setting for this to work.
 
 :AllowApiTokenLookupViaApi
 ++++++++++++++++++++++++++
@@ -1757,7 +1757,7 @@ Enable the collection of provenance metadata on Dataverse via the provenance pop
 :MetricsCacheTimeoutMinutes
 +++++++++++++++++++++++++++
 
-Sets how long a cached metrics result is used before re-running the query for a request. This timeout is only applied to some of the metrics that query the current state of the system, previous months queries are cached indefinitely. See :doc:`/api/metrics` for more info. The default timeout value is 7 days (10080 minutes). 
+Sets how long a cached metrics result is used before re-running the query for a request. This timeout is only applied to some of the metrics that query the current state of the system, previous months queries are cached indefinitely. See :doc:`/api/metrics` for more info. The default timeout value is 7 days (10080 minutes).
 
 ``curl -X PUT -d 10080 http://localhost:8080/api/admin/settings/:MetricsCacheTimeoutMinutes``
 
@@ -1783,11 +1783,11 @@ See :ref:`i18n` for a curl example and related settings.
 :InheritParentRoleAssignments
 +++++++++++++++++++++++++++++
 
-``:InheritParentRoleAssignments`` can be set to a comma-separated list of role aliases or '*' (all) to cause newly created Dataverses to inherit the set of users and/or internal groups who have assignments for those role(s) on the parent Dataverse, i.e. those users/groups will be assigned the same role(s) on the new Dataverse (in addition to the creator of the new Dataverse having an admin role). 
+``:InheritParentRoleAssignments`` can be set to a comma-separated list of role aliases or '*' (all) to cause newly created Dataverses to inherit the set of users and/or internal groups who have assignments for those role(s) on the parent Dataverse, i.e. those users/groups will be assigned the same role(s) on the new Dataverse (in addition to the creator of the new Dataverse having an admin role).
 This can be helpful in situations where multiple organizations are sharing one Dataverse instance. The default, if ``::InheritParentRoleAssignments`` is not set is for the creator of the new Dataverse to be the only one assigned a role.
 
 ``curl -X PUT -d 'admin, curator' http://localhost:8080/api/admin/settings/:InheritParentRoleAssignments``
-or 
+or
 ``curl -X PUT -d '*' http://localhost:8080/api/admin/settings/:InheritParentRoleAssignments``
 
 :AllowCors

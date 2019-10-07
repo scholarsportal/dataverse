@@ -7,6 +7,7 @@ import edu.harvard.iq.dataverse.authorization.AuthenticationResponse;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.CredentialsAuthenticationProvider;
 import edu.harvard.iq.dataverse.authorization.exceptions.AuthenticationFailedException;
+import edu.harvard.iq.dataverse.authorization.groups.impl.affiliation.AffiliationServiceBean;
 import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinUserServiceBean;
 import edu.harvard.iq.dataverse.authorization.providers.shib.ShibAuthenticationProvider;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
@@ -98,6 +99,9 @@ public class LoginPage implements java.io.Serializable {
     @Inject
     DataverseRequestServiceBean dvRequestService;
     
+    @Inject
+    AffiliationServiceBean affiliationBean;
+    
     private String credentialsAuthProviderId;
     
     private List<FilledCredential> filledCredentials;
@@ -168,6 +172,17 @@ public class LoginPage implements java.io.Serializable {
             AuthenticatedUser r = authSvc.getUpdateAuthenticatedUser(credentialsAuthProviderId, authReq);
             logger.log(Level.FINE, "User authenticated: {0}", r.getEmail());
             session.setUser(r);
+            String affiliation = r.getAffiliation();
+            String alias = affiliationBean.getAlias(affiliation);            
+            Dataverse dv = dataverseService.findByAlias(alias);
+            if (dv == null || !dv.isReleased()) {
+                alias = "";                
+            }
+            logger.log(Level.FINE, "affiliation {0} redirects to alias {1} redirectPage {2} " + new Object[]{affiliation, alias, redirectPage});
+            if (!alias.equals("") && (redirectPage.contains("dataverse.xhtml") || redirectPage.contains("dataverseuser.xhtml"))) {
+                redirectPage = "%2Fdataverse.xhtml%3Falias%3D" + alias;
+                logger.log(Level.FINE, "redirect to affiliate dataverse", redirectPage);
+            }
             session.configureSessionTimeout();
             
             if ("dataverse.xhtml".equals(redirectPage)) {
@@ -184,7 +199,6 @@ public class LoginPage implements java.io.Serializable {
             logger.log(Level.FINE, "Sending user to = {0}", redirectPage);
             return redirectPage + (!redirectPage.contains("?") ? "?" : "&") + "faces-redirect=true";
 
-            
         } catch (AuthenticationFailedException ex) {
             numFailedLoginAttempts++;
             op1 = new Long(random.nextInt(10));

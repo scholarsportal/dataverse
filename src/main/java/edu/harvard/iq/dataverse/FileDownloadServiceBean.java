@@ -136,7 +136,7 @@ public class FileDownloadServiceBean implements java.io.Serializable {
             guestbookResponse = guestbookResponseService.modifyDatafileAndFormat(guestbookResponse, fileMetadata, format);
             writeGuestbookResponseRecord(guestbookResponse);
         }
-        
+
         // Make sure to set the "do not write Guestbook response" flag to TRUE when calling the Access API:
         redirectToDownloadAPI(format, fileMetadata.getDataFile().getId(), true, fileMetadata.getId());
         logger.fine("issued file download redirect for filemetadata "+fileMetadata.getId()+", datafile "+fileMetadata.getDataFile().getId());
@@ -148,13 +148,13 @@ public class FileDownloadServiceBean implements java.io.Serializable {
             return;
         }
         writeGuestbookResponseRecord(guestbookResponse);
-        
+
         redirectToDownloadAPI(guestbookResponse.getFileFormat(), guestbookResponse.getDataFile().getId());
         logger.fine("issued file download redirect for datafile "+guestbookResponse.getDataFile().getId());
     }
 
     public void writeGuestbookResponseRecord(GuestbookResponse guestbookResponse, FileMetadata fileMetadata, String format) {
-        if(!fileMetadata.getDatasetVersion().isDraft()){           
+        if(!fileMetadata.getDatasetVersion().isDraft()){
             guestbookResponse = guestbookResponseService.modifyDatafileAndFormat(guestbookResponse, fileMetadata, format);
             writeGuestbookResponseRecord(guestbookResponse);
         }
@@ -165,7 +165,7 @@ public class FileDownloadServiceBean implements java.io.Serializable {
             CreateGuestbookResponseCommand cmd = new CreateGuestbookResponseCommand(dvRequestService.getDataverseRequest(), guestbookResponse, guestbookResponse.getDataset());
             commandEngine.submit(cmd);
             DatasetVersion version = guestbookResponse.getDatasetVersion();
-            
+
             //Sometimes guestbookResponse doesn't have a version, so we grab the released version
             if (null == version) {
                 version = guestbookResponse.getDataset().getReleasedVersion();
@@ -259,6 +259,10 @@ public class FileDownloadServiceBean implements java.io.Serializable {
             if (guestbookResponse != null) {
                 dataFile = guestbookResponse.getDataFile();
             }
+        }
+        //For tools to get the dataset and datasetversion ids, we need a full DataFile object (not a findCheapAndEasy() copy)
+        if(dataFile.getFileMetadata()==null) {
+            dataFile=datafileService.find(dataFile.getId());
         }
         String localeCode = session.getLocaleCode();
         ExternalToolHandler externalToolHandler = new ExternalToolHandler(externalTool, dataFile, apiToken, fmd, localeCode);

@@ -74,7 +74,7 @@
                                             </div>
                                         </div>
                                     </ui:repeat>
-                                    
+
                                     <!-- validation -->
                                     <div class="form-group" jsf:rendered="#{LoginPage.requireExtraValidation}">
                                         <div class="col-sm-offset-4 col-sm-8">
@@ -90,7 +90,7 @@
                                             <h:message for="messageSum" styleClass="bg-danger text-danger"/>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="form-group">
                                         <div class="col-sm-offset-4 col-sm-9 button-block">
                                             <p:commandButton id="login" styleClass="btn btn-default" value="#{bundle.login}" update="@form,:messagePanel" action="#{LoginPage.login}"/>
@@ -189,6 +189,9 @@
                                             <h:outputText value="#{provider.title}" />
                                         </p:commandLink>
                                     </ui:repeat>
+                                    <p:commandLink styleClass="btn btn-default" action="/dataverseuser?faces-redirect=true&amp;editMode=CREATE">
+                                        <h:outputText value="#{bundle['signup']}" />
+                                    </p:commandLink>
                                 </h:form>
                                 <div jsf:rendered="#{LoginPage.authProvider.id == 'builtin'}">
                                     <p class="help-block">

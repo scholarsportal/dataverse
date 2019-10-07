@@ -3,6 +3,8 @@ package edu.harvard.iq.dataverse.authorization.groups;
 import edu.harvard.iq.dataverse.DvObject;
 import edu.harvard.iq.dataverse.RoleAssigneeServiceBean;
 import edu.harvard.iq.dataverse.authorization.RoleAssignee;
+import edu.harvard.iq.dataverse.authorization.groups.impl.affiliation.AffiliationGroupProvider;
+import edu.harvard.iq.dataverse.authorization.groups.impl.affiliation.AffiliationGroupServiceBean;
 import edu.harvard.iq.dataverse.authorization.groups.impl.builtin.BuiltInGroupsProvider;
 import edu.harvard.iq.dataverse.authorization.groups.impl.explicit.ExplicitGroup;
 import edu.harvard.iq.dataverse.authorization.groups.impl.explicit.ExplicitGroupProvider;
@@ -41,12 +43,15 @@ public class GroupServiceBean {
     ShibGroupServiceBean shibGroupService;
     @EJB
     ExplicitGroupServiceBean explicitGroupService;
+    @EJB
+    AffiliationGroupServiceBean affiliationGroupService;
     
     private final Map<String, GroupProvider> groupProviders = new HashMap<>();
     
     private IpGroupProvider ipGroupProvider;
     private ShibGroupProvider shibGroupProvider;
     private ExplicitGroupProvider explicitGroupProvider;
+    private AffiliationGroupProvider affiliationGroupProvider;
     
     @EJB
     RoleAssigneeServiceBean roleAssigneeSvc;
@@ -57,6 +62,7 @@ public class GroupServiceBean {
         addGroupProvider( ipGroupProvider = new IpGroupProvider(ipGroupsService) );
         addGroupProvider( shibGroupProvider = new ShibGroupProvider(shibGroupService) );
         addGroupProvider( explicitGroupProvider = explicitGroupService.getProvider() );
+        addGroupProvider( affiliationGroupProvider = new AffiliationGroupProvider(affiliationGroupService));
         Logger.getLogger(GroupServiceBean.class.getName()).log(Level.INFO, null, "PostConstruct group service call");
     }
 
@@ -77,6 +83,8 @@ public class GroupServiceBean {
     public ShibGroupProvider getShibGroupProvider() {
         return shibGroupProvider;
     }
+
+    public AffiliationGroupProvider getAffiliationGroupProvider() { return  affiliationGroupProvider; }
     
     /**
      * Finds all the groups {@code req} is part of in {@code dvo}'s context.
