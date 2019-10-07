@@ -57,12 +57,6 @@ public class Setting implements Serializable {
         this.lang = lang;
     }
 
-    public Setting(String name, String lang, String content) {
-        this.name = name;
-        this.content = content;
-        this.lang = lang;
-    }
-
     public String getName() {
         return name;
     }
