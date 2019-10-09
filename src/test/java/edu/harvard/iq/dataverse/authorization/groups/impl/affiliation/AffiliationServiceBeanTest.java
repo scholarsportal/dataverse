@@ -96,7 +96,7 @@ public class AffiliationServiceBeanTest {
         when(mockExternalContext.getRequest()).thenReturn(mockHttpServletRequest);
 
         String affiliation = bean.getAffiliationFromIPAddress();
-        assertEquals("", affiliation);
+        assertEquals("OTHER", affiliation);
 
         when(mockHttpServletRequest.getRemoteAddr()).thenReturn("142.150.192.190");
         when(mockIpGroupsService.findAllIncludingIp(IpAddress.valueOf("142.150.192.190"))).thenReturn(ipgroups);
@@ -107,7 +107,7 @@ public class AffiliationServiceBeanTest {
         when(mockHttpServletRequest.getRemoteAddr()).thenReturn("999.150.192.190");
         when(mockIpGroupsService.findAllIncludingIp(IpAddress.valueOf("999.150.192.190"))).thenReturn(new HashSet<>());
         affiliation = bean.getAffiliationFromIPAddress();
-        assertEquals("", affiliation);
+        assertEquals("OTHER", affiliation);
     }
 
     @Test
