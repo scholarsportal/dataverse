@@ -95,6 +95,8 @@ public class DataverseUserPage implements java.io.Serializable {
     AffiliationServiceBean affiliationServiceBean;
     @Inject
     AffiliationGroupServiceBean affiliationGroupServiceBean;
+    @Inject
+    SendFeedbackDialog sendFeedbackDialog;
 
     private AuthenticatedUser currentUser;
     private BuiltinUser builtinUser;    
@@ -742,9 +744,23 @@ public class DataverseUserPage implements java.io.Serializable {
             o2 = Normalizer.normalize(o2, Normalizer.Form.NFD);
             return o1.compareTo(o2);
         });
-        String affiliationOther = bundle.getString("affiliation.other");
-        affiliationList.remove(affiliationOther);
-        affiliationList.add(affiliationList.size(), affiliationOther);
+        String affiliation = bundle.getString("affiliation.other");
+        affiliationList.remove(affiliation);
+        affiliationList.add(affiliationList.size(), affiliation);
+        if (editMode == EditMode.SUPPORT) {
+            if (sendFeedbackDialog.isLoggedIn()) {
+                String userEmail = sendFeedbackDialog.loggedInUserEmail();
+                String domain = userEmail.substring(userEmail.indexOf("@")+1).trim();
+                AffiliationGroup group = affiliationGroupServiceBean.getByEmailDomain(domain);
+                if(group != null) {
+                    affiliation = group.getDisplayName();
+                }
+            } else {
+                affiliation = affiliationServiceBean.getAffiliationFromIPAddress();
+            }
+            affiliation = affiliationServiceBean.getLocalizedAffiliation(affiliation);
+            sendFeedbackDialog.setMessageAffiliation(affiliation);
+        }
         if (editMode == EditMode.EDIT) {
             String language = bundle.getLocale().getLanguage();
             if (StringUtils.isNotBlank(language) && !language.equalsIgnoreCase("en")) {

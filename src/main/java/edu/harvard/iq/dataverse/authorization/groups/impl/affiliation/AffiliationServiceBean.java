@@ -104,7 +104,7 @@ public class AffiliationServiceBean implements Serializable {
             }
         }
         logger.log(Level.WARNING, "IPAddress not found. {0}");
-        return StringUtils.EMPTY;
+        return bundle.getString("affiliation.other");
     }
 
     public String getLocalizedAffiliation(String affiliation) {
