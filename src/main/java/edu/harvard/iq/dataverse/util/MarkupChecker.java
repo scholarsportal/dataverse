@@ -63,6 +63,4 @@ public class MarkupChecker {
          return StringEscapeUtils.escapeHtml(unsafe);
     }
 
-    public static String escapeXml(String unsafe) { return StringEscapeUtils.escapeXml(unsafe);  }
-
 }

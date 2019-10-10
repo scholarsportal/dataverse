@@ -16,7 +16,6 @@ import edu.harvard.iq.dataverse.authorization.users.PrivateUrlUser;
 import edu.harvard.iq.dataverse.authorization.users.User;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.util.BundleUtil;
-import edu.harvard.iq.dataverse.util.MarkupChecker;
 import edu.harvard.iq.dataverse.util.SystemConfig;
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -621,7 +620,6 @@ public class SearchServiceBean {
                            localefriendlyName = facetFieldCount.getName();
                        }
                    }
-                    localefriendlyName = MarkupChecker.escapeXml(localefriendlyName);
                     FacetLabel facetLabel = new FacetLabel(localefriendlyName, facetFieldCount.getCount());
                     // quote field facets
                     facetLabel.setFilterQuery(facetField.getName() + ":\"" + facetFieldCount.getName() + "\"");
