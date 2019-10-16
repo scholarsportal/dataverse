@@ -94,7 +94,6 @@ public class ConfigureFragmentBean implements java.io.Serializable{
         } else {
             messageApi = "";
         }
-
         
         toolHandler = new ExternalToolHandler(tool, datafileService.find(fileId), apiToken, datafileService.findFileMetadata(fileMetadataId), session.getLocaleCode());
 
@@ -125,6 +124,16 @@ public class ConfigureFragmentBean implements java.io.Serializable{
 
     public String getMessageApi() {
         return messageApi;
+    }
+
+    public String getDescription() {
+        if (tool != null) {
+            if (tool.getDisplayName().equals(BundleUtil.getStringFromDefaultBundleEng("externaltools.dct.displayname"))) {
+                return (BundleUtil.getStringFromBundle("externaltools.dct.description"));
+            } else {
+                return tool.getDisplayName();
+            }
+        } else return "";
     }
 
 }

@@ -1,5 +1,7 @@
 package edu.harvard.iq.dataverse.externaltools;
 
+import edu.harvard.iq.dataverse.util.BundleUtil;
+
 import java.io.Serializable;
 import java.util.Arrays;
 import javax.json.Json;
@@ -11,6 +13,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Transient;
 
 /**
  * A specification or definition for how an external tool is intended to
@@ -76,6 +79,9 @@ public class ExternalTool implements Serializable {
      */
     @Column(nullable = true, columnDefinition = "TEXT")
     private String contentType;
+
+    @Transient
+    private String displayNameLang;
 
     /**
      * This default constructor is only here to prevent this error at
@@ -167,6 +173,12 @@ public class ExternalTool implements Serializable {
 
     public String getDisplayName() {
         return displayName;
+    }
+
+    public String getDisplayNameLang() { return displayNameLang; }
+
+    public void setDisplayNameLang(String displayNameLang) {
+        this.displayNameLang = displayNameLang;
     }
 
     public void setDisplayName(String displayName) {

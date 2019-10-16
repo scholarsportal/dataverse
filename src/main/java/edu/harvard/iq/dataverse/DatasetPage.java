@@ -2024,6 +2024,13 @@ public class DatasetPage implements java.io.Serializable {
         }
         
         configureTools = externalToolService.findFileToolsByType(ExternalTool.Type.CONFIGURE);
+        for (ExternalTool configureTool : configureTools) {
+            if (configureTool.getDisplayName().equals(BundleUtil.getStringFromDefaultBundleEng("externaltools.dct.displayname"))) {
+                configureTool.setDisplayNameLang(BundleUtil.getStringFromBundle("externaltools.dct.displayname"));
+            } else {
+                configureTool.setDisplayNameLang(configureTool.getDisplayName());
+            }
+        }
         exploreTools = externalToolService.findFileToolsByType(ExternalTool.Type.EXPLORE);
         datasetExploreTools = externalToolService.findDatasetToolsByType(ExternalTool.Type.EXPLORE);
         rowsPerPage = 10;
