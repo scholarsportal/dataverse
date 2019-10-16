@@ -131,7 +131,7 @@ public class ConfigureFragmentBean implements java.io.Serializable{
             if (tool.getDisplayName().equals(BundleUtil.getStringFromDefaultBundleEng("externaltools.dct.displayname"))) {
                 return (BundleUtil.getStringFromBundle("externaltools.dct.description"));
             } else {
-                return tool.getDisplayName();
+                return tool.getDescription();
             }
         } else return "";
     }
