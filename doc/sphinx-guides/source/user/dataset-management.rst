@@ -25,16 +25,18 @@ For more details about what Citation and Domain Specific Metadata is supported p
 Supported Metadata Export Formats
 ---------------------------------
 
-Once a dataset has been published its metadata is exported in a variety of formats. A button on the dataset page's metadata tab will allow a user to export the metadata of the most recently published version of the dataset. Currently supported export formats are:
+Once a dataset has been published, its metadata can be exported in a variety of other metadata standards and formats, which help make datasets more discoverable and usable in other systems, such as other data repositories. On each dataset page's metadata tab, the following exports are available:
 
 - Dublin Core
-- DDI (Data Documentation Initiative)
-- DDI HTML Codebook
+- DDI (Data Documentation Initiative Codebook 2.5)
+- DDI HTML Codebook (A more human-readable, HTML version of the DDI Codebook 2.5 metadata export)
 - DataCite 4
 - JSON (native Dataverse format)
 - OAI_ORE
 - OpenAIRE
 - Schema.org JSON-LD
+
+Each of these metadata exports contains the metadata of the most recently published version of the dataset.
 
 Adding a New Dataset
 ====================
@@ -147,7 +149,7 @@ Certain file types in Dataverse are supported by additional functionality, which
 Tabular Data Files
 ------------------
 
-Files in certain formats - Stata, SPSS, R, Excel(xlsx) and CSV - may be ingested as tabular data (see :doc:`/user/tabulardataingest/index` section of the User Guide for details). Tabular data files can be further explored and manipulated with `TwoRavens <../user/data-exploration/tworavens.html>`_ - a statistical data exploration application integrated with Dataverse, as well as other :doc:`/installation/external-tools` if they have been enabled in the installation of Dataverse you are using. TwoRavens allows the user to run statistical models, view summary statistics, download subsets of variable vectors and more. To start, click on the "Explore" button, found next to each relevant tabular file (the application will be opened in a new window). Create and download your subset using `TwoRavens <../user/data-exploration/tworavens.html>`_. See the `TwoRavens documentation section <../user/data-exploration/tworavens.html>`_ for more information.
+Files in certain formats - Stata, SPSS, R, Excel(xlsx) and CSV - may be ingested as tabular data (see :doc:`/user/tabulardataingest/index` section of the User Guide for details). Tabular data files can be further explored and manipulated with `TwoRavens <../user/data-exploration/tworavens.html>`_ - a statistical data exploration application integrated with Dataverse, as well as other :doc:`/admin/external-tools` if they have been enabled in the installation of Dataverse you are using. TwoRavens allows the user to run statistical models, view summary statistics, download subsets of variable vectors and more. To start, click on the "Explore" button, found next to each relevant tabular file (the application will be opened in a new window). Create and download your subset using `TwoRavens <../user/data-exploration/tworavens.html>`_. See the `TwoRavens documentation section <../user/data-exploration/tworavens.html>`_ for more information.
 
 Additional download options available for tabular data (found in the same drop-down menu under the "Download" button): 
 
