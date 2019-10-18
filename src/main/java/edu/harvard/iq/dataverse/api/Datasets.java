@@ -1353,6 +1353,9 @@ public class Datasets extends AbstractApiBean {
                         }
 
                         JsonObjectBuilder job = Json.createObjectBuilder();
+                        job.add("jobId", uploadFolder);
+                        job.add("message", "dataCaptureModuleChecksumValidation completed successfully");
+
                         return ok(job);
                         
                     }  catch (IOException e) {
