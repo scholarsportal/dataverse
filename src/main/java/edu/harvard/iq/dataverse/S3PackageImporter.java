@@ -50,9 +50,44 @@ public class S3PackageImporter extends AbstractApiBean implements java.io.Serial
 
     @EJB
     EjbDataverseEngine commandEngine;
-    
+
+    /**
+     * Pass in a URL pointing to your S3 compatible storage.
+     * For possible values see https://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/com/amazonaws/client/builder/AwsClientBuilder.EndpointConfiguration.html
+     */
+    private String s3CEUrl = System.getProperty("dataverse.files.s3-custom-endpoint-url", "");
+    /**
+     * Pass in a region to use for SigV4 signing of requests.
+     * Defaults to "dataverse" as it is not relevant for custom S3 implementations.
+     */
+    private String s3CERegion = System.getProperty("dataverse.files.s3-custom-endpoint-region", "dataverse");
+    /**
+     * Pass in a boolean value if path style access should be used within the S3 client.
+     * Anything but case-insensitive "true" will lead to value of false, which is default value, too.
+     */
+    private boolean s3pathStyleAccess = Boolean.parseBoolean(System.getProperty("dataverse.files.s3-path-style-access", "false"));
+
+
     //Copies from another s3 bucket to our own
     public void copyFromS3(Dataset dataset, String s3ImportPath) throws IOException {
+
+        try {
+            // get a standard client, using the standard way of configuration the credentials, etc.
+            AmazonS3ClientBuilder s3CB = AmazonS3ClientBuilder.standard();
+            // if the admin has set a system property (see below) we use this endpoint URL instead of the standard ones.
+            if (!s3CEUrl.isEmpty()) {
+                s3CB.setEndpointConfiguration(new AmazonS3ClientBuilder.EndpointConfiguration(s3CEUrl, s3CERegion));
+            }
+            // some custom S3 implementations require "PathStyleAccess" as they us a path, not a subdomain. default = false
+            s3CB.withPathStyleAccessEnabled(s3pathStyleAccess);
+            // let's build the client :-)
+            s3 = s3CB.build();
+        } catch (Exception e) {
+            throw new AmazonClientException(
+                    "Cannot instantiate a S3 client; check your AWS credentials and region",
+                    e);
+        }
+        /*
         try {
             s3 = AmazonS3ClientBuilder.standard().defaultClient();
         } catch (Exception e) {
@@ -60,6 +95,7 @@ public class S3PackageImporter extends AbstractApiBean implements java.io.Serial
                     "Cannot instantiate a S3 client using; check your AWS credentials and region",
                     e);
         }
+        */
         
         String dcmBucketName = System.getProperty("dataverse.files.dcm-s3-bucket-name");
         String dcmDatasetKey = s3ImportPath;
