@@ -392,10 +392,9 @@ public class DataversePage implements java.io.Serializable {
     private List<Dataverse> carouselFeaturedDataverses = null;
     
     public List<Dataverse> getCarouselFeaturedDataverses() {
-        if (carouselFeaturedDataverses != null) {
-            return carouselFeaturedDataverses;
+        if (carouselFeaturedDataverses == null) {
+            carouselFeaturedDataverses = featuredDataverseService.findByDataverseIdQuick(dataverse.getId());
         }
-        carouselFeaturedDataverses = featuredDataverseService.findByDataverseIdQuick(dataverse.getId());
         String ipAffiliation = affiliationServiceBean.getAffiliationFromIPAddress();
         Optional<Dataverse> match = carouselFeaturedDataverses.stream().filter(dataverse -> ipAffiliation.equalsIgnoreCase(dataverse.getAffiliation())).findFirst();
         if (match.isPresent()) {
