@@ -127,6 +127,28 @@ function IdPSelectUIParms() {
             'submitButton.label': 'Continuar ',
             'helpText': 'Ajuda',
             'defaultLogoAlt': 'Logo padrão'
+        },
+        'fr': {
+            'fatal.divMissing': '<div> specifié comme « insertAtDiv » ne peut pas être localisé dans le HTML',
+            'fatal.noXMLHttpRequest': 'Votre navigateur ne prend pas en charge XMLHttpRequest. Impossible de charger les données du IdP sélectionné',
+            'fatal.wrongProtocol': 'La stratégie fournie à DS n\'était pas "urn:oasis:names:tc:SAML:profiles:SSO:idpdiscovery-protocol:single"',
+            'fatal.wrongEntityId': 'entityId fourni par SP ne correspond pas à la configuration',
+            'fatal.noData': 'Le téléchargement de métadonnées n\'a retourné aucune donnée',
+            'fatal.loadFailed': 'Échec du téléchargement de métadonnées à partir de ',
+            'fatal.noparms': 'Aucun paramètre de session de découverte ni de paramètre de retour par défaut ne sont configurés',
+            'fatal.noReturnURL': "Aucun paramètre d\'URL de retour fourni",
+            'fatal.badProtocol': "La demande de retour doit commencer par https\:// ou http\://",
+            'idpPreferred.label': 'Veuillez utiliser une section précédente :',
+            'idpEntry.label': 'ou entrer le nom de votre établissement.',
+            'idpEntry.NoPreferred.label': 'Veuillez entrer le nom de votre établissement et cliquer sur « Continuer » pour vous connecter via le système d\'authentification de votre établissement.',
+            'idpList.label': 'ou sélectionner votre établissement dans la liste ci-dessous.',
+            'idpList.NoPreferred.label': 'Sélectionner votre établissement et cliquer sur « Continuer » pour vous connecter via le système d\'authentification de votre établissement.',
+            'idpList.defaultOptionLabel': 'Veuillez sélectionner…',
+            'idpList.showList': 'Me permettre de choisir parmi une liste',
+            'idpList.showSearch': 'Me permettre de saisir le nom de mon établissement',
+            'submitButton.label': 'Continuer',
+            'helpText': 'Aide',
+            'defaultLogoAlt': 'Logo par défaut'
         }
     };
 
