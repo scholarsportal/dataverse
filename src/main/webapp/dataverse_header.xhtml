@@ -57,8 +57,14 @@
                             </h:outputLink>
                         </li>
 
-                        <li>
-                            <h:outputLink value="#{settingsWrapper.guidesBaseUrl}/#{systemConfig.guidesVersion}/user" target="_blank">
+                        <li jsf:rendered="#{dataverseSession.localeCode=='en'}">
+                            <h:outputLink value="https://learn.scholarsportal.info/all-guides/dataverse/" target="_blank">
+                                <h:outputText value="#{bundle['header.guides.user']}"/>
+                            </h:outputLink>
+                        </li>
+
+                        <li jsf:rendered="#{dataverseSession.localeCode=='fr'}">
+                            <h:outputLink value="https://learn.scholarsportal.info/fr/guides/dataverse/" target="_blank">
                                 <h:outputText value="#{bundle['header.guides.user']}"/>
                             </h:outputLink>
                         </li>
