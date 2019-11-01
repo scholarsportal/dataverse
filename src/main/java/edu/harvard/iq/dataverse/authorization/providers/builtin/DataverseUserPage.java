@@ -231,7 +231,8 @@ public class DataverseUserPage implements java.io.Serializable {
             return;
         }
 
-        String domain = userEmail.substring(userEmail.indexOf("@")+1).trim();
+        long count = userEmail.chars().filter(ch -> ch == '.').count();
+        String domain = (count == 2) ? userEmail.substring(userEmail.indexOf(".")+1).trim() : userEmail.substring(userEmail.indexOf("@")+1).trim();
         AffiliationGroup group = affiliationGroupServiceBean.getByEmailDomain(domain);
         if (group == null) {
             ((UIInput) toValidate).setValid(true);
