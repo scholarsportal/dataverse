@@ -230,20 +230,8 @@ public class DataverseUserPage implements java.io.Serializable {
             logger.info("Email is not valid: " + userEmail);
             return;
         }
-
-        String topLevelDomain = null;
-        String domain = userEmail.substring(userEmail.indexOf("@")+1).trim();
-        long count = domain.chars().filter(ch -> ch == '.').count();
-        if (count > 1) {
-            int secondLastIndex = StringUtils.lastIndexOf(domain, '.', domain.lastIndexOf(".") - 1);
-            topLevelDomain = domain.substring(secondLastIndex + 1);
-        } else {
-            topLevelDomain = domain;
-        }
-        AffiliationGroup group = affiliationGroupServiceBean.getByEmailDomain(topLevelDomain);
-        String emaildomain = group.getEmaildomain();
-        List<String> domainValues = Arrays.asList(emaildomain.split("\\s*,\\s*"));
-        if (group == null || !domainValues.contains(topLevelDomain)) {
+        AffiliationGroup group = affiliationGroupServiceBean.find(userEmail);
+        if (group == null) {
             ((UIInput) toValidate).setValid(true);
             FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_WARN, BundleUtil.getStringFromBundle("user.email.domain.invalid"), null);
             context.addMessage(toValidate.getClientId(context), message);
@@ -324,8 +312,7 @@ public class DataverseUserPage implements java.io.Serializable {
                                                 PasswordEncryption.getLatestVersionNumber());
 
             String userEmail = userDisplayInfo.getEmailAddress();
-            String domain = userEmail.substring(userEmail.indexOf("@")+1).trim();
-            AffiliationGroup group = affiliationGroupServiceBean.getByEmailDomain(domain);
+            AffiliationGroup group = affiliationGroupServiceBean.find(userEmail);
             String affiliation = (group == null) ? "OTHER" : group.getDisplayName();
             userDisplayInfo.setAffiliation(affiliation);
 
@@ -759,8 +746,7 @@ public class DataverseUserPage implements java.io.Serializable {
         if (editMode == EditMode.SUPPORT) {
             if (sendFeedbackDialog.isLoggedIn()) {
                 String userEmail = sendFeedbackDialog.loggedInUserEmail();
-                String domain = userEmail.substring(userEmail.indexOf("@")+1).trim();
-                AffiliationGroup group = affiliationGroupServiceBean.getByEmailDomain(domain);
+                AffiliationGroup group = affiliationGroupServiceBean.find(userEmail);
                 if(group != null) {
                     affiliation = group.getDisplayName();
                 }
