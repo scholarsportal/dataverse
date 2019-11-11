@@ -359,7 +359,7 @@ public class DataverseUserPage implements java.io.Serializable {
             if (dv == null || !dv.isReleased()) {
                 alias = "";                
             }
-            if (!alias.equals("") && redirectPage.contains("/dataverse.xhtml")) {
+            if (!alias.equals("") && redirectPage.contains("dataverse.xhtml")) {
                 redirectPage = "%2Fdataverse.xhtml%3Falias%3D" + alias;
                 logger.log(Level.FINE, "redirect {0} to affiliate {1} dataverse", new Object[] {redirectPage, alias});
             }
