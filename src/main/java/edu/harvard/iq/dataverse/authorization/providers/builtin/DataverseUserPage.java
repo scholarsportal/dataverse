@@ -231,16 +231,19 @@ public class DataverseUserPage implements java.io.Serializable {
             return;
         }
 
-        String domain = null;
-        long count = userEmail.chars().filter(ch -> ch == '.').count();
+        String topLevelDomain = null;
+        String domain = userEmail.substring(userEmail.indexOf("@")+1).trim();
+        long count = domain.chars().filter(ch -> ch == '.').count();
         if (count > 1) {
-            int secondLastIndex = StringUtils.lastIndexOf(userEmail, '.', userEmail.lastIndexOf(".") - 1);
-            domain = userEmail.substring(secondLastIndex + 1);
+            int secondLastIndex = StringUtils.lastIndexOf(domain, '.', domain.lastIndexOf(".") - 1);
+            topLevelDomain = domain.substring(secondLastIndex + 1);
         } else {
-            domain = userEmail.substring(userEmail.indexOf("@") + 1).trim();
+            topLevelDomain = domain;
         }
-        AffiliationGroup group = affiliationGroupServiceBean.getByEmailDomain(domain);
-        if (group == null) {
+        AffiliationGroup group = affiliationGroupServiceBean.getByEmailDomain(topLevelDomain);
+        String emaildomain = group.getEmaildomain();
+        List<String> domainValues = Arrays.asList(emaildomain.split("\\s*,\\s*"));
+        if (group == null || !domainValues.contains(topLevelDomain)) {
             ((UIInput) toValidate).setValid(true);
             FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_WARN, BundleUtil.getStringFromBundle("user.email.domain.invalid"), null);
             context.addMessage(toValidate.getClientId(context), message);
