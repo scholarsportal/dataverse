@@ -355,6 +355,7 @@ public class DashboardUsersPage implements java.io.Serializable {
         group.setDisplayName(displayname);
         if (StringUtils.isNotBlank(emaildomain)) {
             emaildomain = StringUtils.stripStart(emaildomain.trim(), "@");
+            emaildomain = StringUtils.stripEnd(emaildomain.trim(), ",");
             group.setEmaildomain(emaildomain);
         }
         affGroupProvider.store(group);
@@ -438,29 +439,22 @@ public class DashboardUsersPage implements java.io.Serializable {
         if (oldValue == null || value.toString().equalsIgnoreCase(oldValue.toString()) ) {
             return;
         }
-        String emaildomain = ((String) value).trim();
-        emaildomain = StringUtils.stripStart(emaildomain, "@");
-        if (!isValidEmailDomain(emaildomain)) {
-            ((UIInput) component).setValid(false);
-            FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, "Non-affiliated email.", null);
-            context.addMessage(component.getClientId(context), message);
-        }
-        if (emailDomainExists(emaildomain)) {
-            ((UIInput) component).setValid(false);
-            FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, "Email domain exists.", null);
-            context.addMessage(component.getClientId(context), message);
-        }
+        String emailFieldValue = ((String) value).trim();
+        List<String> emailDomainList = Arrays.asList(emailFieldValue.split("\\s*,\\s*"));
+        emailDomainList.forEach(emaildomain -> {
+            emaildomain = StringUtils.stripStart(emaildomain, "@");
+            if (!isValidEmailDomain(emaildomain)) {
+                ((UIInput) component).setValid(false);
+                FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, "Invalid email domain: "+emaildomain, null);
+                context.addMessage(component.getClientId(context), message);
+            }
+        });
     }
 
     private boolean isValidEmailDomain(String emailStr) {
         Pattern VALID_EMAIL_DOMAIN_REGEX = Pattern.compile("^[A-Z0-9.-]+\\.[A-Z]{2,6}$", Pattern.CASE_INSENSITIVE);
         Matcher matcher = VALID_EMAIL_DOMAIN_REGEX.matcher(emailStr);
         return matcher.find();
-    }
-
-    private boolean emailDomainExists(String emaildomain) {
-        AffiliationGroup emailDomain = affiliationGroupServiceBean.getByEmailDomain(emaildomain);
-        return (emailDomain != null);
     }
 
     public void reset() {

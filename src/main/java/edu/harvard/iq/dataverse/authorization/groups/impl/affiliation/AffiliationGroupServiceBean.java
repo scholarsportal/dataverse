@@ -53,7 +53,7 @@ public class AffiliationGroupServiceBean {
     public AffiliationGroup getByEmailDomain(String emaildomain) {
         try {
             TypedQuery<AffiliationGroup> namedQuery = em.createNamedQuery("AffiliationGroup.findByEmailDomain", AffiliationGroup.class);
-            namedQuery.setParameter("emailDomain", emaildomain.toUpperCase());
+            namedQuery.setParameter("emailDomain", "%" + emaildomain.toUpperCase() + "%");
             return namedQuery.getSingleResult();
         } catch (NoResultException nre) {
             return null;

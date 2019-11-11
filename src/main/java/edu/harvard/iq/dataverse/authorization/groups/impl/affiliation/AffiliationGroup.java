@@ -20,7 +20,7 @@ import java.text.Normalizer;
         @NamedQuery(name = "AffiliationGroup.findByDisplayName",
                 query = "SELECT g from AffiliationGroup g where g.displayName=:displayName"),
         @NamedQuery(name = "AffiliationGroup.findByEmailDomain",
-                query = "SELECT g from AffiliationGroup g where UPPER(g.emaildomain)=:emailDomain"),
+                query = "SELECT g from AffiliationGroup g where UPPER(g.emaildomain) like :emailDomain"),
         @NamedQuery(name = "AffiliationGroup.getCount",
                 query = "SELECT COUNT(g) from AffiliationGroup g")
 })
