@@ -1602,8 +1602,17 @@ public class EditDatafilesPage implements java.io.Serializable {
         logger.log(Level.WARNING, "Failed to get DropBox InputStream for file: {0}", fileLink);
         return null;
     } // end: getDropBoxInputStream
-                  
-    
+
+    public void HandleGlobusUpload(ActionEvent event) {
+        if (!uploadInProgress) {
+            uploadInProgress = true;
+        }
+        logger.fine("handleGlobusUpload");
+        uploadComponentId = event.getComponent().getClientId();
+    }
+
+
+
     /**
      * Using information from the DropBox choose, ingest the chosen files
      *  https://www.dropbox.com/developers/dropins/chooser/js
