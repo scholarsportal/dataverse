@@ -88,19 +88,21 @@ public class GlobusServiceBean implements java.io.Serializable{
         logger.info(origRequest.getServerName());
         String redirectURL = "https://" + origRequest.getServerName() + "/globus.xhtml";
         if (code != null ) {
-            //    try {
-            //redirectURL = URLEncoder.encode(redirectURL,"UTF-8");
-            //URL url = new URL("https://auth.globus.org/v2/oauth2/token?code=" + code + "&redirect_uri=" + redirectURL
-            //        + "&grant_type=authorization_code");
+            try {
+            redirectURL = URLEncoder.encode(redirectURL,"UTF-8");
+            URL url = new URL("https://auth.globus.org/v2/oauth2/token?code=" + code + "&redirect_uri=" + redirectURL
+                    + "&grant_type=authorization_code&scope=openid+email+profile+urn:globus:auth:scope:transfer.api.globus.org:all");
+            logger.info(url.toString());
 
             /*    SSLContext sc = SSLContext.getInstance("SSL");
                 sc.init(null, trustAllCerts, new java.security.SecureRandom());
                 HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
 
-                HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+
 
                 //SSLSocketFactory tempSocketFactory = createSocketFactory();
-                //connection.setSSLSocketFactory(tempSocketFactory);
+                //connection.setSSLSocketFactory(tempSocketFactory);*/
+                HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
                 connection.setRequestProperty("Authorization", "Basic NThjMGYxNDQtN2QzMy00ZTYzLTk3MmUtMjljNjY5YzJjNGJiOktzSUVDMDZtTUxlRHNKTDBsTmRibXBIbjZvaWpQNGkwWVVuRmQyVDZRSnc9");
                 connection.setRequestProperty("Content-Type","application/x-www-form-urlencoded" );
                 connection.setRequestMethod("PUT");
@@ -118,12 +120,8 @@ public class GlobusServiceBean implements java.io.Serializable{
             //    e.printStackTrace();
             //} catch (KeyManagementException e) {
             //    e.printStackTrace();
-            } catch (NoSuchAlgorithmException e) {
-                e.printStackTrace();
-            } catch (KeyManagementException e) {
-                e.printStackTrace();
             }
-        }*/
+        }
 
     /*  try {
           URL url = new URL("http://localhost:8080/api/access/datafile/782/metadata?fileMetadataId=442&gbrecs=true");
@@ -137,7 +135,7 @@ public class GlobusServiceBean implements java.io.Serializable{
       }*/
 
 
-            try {
+           /* try {
                 logger.info("Redirect url " + redirectURL);
                 OAuthClientRequest oauthRequest = OAuthClientRequest
                         .tokenLocation("https://auth.globus.org/v2/oauth2/token")
@@ -159,7 +157,7 @@ public class GlobusServiceBean implements java.io.Serializable{
             } catch (Exception e) {
                 logger.info("Exception");
                 logger.severe(e.getMessage());
-            }
+            }*/
 
             logger.info("Success");
         }
