@@ -199,6 +199,6 @@ public class GlobusServiceBean implements java.io.Serializable{
         }
         //]]>*/
 
-    }
+
 
 }
