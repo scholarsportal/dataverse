@@ -115,7 +115,13 @@ public class GlobusServiceBean implements java.io.Serializable{
             } catch (MalformedURLException ex) {
                 logger.severe(ex.getMessage());
             } catch (IOException ex) {
+                logger.info("IO");
                 logger.severe(ex.getMessage());
+                logger.info(ex.getCause().toString());
+                logger.info(ex.getStackTrace().toString());
+            } catch (Exception ex) {
+                logger.severe(ex.getMessage());
+                logger.info(ex.getCause().toString());
             //} catch (NoSuchAlgorithmException e) {
             //    e.printStackTrace();
             //} catch (KeyManagementException e) {
