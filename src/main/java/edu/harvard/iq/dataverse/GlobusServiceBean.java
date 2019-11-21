@@ -14,8 +14,10 @@ import javax.net.ssl.*;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.*;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -111,7 +113,26 @@ public class GlobusServiceBean implements java.io.Serializable{
                 //HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
                 int status = connection.getResponseCode();
                 // TODO: Do something with non 200 status.
-                System.out.println("status: " + status);
+
+                logger.info("status: " + status);
+
+                try {
+
+                    //System.out.println("****** Content of the URL ********");
+                    BufferedReader br =
+                            new BufferedReader(
+                                    new InputStreamReader(connection.getInputStream()));
+
+                    String input;
+
+                    while ((input = br.readLine()) != null){
+                        logger.info(input);
+                    }
+                    br.close();
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             } catch (MalformedURLException ex) {
                 logger.severe(ex.getMessage());
             } catch (IOException ex) {
