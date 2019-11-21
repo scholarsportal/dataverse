@@ -136,6 +136,7 @@ public class GlobusServiceBean implements java.io.Serializable{
 
 
             try {
+                logger.info("Redirect url " + redirectURL);
                 OAuthClientRequest oauthRequest = OAuthClientRequest
                         .tokenLocation("https://auth.globus.org/v2/oauth2/token")
                         .setGrantType(GrantType.AUTHORIZATION_CODE)
