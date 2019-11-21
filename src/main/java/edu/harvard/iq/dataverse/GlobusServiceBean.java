@@ -84,7 +84,9 @@ public class GlobusServiceBean implements java.io.Serializable{
     public void onLoad() {
         logger.info("Start Globus " + code);
         HttpServletRequest origRequest = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-        String redirectURL = origRequest.getRequestURL().toString();
+        logger.info(origRequest.getScheme());
+        logger.info(origRequest.getServerName());
+        String redirectURL = origRequest.getScheme() + "://" + origRequest.getServerName() + "/globus.xhtml";
         if (code != null ) {
             //    try {
             //redirectURL = URLEncoder.encode(redirectURL,"UTF-8");
