@@ -147,15 +147,18 @@ public class GlobusServiceBean implements java.io.Serializable{
                         .buildBodyMessage();
 
                 OAuthClient oAuthClient = new OAuthClient(new URLConnectionClient());
-
-                String accessToken = oAuthClient.accessToken(oauthRequest, GitHubTokenResponse.class).getAccessToken();
-                Long expiresIn = oAuthClient.accessToken(oauthRequest,GitHubTokenResponse.class).getExpiresIn();
+                logger.info("Before access token");
+                String accessToken = oAuthClient.accessToken(oauthRequest).getAccessToken();
+                Long expiresIn = oAuthClient.accessToken(oauthRequest).getExpiresIn();
 
                 logger.info(accessToken);
 
             } catch (Exception e) {
+                logger.info("Exception");
                 logger.severe(e.getMessage());
             }
+
+            logger.info("Success");
         }
         //PrimeFaces.current().executeScript("window.location.search");
 
