@@ -105,7 +105,7 @@ public class GlobusServiceBean implements java.io.Serializable{
                 HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
                 connection.setRequestProperty("Authorization", "Basic NThjMGYxNDQtN2QzMy00ZTYzLTk3MmUtMjljNjY5YzJjNGJiOktzSUVDMDZtTUxlRHNKTDBsTmRibXBIbjZvaWpQNGkwWVVuRmQyVDZRSnc9");
                 connection.setRequestProperty("Content-Type","application/x-www-form-urlencoded" );
-                connection.setRequestMethod("PUT");
+                connection.setRequestMethod("POST");
                // SSLContext sc = SSLContext.getInstance("SSL");
                 //sc.init(null, trustAllCerts, new java.security.SecureRandom());
                 //HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
