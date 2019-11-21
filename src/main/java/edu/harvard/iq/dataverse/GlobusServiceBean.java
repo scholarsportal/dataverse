@@ -145,7 +145,7 @@ public class GlobusServiceBean implements java.io.Serializable{
                         .setClientId("58c0f144-7d33-4e63-972e-29c669c2c4bb")
                         .setRedirectURI(redirectURL)
                         .setClientSecret("KsIEC06mMLeDsJL0lNdbmpHn6oijP4i0YUnFd2T6QJw=")
-                        //.setScope(authScope)
+                        .setScope("openid+email+profile+urn:globus:auth:scope:transfer.api.globus.org:all")
                         .setCode(code)
                         .buildBodyMessage();
 
