@@ -1,5 +1,7 @@
 package edu.harvard.iq.dataverse.globus;
 
+import com.google.gson.FieldNamingPolicy;
+import com.google.gson.GsonBuilder;
 import edu.harvard.iq.dataverse.FeaturedDataverseServiceBean;
 
 import javax.faces.context.FacesContext;
@@ -76,9 +78,10 @@ public class GlobusServiceBean implements java.io.Serializable{
                         sb.append(line+"\n");
                     }
                     br.close();
-
-                    Gson gson = new Gson();
                     logger.info(sb.toString());
+
+                    Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
+
                     AccessToken accessToken = gson.fromJson(sb.toString(), AccessToken.class);
                     logger.info(accessToken.getAccessToken());
 
