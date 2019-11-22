@@ -56,6 +56,7 @@ public class GlobusServiceBean implements java.io.Serializable{
 
                 url = new URL("https://auth.globus.org/v2/oauth2/token?code=" + code + "&redirect_uri=" + redirectURL
                         + "&grant_type=authorization_code&scope=openid+email+profile+urn:globus:auth:scope:transfer.api.globus.org:all");
+                logger.info(url.toString());
 
                 InputStream result = makeRequest(url, "Basic",
                         "NThjMGYxNDQtN2QzMy00ZTYzLTk3MmUtMjljNjY5YzJjNGJiOktzSUVDMDZtTUxlRHNKTDBsTmRibXBIbjZvaWpQNGkwWVVuRmQyVDZRSnc9", "POST");
