@@ -90,7 +90,7 @@ public class GlobusServiceBean implements java.io.Serializable{
             usr = gson.fromJson(sb.toString(), UserInfo.class);
             logger.info(usr.getEmail());
         } else {
-            logger.severe("Bad respond from token rquest");
+            logger.severe("Bad respond from token request");
         }
 
         return usr;
@@ -101,9 +101,10 @@ public class GlobusServiceBean implements java.io.Serializable{
         try {
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             //Basic NThjMGYxNDQtN2QzMy00ZTYzLTk3MmUtMjljNjY5YzJjNGJiOktzSUVDMDZtTUxlRHNKTDBsTmRibXBIbjZvaWpQNGkwWVVuRmQyVDZRSnc9
+            logger.info(authType + " " + authCode);
             connection.setRequestProperty("Authorization", authType + " " + authCode);
             //connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-            connection.setRequestMethod("POST");
+            connection.setRequestMethod(method);
 
             int status = connection.getResponseCode();
             if (status == 200) {
