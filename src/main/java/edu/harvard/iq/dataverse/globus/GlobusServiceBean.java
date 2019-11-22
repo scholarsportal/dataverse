@@ -23,8 +23,6 @@ import java.net.URLEncoder;
 import java.util.logging.Logger;
 import com.google.gson.Gson;
 
-import org.apache.oltu.oauth2.client.request.OAuthClientRequest;
-
 @ViewScoped
 @Named("GlobusServiceBean")
 public class GlobusServiceBean implements java.io.Serializable{
@@ -52,54 +50,103 @@ public class GlobusServiceBean implements java.io.Serializable{
 
         String redirectURL = "https://" + origRequest.getServerName() + "/globus.xhtml";
         if (code != null ) {
+            URL url = null;
             try {
-            redirectURL = URLEncoder.encode(redirectURL,"UTF-8");
-            URL url = new URL("https://auth.globus.org/v2/oauth2/token?code=" + code + "&redirect_uri=" + redirectURL
-                    + "&grant_type=authorization_code&scope=openid+email+profile+urn:globus:auth:scope:transfer.api.globus.org:all");
-            logger.info(url.toString());
+                redirectURL = URLEncoder.encode(redirectURL, "UTF-8");
 
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                connection.setRequestProperty("Authorization", "Basic NThjMGYxNDQtN2QzMy00ZTYzLTk3MmUtMjljNjY5YzJjNGJiOktzSUVDMDZtTUxlRHNKTDBsTmRibXBIbjZvaWpQNGkwWVVuRmQyVDZRSnc9");
-                connection.setRequestProperty("Content-Type","application/x-www-form-urlencoded" );
-                connection.setRequestMethod("POST");
+                url = new URL("https://auth.globus.org/v2/oauth2/token?code=" + code + "&redirect_uri=" + redirectURL
+                        + "&grant_type=authorization_code&scope=openid+email+profile+urn:globus:auth:scope:transfer.api.globus.org:all");
 
-                int status = connection.getResponseCode();
-
-                logger.info("status: " + status);
-
-                try {
-
-                    //System.out.println("****** Content of the URL ********");
-                    BufferedReader br = new BufferedReader( new InputStreamReader(connection.getInputStream()));
-                    StringBuilder sb = new StringBuilder();
-                    String line;
-
-                    while ((line = br.readLine()) != null){
-                        sb.append(line+"\n");
-                    }
-                    br.close();
-                    logger.info(sb.toString());
-
+                InputStream result = makeRequest(url, "Basic",
+                        "NThjMGYxNDQtN2QzMy00ZTYzLTk3MmUtMjljNjY5YzJjNGJiOktzSUVDMDZtTUxlRHNKTDBsTmRibXBIbjZvaWpQNGkwWVVuRmQyVDZRSnc9", "POST");
+                AccessToken accessTokenUser = null;
+                if (result != null) {
+                    StringBuilder sb = readResultJson(result);
                     Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
-
-                    AccessToken accessToken = gson.fromJson(sb.toString(), AccessToken.class);
-                    logger.info(accessToken.getAccessToken());
-
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    accessTokenUser = gson.fromJson(sb.toString(), AccessToken.class);
+                    logger.info(accessTokenUser.getAccessToken());
+                } else {
+                    logger.severe("Bad respond from token rquest");
+                    return;
                 }
-            } catch (MalformedURLException ex) {
-                logger.severe(ex.getMessage());
-            } catch (IOException ex) {
-                logger.info("IO");
-                logger.severe(ex.getMessage());
-                logger.info(ex.getCause().toString());
-                logger.info(ex.getStackTrace().toString());
+
+                getUserInfo(accessTokenUser);
             } catch (Exception ex) {
                 logger.severe(ex.getMessage());
-                logger.info(ex.getCause().toString());
+                return;
             }
+
         }
-            logger.info("Success");
+
+    }
+
+    UserInfo getUserInfo(AccessToken accessTokenUser) throws MalformedURLException {
+        UserInfo usr = null;
+        URL url = new URL("https://auth.globus.org/v2/oauth2/userinfo");
+        InputStream result = makeRequest(url, "Bearer" , accessTokenUser.getAccessToken() , "GET");
+        if (result != null) {
+            StringBuilder sb = readResultJson(result);
+            Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
+            usr = gson.fromJson(sb.toString(), UserInfo.class);
+            logger.info(usr.getEmail());
+        } else {
+            logger.severe("Bad respond from token rquest");
         }
+
+        return usr;
+    }
+
+    private InputStream makeRequest(URL url, String authType, String authCode, String method) {
+        InputStream result = null;
+        try {
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            //Basic NThjMGYxNDQtN2QzMy00ZTYzLTk3MmUtMjljNjY5YzJjNGJiOktzSUVDMDZtTUxlRHNKTDBsTmRibXBIbjZvaWpQNGkwWVVuRmQyVDZRSnc9
+            connection.setRequestProperty("Authorization", authType + " " + authCode);
+            //connection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+            connection.setRequestMethod("POST");
+
+            int status = connection.getResponseCode();
+            if (status == 200) {
+                result = connection.getInputStream();
+            } else {
+                logger.severe("Status request is " + status );
+            }
+
+            logger.info("status: " + status);
+
+        } catch (MalformedURLException ex) {
+            logger.severe(ex.getMessage());
+        } catch (IOException ex) {
+            logger.info("IO");
+            logger.severe(ex.getMessage());
+            logger.info(ex.getCause().toString());
+            logger.info(ex.getStackTrace().toString());
+        } catch (Exception ex) {
+            logger.severe(ex.getMessage());
+            logger.info(ex.getCause().toString());
+        }
+
+        return result;
+
+    }
+
+    private StringBuilder readResultJson(InputStream in) {
+        StringBuilder sb = null;
+        try {
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(in));
+            sb = new StringBuilder();
+            String line;
+            while ((line = br.readLine()) != null) {
+                sb.append(line + "\n");
+            }
+            br.close();
+            logger.info(sb.toString());
+        } catch (IOException e) {
+            sb = null;
+            logger.severe(e.getMessage());
+        }
+        return sb;
+    }
+
 }
