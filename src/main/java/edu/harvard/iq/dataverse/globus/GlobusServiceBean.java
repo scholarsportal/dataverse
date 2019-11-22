@@ -50,7 +50,7 @@ public class GlobusServiceBean implements java.io.Serializable{
         logger.info(origRequest.getScheme());
         logger.info(origRequest.getServerName());
 
-        String redirectURL = "https://utl-192-123.library.utoronto.ca/globus.xhtml";
+        String redirectURL = "https://" + origRequest.getServerName() + "/globus.xhtml";
         if (code != null ) {
             try {
             redirectURL = URLEncoder.encode(redirectURL,"UTF-8");
