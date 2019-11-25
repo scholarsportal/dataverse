@@ -52,12 +52,22 @@ public class GlobusServiceBean implements java.io.Serializable{
                 UserInfo usr = getUserInfo(accessTokenUser);
                 logger.info(accessTokenUser.getAccessToken());
                 logger.info(usr.getEmail());
+                ClientToken clientTokenUser = getClientToken();
+                logger.info(clientTokenUser.getAccessToken());
             } catch (Exception ex) {
                 logger.severe(ex.getMessage());
                 logger.severe(ex.getCause().toString());
             }
         }
 
+    }
+
+    ClientToken getClientToken() throws MalformedURLException {
+        URL url = new URL("https://auth.globus.org/v2/oauth2/token?scope=openid+email+profile+urn:globus:auth:scope:transfer.api.globus.org:all&grant_type=client_credentials");
+        InputStream result = makeRequest(url, "Basic",
+                "ODA0ODBhNzEtODA5ZC00ZTJhLWExNmQtY2JkMzA1NTk0ZDdhOmQvM3NFd1BVUGY0V20ra2hkSkF3NTZMWFJPaFZSTVhnRmR3TU5qM2Q3TjA9","POST");
+        ClientToken clientTokenUser = parseJson(result, ClientToken.class);
+        return clientTokenUser;
     }
 
     AccessToken getAccessToken(HttpServletRequest origRequest ) throws UnsupportedEncodingException, MalformedURLException {
