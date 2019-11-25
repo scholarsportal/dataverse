@@ -63,10 +63,10 @@ public class GlobusServiceBean implements java.io.Serializable{
     AccessToken getAccessToken(HttpServletRequest origRequest ) throws UnsupportedEncodingException, MalformedURLException {
             String redirectURL = "https://" + origRequest.getServerName() + "/globus.xhtml";
             redirectURL = URLEncoder.encode(redirectURL, "UTF-8");
-            String scope = URLEncoder.encode("urn:globus:auth:scope:auth.globus.org:view_identities+openid+email+profile", "UTF-8");
-            scope = "scope=" + scope;
+            //String scope = URLEncoder.encode("urn:globus:auth:scope:auth.globus.org:view_identities+openid+email+profile", "UTF-8");
+            //scope = "scope=" + scope;
             URL url = new URL("https://auth.globus.org/v2/oauth2/token?code=" + code + "&redirect_uri=" + redirectURL
-                    + "&grant_type=authorization_code&" + scope);
+                    + "&grant_type=authorization_code");
             logger.info(url.toString());
 
             InputStream result = makeRequest(url, "Basic",
