@@ -944,7 +944,10 @@
 
             var scope = encodeURI("urn:globus:auth:scope:auth.globus.org:view_identities+openid+email+profile", "UTF-8");
 
-            var new_url = "https://auth.globus.org/v2/oauth2/authorize?client_id=58c0f144-7d33-4e63-972e-29c669c2c4bb&response_type=code&" +
+            //var new_url = "https://auth.globus.org/v2/oauth2/authorize?client_id=58c0f144-7d33-4e63-972e-29c669c2c4bb&response_type=code&" +
+            //    "scope=" + scope;
+
+            var new_url =  "https://auth.globus.org/v2/oauth2/authorize?client_id=80480a71-809d-4e2a-a16d-cbd305594d7a&response_type=code&" +
                 "scope=" + scope;
 
             //var n = window.location.href.indexOf("?");
