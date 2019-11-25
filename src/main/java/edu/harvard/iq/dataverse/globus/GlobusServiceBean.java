@@ -64,7 +64,7 @@ public class GlobusServiceBean implements java.io.Serializable{
 
     AccessToken getClientToken() throws MalformedURLException {
         URL url = new URL("https://auth.globus.org/v2/oauth2/token?scope=openid+email+profile+urn:globus:auth:scope:transfer.api.globus.org:all&grant_type=client_credentials");
-        InputStream result = makeRequest(url, "Basic",
+        StringBuilder result = makeRequest(url, "Basic",
                 "ODA0ODBhNzEtODA5ZC00ZTJhLWExNmQtY2JkMzA1NTk0ZDdhOmQvM3NFd1BVUGY0V20ra2hkSkF3NTZMWFJPaFZSTVhnRmR3TU5qM2Q3TjA9","POST");
         AccessToken clientTokenUser = parseJson(result, AccessToken.class);
         return clientTokenUser;
@@ -79,7 +79,7 @@ public class GlobusServiceBean implements java.io.Serializable{
                     + "&grant_type=authorization_code");
             logger.info(url.toString());
 
-            InputStream result = makeRequest(url, "Basic",
+            StringBuilder result = makeRequest(url, "Basic",
                     //"NThjMGYxNDQtN2QzMy00ZTYzLTk3MmUtMjljNjY5YzJjNGJiOktzSUVDMDZtTUxlRHNKTDBsTmRibXBIbjZvaWpQNGkwWVVuRmQyVDZRSnc9", "POST");
                     "ODA0ODBhNzEtODA5ZC00ZTJhLWExNmQtY2JkMzA1NTk0ZDdhOmQvM3NFd1BVUGY0V20ra2hkSkF3NTZMWFJPaFZSTVhnRmR3TU5qM2Q3TjA9","POST");
             AccessToken accessTokenUser = parseJson(result, AccessToken.class);
@@ -90,14 +90,14 @@ public class GlobusServiceBean implements java.io.Serializable{
     UserInfo getUserInfo(AccessToken accessTokenUser) throws MalformedURLException {
 
         URL url = new URL("https://auth.globus.org/v2/oauth2/userinfo");
-        InputStream result = makeRequest(url, "Bearer" , accessTokenUser.getAccessToken() , "GET");
+        StringBuilder result = makeRequest(url, "Bearer" , accessTokenUser.getAccessToken() , "GET");
         UserInfo usr = parseJson(result, UserInfo.class);
 
         return usr;
     }
 
-    private InputStream makeRequest(URL url, String authType, String authCode, String method) {
-        InputStream result = null;
+    private StringBuilder  makeRequest(URL url, String authType, String authCode, String method) {
+        StringBuilder str = null;
         HttpURLConnection connection = null;
         try {
             connection = (HttpURLConnection) url.openConnection();
@@ -109,7 +109,8 @@ public class GlobusServiceBean implements java.io.Serializable{
 
             int status = connection.getResponseCode();
             if (status == 200) {
-                result = connection.getInputStream();
+                InputStream result = connection.getInputStream();
+                str = readResultJson(result);
             } else {
                 logger.severe("Status request is " + status );
             }
@@ -126,7 +127,7 @@ public class GlobusServiceBean implements java.io.Serializable{
             }
         }
 
-        return result;
+        return str;
 
     }
 
@@ -149,9 +150,8 @@ public class GlobusServiceBean implements java.io.Serializable{
         return sb;
     }
 
-    private <T> T parseJson(InputStream result, Class<T> jsonParserClass) {
-        if (result != null) {
-            StringBuilder sb = readResultJson(result);
+    private <T> T parseJson(StringBuilder sb, Class<T> jsonParserClass) {
+        if (sb != null) {
             Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
             T jsonClass = gson.fromJson(sb.toString(), jsonParserClass);
             return jsonClass;
