@@ -2,7 +2,7 @@ package edu.harvard.iq.dataverse.globus;
 
 public class UserInfo implements java.io.Serializable{
 
-    private Long sub;
+    private String sub;
     private String preferredUsername;
     private String name;
     private String email;
@@ -19,7 +19,7 @@ public class UserInfo implements java.io.Serializable{
         this.preferredUsername = preferredUsername;
     }
 
-    public void setSub(Long sub) {
+    public void setSub(String sub) {
         this.sub = sub;
     }
 
@@ -31,7 +31,7 @@ public class UserInfo implements java.io.Serializable{
         return preferredUsername;
     }
 
-    public Long getSub() {
+    public String getSub() {
         return sub;
     }
 

@@ -22,6 +22,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.logging.Logger;
 import com.google.gson.Gson;
+import org.apache.poi.ss.formula.functions.T;
 
 @ViewScoped
 @Named("GlobusServiceBean")
@@ -61,8 +62,7 @@ public class GlobusServiceBean implements java.io.Serializable{
 
                 InputStream result = makeRequest(url, "Basic",
                         "NThjMGYxNDQtN2QzMy00ZTYzLTk3MmUtMjljNjY5YzJjNGJiOktzSUVDMDZtTUxlRHNKTDBsTmRibXBIbjZvaWpQNGkwWVVuRmQyVDZRSnc9", "POST");
-                AccessToken accessTokenUser = null;
-                if (result != null) {
+               /* if (result != null) {
                     StringBuilder sb = readResultJson(result);
                     Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
                     accessTokenUser = gson.fromJson(sb.toString(), AccessToken.class);
@@ -70,7 +70,8 @@ public class GlobusServiceBean implements java.io.Serializable{
                 } else {
                     logger.severe("Bad respond from token rquest");
                     return;
-                }
+                }*/
+                AccessToken accessTokenUser = parseJson(result, AccessToken.class);
 
                 getUserInfo(accessTokenUser);
             } catch (Exception ex) {
@@ -150,6 +151,18 @@ public class GlobusServiceBean implements java.io.Serializable{
             logger.severe(e.getMessage());
         }
         return sb;
+    }
+
+    private <T> T parseJson(InputStream result, Class<T> jsonParserClass) {
+        if (result != null) {
+            StringBuilder sb = readResultJson(result);
+            Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
+            T jsonClass = gson.fromJson(sb.toString(), jsonParserClass);
+            return jsonClass;
+        } else {
+            logger.severe("Bad respond from token rquest");
+            return null;
+        }
     }
 
 }
