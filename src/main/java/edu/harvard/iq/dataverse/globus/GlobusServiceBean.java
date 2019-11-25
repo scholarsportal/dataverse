@@ -11,10 +11,7 @@ import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -49,52 +46,41 @@ public class GlobusServiceBean implements java.io.Serializable{
         logger.info(origRequest.getScheme());
         logger.info(origRequest.getServerName());
 
-        String redirectURL = "https://" + origRequest.getServerName() + "/globus.xhtml";
         if (code != null ) {
-            URL url = null;
             try {
-                redirectURL = URLEncoder.encode(redirectURL, "UTF-8");
-                String scope = URLEncoder.encode("urn:globus:auth:scope:auth.globus.org:view_identities+openid+email+profile", "UTF-8");
-
-                url = new URL("https://auth.globus.org/v2/oauth2/token?code=" + code + "&redirect_uri=" + redirectURL
-                        + "&grant_type=authorization_code&" + scope);
-                logger.info(url.toString());
-
-                InputStream result = makeRequest(url, "Basic",
-                        "NThjMGYxNDQtN2QzMy00ZTYzLTk3MmUtMjljNjY5YzJjNGJiOktzSUVDMDZtTUxlRHNKTDBsTmRibXBIbjZvaWpQNGkwWVVuRmQyVDZRSnc9", "POST");
-               /* if (result != null) {
-                    StringBuilder sb = readResultJson(result);
-                    Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
-                    accessTokenUser = gson.fromJson(sb.toString(), AccessToken.class);
-                    logger.info(accessTokenUser.getAccessToken());
-                } else {
-                    logger.severe("Bad respond from token rquest");
-                    return;
-                }*/
-                AccessToken accessTokenUser = parseJson(result, AccessToken.class);
-
-                getUserInfo(accessTokenUser);
+                AccessToken accessTokenUser = getAccessToken(origRequest);
+                UserInfo usr = getUserInfo(accessTokenUser);
+                logger.info(accessTokenUser.getAccessToken());
+                logger.info(usr.getEmail());
             } catch (Exception ex) {
                 logger.severe(ex.getMessage());
-                return;
+                logger.severe(ex.getCause().toString());
             }
-
         }
 
     }
 
+    AccessToken getAccessToken(HttpServletRequest origRequest ) throws UnsupportedEncodingException, MalformedURLException {
+            String redirectURL = "https://" + origRequest.getServerName() + "/globus.xhtml";
+            redirectURL = URLEncoder.encode(redirectURL, "UTF-8");
+            String scope = URLEncoder.encode("urn:globus:auth:scope:auth.globus.org:view_identities+openid+email+profile", "UTF-8");
+
+            URL url = new URL("https://auth.globus.org/v2/oauth2/token?code=" + code + "&redirect_uri=" + redirectURL
+                    + "&grant_type=authorization_code&" + scope);
+            logger.info(url.toString());
+
+            InputStream result = makeRequest(url, "Basic",
+                    "NThjMGYxNDQtN2QzMy00ZTYzLTk3MmUtMjljNjY5YzJjNGJiOktzSUVDMDZtTUxlRHNKTDBsTmRibXBIbjZvaWpQNGkwWVVuRmQyVDZRSnc9", "POST");
+            AccessToken accessTokenUser = parseJson(result, AccessToken.class);
+            return accessTokenUser;
+
+    }
+
     UserInfo getUserInfo(AccessToken accessTokenUser) throws MalformedURLException {
-        UserInfo usr = null;
+
         URL url = new URL("https://auth.globus.org/v2/oauth2/userinfo");
         InputStream result = makeRequest(url, "Bearer" , accessTokenUser.getAccessToken() , "GET");
-        if (result != null) {
-            StringBuilder sb = readResultJson(result);
-            Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
-            usr = gson.fromJson(sb.toString(), UserInfo.class);
-            logger.info(usr.getEmail());
-        } else {
-            logger.severe("Bad respond from token request");
-        }
+        UserInfo usr = parseJson(result, UserInfo.class);
 
         return usr;
     }

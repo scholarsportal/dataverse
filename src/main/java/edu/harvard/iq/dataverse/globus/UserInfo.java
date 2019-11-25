@@ -2,6 +2,9 @@ package edu.harvard.iq.dataverse.globus;
 
 public class UserInfo implements java.io.Serializable{
 
+    private String identityProviderDisplayName;
+    private String identityProvider;
+    private String organization;
     private String sub;
     private String preferredUsername;
     private String name;
@@ -23,6 +26,18 @@ public class UserInfo implements java.io.Serializable{
         this.sub = sub;
     }
 
+    public void setIdentityProvider(String identityProvider) {
+        this.identityProvider = identityProvider;
+    }
+
+    public void setIdentityProviderDisplayName(String identityProviderDisplayName) {
+        this.identityProviderDisplayName = identityProviderDisplayName;
+    }
+
+    public void setOrganization(String organization) {
+        this.organization = organization;
+    }
+
     public String getEmail() {
         return email;
     }
@@ -37,5 +52,17 @@ public class UserInfo implements java.io.Serializable{
 
     public String getName() {
         return name;
+    }
+
+    public String getIdentityProvider() {
+        return identityProvider;
+    }
+
+    public String getIdentityProviderDisplayName() {
+        return identityProviderDisplayName;
+    }
+
+    public String getOrganization() {
+        return organization;
     }
 }
