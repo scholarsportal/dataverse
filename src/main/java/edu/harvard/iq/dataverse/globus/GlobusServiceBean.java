@@ -138,6 +138,7 @@ public class GlobusServiceBean implements java.io.Serializable{
             if (jsonString != null) {
                 connection.setRequestProperty("Content-Type", "application/json");
                 connection.setRequestProperty("Accept", "application/json");
+                logger.info(jsonString);
                 connection.setDoOutput(true);
                 OutputStreamWriter wr = new OutputStreamWriter(connection.getOutputStream());
                 wr.write(jsonString);
