@@ -68,7 +68,7 @@ public class GlobusServiceBean implements java.io.Serializable{
     private void createDirectory(AccessToken clientTokenUser) throws MalformedURLException {
         URL url = new URL("https://transfer.api.globusonline.org/v0.10/operation/endpoint/5102894b-f28f-47f9-bc9a-d8e1b4e9e62c/mkdir");
         MkDir mkDir = new MkDir();
-        mkDir.setMAKE_DIR("mkdir");
+        mkDir.setDATA_TYPE("mkdir");
         mkDir.setPath("/~/testvictoria");
         Gson gson = new GsonBuilder().create();
 
