@@ -54,7 +54,8 @@ public class GlobusServiceBean implements java.io.Serializable{
                 logger.info(usr.getEmail());
                 AccessToken clientTokenUser = getClientToken();
                 logger.info(clientTokenUser.getAccessToken());
-                getIdentity(usr);
+                Identity idnt = getIdentity(usr);
+                logger.info(idnt.getEmail());
             } catch (MalformedURLException | UnsupportedEncodingException ex) {
                 logger.severe(ex.getMessage());
                 logger.severe(ex.getCause().toString());
@@ -63,11 +64,18 @@ public class GlobusServiceBean implements java.io.Serializable{
 
     }
 
-    private void getIdentity(UserInfo usr) throws MalformedURLException {
+    private Identity getIdentity(UserInfo usr) throws MalformedURLException {
         URL url = new URL("https://auth.globus.org/v2/api/identities?usernames=" + usr.getEmail());
         StringBuilder result = makeRequest(url, "Basic",
                 "ODA0ODBhNzEtODA5ZC00ZTJhLWExNmQtY2JkMzA1NTk0ZDdhOmQvM3NFd1BVUGY0V20ra2hkSkF3NTZMWFJPaFZSTVhnRmR3TU5qM2Q3TjA9","GET");
+        Identities ids = parseJson(result, Identities.class);
         logger.info(result.toString());
+        if (ids.getIdentities().size() > 0) {
+            return ids.getIdentities().get(0);
+        } else {
+            logger.severe("Cannot find identity for user " + usr.getEmail());
+            return null;
+        }
     }
 
     private AccessToken getClientToken() throws MalformedURLException {

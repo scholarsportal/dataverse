@@ -1,6 +1,7 @@
 package edu.harvard.iq.dataverse.globus;
 
-import java.util.List;
+import java.util.ArrayList;
+
 
 public class AccessToken implements java.io.Serializable {
 
@@ -12,7 +13,7 @@ public class AccessToken implements java.io.Serializable {
     private String state;
     private String scope;
     private String refreshToken;
-    private List<AccessToken> otherTokens;
+    private ArrayList<AccessToken> otherTokens;
 
     String getAccessToken() { return accessToken; }
 
@@ -30,7 +31,7 @@ public class AccessToken implements java.io.Serializable {
 
     String getRefreshToken() { return refreshToken; }
 
-    List<AccessToken> getOtherTokens() { return otherTokens; }
+    ArrayList<AccessToken> getOtherTokens() { return otherTokens; }
 
     public void setAccessToken(String accessToken) {
         this.accessToken = accessToken;
@@ -44,7 +45,7 @@ public class AccessToken implements java.io.Serializable {
         this.idToken = idToken;
     }
 
-    public void setOtherTokens(List<AccessToken> otherTokens) {
+    public void setOtherTokens(ArrayList<AccessToken> otherTokens) {
         this.otherTokens = otherTokens;
     }
 
