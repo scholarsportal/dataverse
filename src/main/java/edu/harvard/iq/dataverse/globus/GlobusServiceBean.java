@@ -151,7 +151,9 @@ public class GlobusServiceBean implements java.io.Serializable{
                 InputStream result = connection.getInputStream();
                 str = readResultJson(result);
             } else {
+                InputStream result = connection.getInputStream();
                 logger.severe("Status request is " + status );
+                logger.info(readResultJson(result).toString());
             }
 
             logger.info("status: " + status);
