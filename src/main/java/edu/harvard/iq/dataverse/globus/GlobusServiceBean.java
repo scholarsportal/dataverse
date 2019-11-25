@@ -55,7 +55,7 @@ public class GlobusServiceBean implements java.io.Serializable{
                 AccessToken clientTokenUser = getClientToken();
                 logger.info(clientTokenUser.getAccessToken());
                 Identity idnt = getIdentity(usr);
-                logger.info(idnt.getEmail());
+                logger.info("Identity email " + idnt.getEmail());
             } catch (MalformedURLException | UnsupportedEncodingException ex) {
                 logger.severe(ex.getMessage());
                 logger.severe(ex.getCause().toString());
