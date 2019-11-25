@@ -54,6 +54,7 @@ public class GlobusServiceBean implements java.io.Serializable{
                 logger.info(usr.getEmail());
                 AccessToken clientTokenUser = getClientToken();
                 logger.info(clientTokenUser.getAccessToken());
+                getIdentity(usr);
             } catch (MalformedURLException | UnsupportedEncodingException ex) {
                 logger.severe(ex.getMessage());
                 logger.severe(ex.getCause().toString());
@@ -62,7 +63,14 @@ public class GlobusServiceBean implements java.io.Serializable{
 
     }
 
-    AccessToken getClientToken() throws MalformedURLException {
+    private void getIdentity(UserInfo usr) throws MalformedURLException {
+        URL url = new URL("https://auth.globus.org/v2/api/identities?usernames=" + usr.getEmail());
+        StringBuilder result = makeRequest(url, "Basic",
+                "ODA0ODBhNzEtODA5ZC00ZTJhLWExNmQtY2JkMzA1NTk0ZDdhOmQvM3NFd1BVUGY0V20ra2hkSkF3NTZMWFJPaFZSTVhnRmR3TU5qM2Q3TjA9","GET");
+        logger.info(result.toString());
+    }
+
+    private AccessToken getClientToken() throws MalformedURLException {
         URL url = new URL("https://auth.globus.org/v2/oauth2/token?scope=openid+email+profile+urn:globus:auth:scope:transfer.api.globus.org:all&grant_type=client_credentials");
         StringBuilder result = makeRequest(url, "Basic",
                 "ODA0ODBhNzEtODA5ZC00ZTJhLWExNmQtY2JkMzA1NTk0ZDdhOmQvM3NFd1BVUGY0V20ra2hkSkF3NTZMWFJPaFZSTVhnRmR3TU5qM2Q3TjA9","POST");
@@ -70,7 +78,7 @@ public class GlobusServiceBean implements java.io.Serializable{
         return clientTokenUser;
     }
 
-    AccessToken getAccessToken(HttpServletRequest origRequest ) throws UnsupportedEncodingException, MalformedURLException {
+    private AccessToken getAccessToken(HttpServletRequest origRequest ) throws UnsupportedEncodingException, MalformedURLException {
             String redirectURL = "https://" + origRequest.getServerName() + "/globus.xhtml";
             redirectURL = URLEncoder.encode(redirectURL, "UTF-8");
             //String scope = URLEncoder.encode("urn:globus:auth:scope:auth.globus.org:view_identities+openid+email+profile", "UTF-8");
@@ -87,7 +95,7 @@ public class GlobusServiceBean implements java.io.Serializable{
 
     }
 
-    UserInfo getUserInfo(AccessToken accessTokenUser) throws MalformedURLException {
+    private UserInfo getUserInfo(AccessToken accessTokenUser) throws MalformedURLException {
 
         URL url = new URL("https://auth.globus.org/v2/oauth2/userinfo");
         StringBuilder result = makeRequest(url, "Bearer" , accessTokenUser.getAccessToken() , "GET");
