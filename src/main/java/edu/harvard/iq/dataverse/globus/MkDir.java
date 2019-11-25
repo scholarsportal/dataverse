@@ -1,19 +1,19 @@
 package edu.harvard.iq.dataverse.globus;
 
 public class MkDir {
-    private String MAKE_DIR;
+    private String DATA_TYPE;
     private String path;
 
-    public void setMAKE_DIR(String MAKE_DIR) {
-        this.MAKE_DIR = MAKE_DIR;
+    public void setDATA_TYPE(String DATA_TYPE) {
+        this.DATA_TYPE = DATA_TYPE;
     }
 
     public void setPath(String path) {
         this.path = path;
     }
 
-    public String getMAKE_DIR() {
-        return MAKE_DIR;
+    public String getDATA_TYPE() {
+        return DATA_TYPE;
     }
 
     public String getPath() {
