@@ -73,7 +73,7 @@ public class GlobusServiceBean implements java.io.Serializable{
         Gson gson = new GsonBuilder().create();
 
         StringBuilder result = makeRequest(url, "Bearer",
-                clientTokenUser.getAccessToken(),"POST",gson.toJson(mkDir));
+                clientTokenUser.getOtherTokens().get(0).getAccessToken(),"POST",gson.toJson(mkDir));
         logger.info(result.toString());
     }
 
