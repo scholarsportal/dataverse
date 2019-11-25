@@ -52,9 +52,9 @@ public class GlobusServiceBean implements java.io.Serializable{
                 UserInfo usr = getUserInfo(accessTokenUser);
                 logger.info(accessTokenUser.getAccessToken());
                 logger.info(usr.getEmail());
-                ClientToken clientTokenUser = getClientToken();
+                AccessToken clientTokenUser = getClientToken();
                 logger.info(clientTokenUser.getAccessToken());
-            } catch (Exception ex) {
+            } catch (MalformedURLException | UnsupportedEncodingException ex) {
                 logger.severe(ex.getMessage());
                 logger.severe(ex.getCause().toString());
             }
@@ -62,11 +62,11 @@ public class GlobusServiceBean implements java.io.Serializable{
 
     }
 
-    ClientToken getClientToken() throws MalformedURLException {
+    AccessToken getClientToken() throws MalformedURLException {
         URL url = new URL("https://auth.globus.org/v2/oauth2/token?scope=openid+email+profile+urn:globus:auth:scope:transfer.api.globus.org:all&grant_type=client_credentials");
         InputStream result = makeRequest(url, "Basic",
                 "ODA0ODBhNzEtODA5ZC00ZTJhLWExNmQtY2JkMzA1NTk0ZDdhOmQvM3NFd1BVUGY0V20ra2hkSkF3NTZMWFJPaFZSTVhnRmR3TU5qM2Q3TjA9","POST");
-        ClientToken clientTokenUser = parseJson(result, ClientToken.class);
+        AccessToken clientTokenUser = parseJson(result, AccessToken.class);
         return clientTokenUser;
     }
 
@@ -98,8 +98,9 @@ public class GlobusServiceBean implements java.io.Serializable{
 
     private InputStream makeRequest(URL url, String authType, String authCode, String method) {
         InputStream result = null;
+        HttpURLConnection connection = null;
         try {
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection = (HttpURLConnection) url.openConnection();
             //Basic NThjMGYxNDQtN2QzMy00ZTYzLTk3MmUtMjljNjY5YzJjNGJiOktzSUVDMDZtTUxlRHNKTDBsTmRibXBIbjZvaWpQNGkwWVVuRmQyVDZRSnc9
             logger.info(authType + " " + authCode);
             connection.setRequestProperty("Authorization", authType + " " + authCode);
@@ -114,17 +115,15 @@ public class GlobusServiceBean implements java.io.Serializable{
             }
 
             logger.info("status: " + status);
-
-        } catch (MalformedURLException ex) {
-            logger.severe(ex.getMessage());
         } catch (IOException ex) {
             logger.info("IO");
             logger.severe(ex.getMessage());
             logger.info(ex.getCause().toString());
             logger.info(ex.getStackTrace().toString());
-        } catch (Exception ex) {
-            logger.severe(ex.getMessage());
-            logger.info(ex.getCause().toString());
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
         }
 
         return result;
