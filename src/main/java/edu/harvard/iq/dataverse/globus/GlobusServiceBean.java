@@ -64,7 +64,7 @@ public class GlobusServiceBean implements java.io.Serializable{
             String redirectURL = "https://" + origRequest.getServerName() + "/globus.xhtml";
             redirectURL = URLEncoder.encode(redirectURL, "UTF-8");
             String scope = URLEncoder.encode("urn:globus:auth:scope:auth.globus.org:view_identities+openid+email+profile", "UTF-8");
-
+            scope = "scope=" + scope;
             URL url = new URL("https://auth.globus.org/v2/oauth2/token?code=" + code + "&redirect_uri=" + redirectURL
                     + "&grant_type=authorization_code&" + scope);
             logger.info(url.toString());
