@@ -77,16 +77,13 @@ public class GlobusServiceBean implements java.io.Serializable{
         StringBuilder result = makeRequest(url, "Bearer",
                 clientTokenUser.getOtherTokens().get(0).getAccessToken(),"POST",gson.toJson(mkDir));
         logger.info(result.toString());
-        MkDirResponse response = parseJson(result, MkDirResponse.class);
-        logger.info(response.getCode());
-        if (response.getCode().equals("ExternalError.MkdirFailed.Exists")) {
+
+        if (result.toString().equals("502")) {
             logger.warning("Cannot create directory " + mkDir.getPath() + ", it already exists");
             return true;
-        } else if (response.getCode().equals("ExternalError.MkdirFailed.PermissionDenied")) {
+        } else if (result.toString().equals("403")) {
             logger.severe("Cannot create directory " + mkDir.getPath() + ", permission denied");
             return false;
-        } else if (response.getCode().equals("DirectoryCreated")) {
-            logger.info("Directory " + mkDir.getPath() + " created");
         }
 
         return true;
@@ -162,13 +159,11 @@ public class GlobusServiceBean implements java.io.Serializable{
 
 
             int status = connection.getResponseCode();
-            if (status >= 200 && status < 300) {
+            if (status == 200  || status == 202  ) {
                 InputStream result = connection.getInputStream();
                 str = readResultJson(result);
             } else {
-                InputStream result = connection.getInputStream();
-                logger.severe("Status request is " + status );
-                logger.info(readResultJson(result).toString());
+               return new StringBuilder().append(status);
             }
 
             logger.info("status: " + status);
