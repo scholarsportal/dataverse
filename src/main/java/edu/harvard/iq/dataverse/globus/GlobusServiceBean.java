@@ -65,16 +65,22 @@ public class GlobusServiceBean implements java.io.Serializable{
 
     }
 
-    private void createDirectory(AccessToken clientTokenUser) throws MalformedURLException {
+    private boolean createDirectory(AccessToken clientTokenUser) throws MalformedURLException {
         URL url = new URL("https://transfer.api.globusonline.org/v0.10/operation/endpoint/5102894b-f28f-47f9-bc9a-d8e1b4e9e62c/mkdir");
         MkDir mkDir = new MkDir();
-        mkDir.setDATA_TYPE("mkdir");
-        mkDir.setPath("/~/testvictoria");
-        Gson gson = new GsonBuilder().create();
+        mkDir.setDataType("mkdir");
+        mkDir.setPath("/~/testvictoria2");
+        Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
 
         StringBuilder result = makeRequest(url, "Bearer",
                 clientTokenUser.getOtherTokens().get(0).getAccessToken(),"POST",gson.toJson(mkDir));
         logger.info(result.toString());
+        MkDirResponse response = parseJson(result, MkDirResponse.class);
+        if (!response.getCode().equals("DirectoryCreated")) {
+            logger.severe("Cannot create directory " + mkDir.getPath());
+            return false;
+        }
+        return true;
     }
 
     private Identity getIdentity(UserInfo usr) throws MalformedURLException {
@@ -147,7 +153,7 @@ public class GlobusServiceBean implements java.io.Serializable{
 
 
             int status = connection.getResponseCode();
-            if (status == 200) {
+            if (status >= 200 && status < 300) {
                 InputStream result = connection.getInputStream();
                 str = readResultJson(result);
             } else {
