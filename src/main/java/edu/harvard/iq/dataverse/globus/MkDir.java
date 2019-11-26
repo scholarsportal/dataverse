@@ -1,11 +1,11 @@
 package edu.harvard.iq.dataverse.globus;
 
 public class MkDir {
-    private String dataType;
+    private String DATA_TYPE;
     private String path;
 
-    public void setDataType(String dataType) {
-        this.dataType = dataType;
+    public void setDataType(String DATA_TYPE) {
+        this.DATA_TYPE = DATA_TYPE;
     }
 
     public void setPath(String path) {
@@ -13,7 +13,7 @@ public class MkDir {
     }
 
     public String getDataType() {
-        return dataType;
+        return DATA_TYPE;
     }
 
     public String getPath() {

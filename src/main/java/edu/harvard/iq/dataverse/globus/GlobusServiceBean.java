@@ -69,8 +69,8 @@ public class GlobusServiceBean implements java.io.Serializable{
         URL url = new URL("https://transfer.api.globusonline.org/v0.10/operation/endpoint/5102894b-f28f-47f9-bc9a-d8e1b4e9e62c/mkdir");
         MkDir mkDir = new MkDir();
         mkDir.setDataType("mkdir");
-        mkDir.setPath("/~/testvictoria2");
-        Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
+        mkDir.setPath("/~/testvictoria3");
+        Gson gson = new GsonBuilder().create();
 
         StringBuilder result = makeRequest(url, "Bearer",
                 clientTokenUser.getOtherTokens().get(0).getAccessToken(),"POST",gson.toJson(mkDir));
