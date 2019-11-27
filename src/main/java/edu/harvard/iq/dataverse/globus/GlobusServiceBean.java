@@ -173,7 +173,7 @@ public class GlobusServiceBean implements java.io.Serializable{
         if (result.status == 200) {
             clientTokenUser = parseJson(result.jsonResponse, AccessToken.class);
         }
-        return null;
+        return clientTokenUser;
     }
 
     private AccessToken getAccessToken(HttpServletRequest origRequest ) throws UnsupportedEncodingException, MalformedURLException {
