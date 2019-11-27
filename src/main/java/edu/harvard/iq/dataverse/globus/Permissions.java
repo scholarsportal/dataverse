@@ -2,7 +2,7 @@ package edu.harvard.iq.dataverse.globus;
 
 public class Permissions {
     private String DATA_TYPE;
-    private String principalType;
+    private String principal_type;
     private String principal;
     private String path;
     private String permissions;
@@ -24,7 +24,7 @@ public class Permissions {
     }
 
     public void setPrincipalType(String principalType) {
-        this.principalType = principalType;
+        this.principal_type = principalType;
     }
 
     public String getPath() {
@@ -44,7 +44,7 @@ public class Permissions {
     }
 
     public String getPrincipalType() {
-        return principalType;
+        return principal_type;
     }
 
 }
