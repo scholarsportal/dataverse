@@ -150,7 +150,7 @@ public class GlobusServiceBean implements java.io.Serializable{
 
         MkDir mkDir = new MkDir();
         mkDir.setDataType("mkdir");
-        mkDir.setPath("/~/testvictoria3");
+        mkDir.setPath("/~/" + datasetId);
         Gson gson = new GsonBuilder().create();
 
         MakeRequestResponse result = makeRequest(url, "Bearer",
