@@ -49,16 +49,41 @@ public class GlobusServiceBean implements java.io.Serializable{
         if (code != null ) {
             try {
                 AccessToken accessTokenUser = getAccessToken(origRequest);
+                if (accessTokenUser == null) {
+                    logger.severe("Cannot get access user token for code " + code);
+                    return;
+                }
                 UserInfo usr = getUserInfo(accessTokenUser);
+                if (usr == null) {
+                    logger.severe("Cannot get user info for " + accessTokenUser.getAccessToken());
+                    return;
+                }
                 logger.info(accessTokenUser.getAccessToken());
                 logger.info(usr.getEmail());
                 AccessToken clientTokenUser = getClientToken();
-                logger.info(clientTokenUser.getAccessToken());
-                Identity idnt = getIdentity(usr);
-                logger.info("Identity email " + idnt.getId());
-                if (!createDirectory(clientTokenUser)) {
+                if (clientTokenUser == null) {
+                    logger.severe("Cannot get client token " );
                     return;
                 }
+                logger.info(clientTokenUser.getAccessToken());
+                Identity idnt = getIdentity(usr);
+                if (idnt == null) {
+                    logger.severe("Cannot get client token " );
+                    return;
+                }
+                logger.info("Identity email " + idnt.getId());
+                int status = createDirectory(clientTokenUser);
+                if (status == 202) {
+                    int perStatus = givePermission(idnt, clientTokenUser);
+                    if (perStatus != 200) {
+                        logger.severe("Cannot get permissions " );
+                        return;
+                    }
+                } else if (status != 502) {
+                    logger.severe ("Cannot create directory, status code " + status);
+                    return;
+                }
+
             } catch (MalformedURLException | UnsupportedEncodingException ex) {
                 logger.severe(ex.getMessage());
                 logger.severe(ex.getCause().toString());
@@ -67,77 +92,125 @@ public class GlobusServiceBean implements java.io.Serializable{
 
     }
 
-    private boolean createDirectory(AccessToken clientTokenUser) throws MalformedURLException {
+    private int givePermission(Identity idnt, AccessToken clientTokenUser) throws MalformedURLException {
+        URL url = new URL("https://transfer.api.globusonline.org/v0.10/endpoint/5102894b-f28f-47f9-bc9a-d8e1b4e9e62c/access");
+        Integer status = new Integer(0);
+        Permissions permissions = new Permissions();
+        permissions.setDATA_TYPE("access");
+        permissions.setPrincipalType("identity");
+        permissions.setPrincipal(idnt.getId());
+        permissions.setPath("/~/testvictoria3");
+        permissions.setPermissions("rw");
+
+        Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
+
+
+        StringBuilder result = makeRequest(url, "Bearer",
+                clientTokenUser.getOtherTokens().get(0).getAccessToken(),"POST", status, gson.toJson(permissions));
+
+        if (status == 400) {
+            logger.severe("Path " + permissions.getPath() + " is not valid");
+        } else if (status == 409) {
+            PermissionsResponse pr = parseJson(result, PermissionsResponse.class);
+            if (pr.getCode().equals("LimitExceeded")) {
+                logger.severe("Endpoint ACL already has the maximum number of access rules");
+            } else if (pr.getCode().equals("Exists")) {
+                logger.warning("ACL already exists" );
+                return 200;
+            }
+
+        }
+
+        return status;
+    }
+
+    private int createDirectory(AccessToken clientTokenUser) throws MalformedURLException {
         URL url = new URL("https://transfer.api.globusonline.org/v0.10/operation/endpoint/5102894b-f28f-47f9-bc9a-d8e1b4e9e62c/mkdir");
+        Integer status = new Integer(0);
         MkDir mkDir = new MkDir();
         mkDir.setDataType("mkdir");
         mkDir.setPath("/~/testvictoria3");
         Gson gson = new GsonBuilder().create();
 
         StringBuilder result = makeRequest(url, "Bearer",
-                clientTokenUser.getOtherTokens().get(0).getAccessToken(),"POST",gson.toJson(mkDir));
+                clientTokenUser.getOtherTokens().get(0).getAccessToken(),"POST", status, gson.toJson(mkDir));
         logger.info(result.toString());
 
-        if (result.toString().equals("502")) {
+        if (status == 502) {
             logger.warning("Cannot create directory " + mkDir.getPath() + ", it already exists");
-            return true;
-        } else if (result.toString().equals("403")) {
+        } else if (status == 403) {
             logger.severe("Cannot create directory " + mkDir.getPath() + ", permission denied");
-            return false;
+        } else if  (status == 202) {
+            logger.info("Directory created " + mkDir.getPath());
         }
 
-        return true;
+        return status;
+
     }
 
     private Identity getIdentity(UserInfo usr) throws MalformedURLException {
         URL url = new URL("https://auth.globus.org/v2/api/identities?usernames=" + usr.getEmail());
+        Integer status = new Integer(0);
         StringBuilder result = makeRequest(url, "Basic",
-                "ODA0ODBhNzEtODA5ZC00ZTJhLWExNmQtY2JkMzA1NTk0ZDdhOmQvM3NFd1BVUGY0V20ra2hkSkF3NTZMWFJPaFZSTVhnRmR3TU5qM2Q3TjA9","GET", null);
-        Identities ids = parseJson(result, Identities.class);
-        logger.info(result.toString());
-        if (ids.getIdentities().size() > 0) {
-            return ids.getIdentities().get(0);
-        } else {
-            logger.severe("Cannot find identity for user " + usr.getEmail());
-            return null;
+                "ODA0ODBhNzEtODA5ZC00ZTJhLWExNmQtY2JkMzA1NTk0ZDdhOmQvM3NFd1BVUGY0V20ra2hkSkF3NTZMWFJPaFZSTVhnRmR3TU5qM2Q3TjA9","GET", status,null);
+        Identities ids = null;
+        Identity id = null;
+        if (status == 200) {
+            ids = parseJson(result, Identities.class);
+            if (ids.getIdentities().size() > 0) {
+                id = ids.getIdentities().get(0);
+            }
         }
+        return id;
     }
 
     private AccessToken getClientToken() throws MalformedURLException {
         URL url = new URL("https://auth.globus.org/v2/oauth2/token?scope=openid+email+profile+urn:globus:auth:scope:transfer.api.globus.org:all&grant_type=client_credentials");
+        Integer status = new Integer(0);
         StringBuilder result = makeRequest(url, "Basic",
-                "ODA0ODBhNzEtODA5ZC00ZTJhLWExNmQtY2JkMzA1NTk0ZDdhOmQvM3NFd1BVUGY0V20ra2hkSkF3NTZMWFJPaFZSTVhnRmR3TU5qM2Q3TjA9","POST", null);
-        AccessToken clientTokenUser = parseJson(result, AccessToken.class);
-        return clientTokenUser;
+                "ODA0ODBhNzEtODA5ZC00ZTJhLWExNmQtY2JkMzA1NTk0ZDdhOmQvM3NFd1BVUGY0V20ra2hkSkF3NTZMWFJPaFZSTVhnRmR3TU5qM2Q3TjA9","POST",  status, null);
+        AccessToken clientTokenUser = null;
+        if (status == 200) {
+            clientTokenUser = parseJson(result, AccessToken.class);
+        }
+        return null;
     }
 
     private AccessToken getAccessToken(HttpServletRequest origRequest ) throws UnsupportedEncodingException, MalformedURLException {
-            String redirectURL = "https://" + origRequest.getServerName() + "/globus.xhtml";
-            redirectURL = URLEncoder.encode(redirectURL, "UTF-8");
-            //String scope = URLEncoder.encode("urn:globus:auth:scope:auth.globus.org:view_identities+openid+email+profile", "UTF-8");
-            //scope = "scope=" + scope;
-            URL url = new URL("https://auth.globus.org/v2/oauth2/token?code=" + code + "&redirect_uri=" + redirectURL
-                    + "&grant_type=authorization_code");
-            logger.info(url.toString());
+        String redirectURL = "https://" + origRequest.getServerName() + "/globus.xhtml";
+        redirectURL = URLEncoder.encode(redirectURL, "UTF-8");
 
-            StringBuilder result = makeRequest(url, "Basic",
+        URL url = new URL("https://auth.globus.org/v2/oauth2/token?code=" + code + "&redirect_uri=" + redirectURL
+                    + "&grant_type=authorization_code");
+        logger.info(url.toString());
+        Integer status = new Integer(0);
+
+        StringBuilder result = makeRequest(url, "Basic",
                     //"NThjMGYxNDQtN2QzMy00ZTYzLTk3MmUtMjljNjY5YzJjNGJiOktzSUVDMDZtTUxlRHNKTDBsTmRibXBIbjZvaWpQNGkwWVVuRmQyVDZRSnc9", "POST");
-                    "ODA0ODBhNzEtODA5ZC00ZTJhLWExNmQtY2JkMzA1NTk0ZDdhOmQvM3NFd1BVUGY0V20ra2hkSkF3NTZMWFJPaFZSTVhnRmR3TU5qM2Q3TjA9","POST", null);
-            AccessToken accessTokenUser = parseJson(result, AccessToken.class);
-            return accessTokenUser;
+                    "ODA0ODBhNzEtODA5ZC00ZTJhLWExNmQtY2JkMzA1NTk0ZDdhOmQvM3NFd1BVUGY0V20ra2hkSkF3NTZMWFJPaFZSTVhnRmR3TU5qM2Q3TjA9","POST",  status, null);
+        AccessToken accessTokenUser = null;
+        if (status == 200) {
+            accessTokenUser = parseJson(result, AccessToken.class);
+        }
+
+        return accessTokenUser;
 
     }
 
     private UserInfo getUserInfo(AccessToken accessTokenUser) throws MalformedURLException {
 
         URL url = new URL("https://auth.globus.org/v2/oauth2/userinfo");
-        StringBuilder result = makeRequest(url, "Bearer" , accessTokenUser.getAccessToken() , "GET", null);
-        UserInfo usr = parseJson(result, UserInfo.class);
+        Integer status = new Integer(0);
+        StringBuilder result = makeRequest(url, "Bearer" , accessTokenUser.getAccessToken() , "GET", status, null);
+        UserInfo usr = null;
+        if (status == 200) {
+            usr = parseJson(result, UserInfo.class);
+        }
 
         return usr;
     }
 
-    private StringBuilder  makeRequest(URL url, String authType, String authCode, String method, String jsonString) {
+    private StringBuilder  makeRequest(URL url, String authType, String authCode, String method, Integer status, String jsonString) {
         StringBuilder str = null;
         HttpURLConnection connection = null;
         try {
@@ -157,13 +230,13 @@ public class GlobusServiceBean implements java.io.Serializable{
                 wr.flush();
             }
 
+            status = connection.getResponseCode();
 
-            int status = connection.getResponseCode();
-            if (status == 200  || status == 202  ) {
-                InputStream result = connection.getInputStream();
+            InputStream result = connection.getInputStream();
+            if (result != null) {
                 str = readResultJson(result);
             } else {
-               return new StringBuilder().append(status);
+                str = null;
             }
 
             logger.info("status: " + status);
