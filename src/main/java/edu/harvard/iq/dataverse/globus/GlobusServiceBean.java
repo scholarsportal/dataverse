@@ -120,7 +120,7 @@ public class GlobusServiceBean implements java.io.Serializable{
         permissions.setDATA_TYPE("access");
         permissions.setPrincipalType("identity");
         permissions.setPrincipal(idnt.getId());
-        permissions.setPath("/~/" + datasetId);
+        permissions.setPath("/~/" + datasetId + "/");
         permissions.setPermissions("rw");
 
         Gson gson = new GsonBuilder().create();
