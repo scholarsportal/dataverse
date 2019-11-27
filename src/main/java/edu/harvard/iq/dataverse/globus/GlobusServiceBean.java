@@ -123,7 +123,7 @@ public class GlobusServiceBean implements java.io.Serializable{
         permissions.setPath("/~/" + datasetId);
         permissions.setPermissions("rw");
 
-        Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
+        Gson gson = new GsonBuilder().create();
 
 
         MakeRequestResponse result = makeRequest(url, "Bearer",
@@ -258,6 +258,7 @@ public class GlobusServiceBean implements java.io.Serializable{
             InputStream result = connection.getInputStream();
             if (result != null) {
                 str = readResultJson(result).toString();
+                logger.info(result.toString());
             } else {
                 str = null;
             }
