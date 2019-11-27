@@ -190,7 +190,9 @@ public class GlobusServiceBean implements java.io.Serializable{
                     "ODA0ODBhNzEtODA5ZC00ZTJhLWExNmQtY2JkMzA1NTk0ZDdhOmQvM3NFd1BVUGY0V20ra2hkSkF3NTZMWFJPaFZSTVhnRmR3TU5qM2Q3TjA9","POST",  status, null);
         AccessToken accessTokenUser = null;
         if (status == 200) {
+            logger.info("Access Token: \n" + result.toString());
             accessTokenUser = parseJson(result, AccessToken.class);
+            logger.info(accessTokenUser.getAccessToken());
         }
 
         return accessTokenUser;
