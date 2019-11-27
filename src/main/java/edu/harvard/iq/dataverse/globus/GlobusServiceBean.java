@@ -96,7 +96,7 @@ public class GlobusServiceBean implements java.io.Serializable{
                 int status = createDirectory(clientTokenUser);
                 if (status == 202 || status == 502) {
                     int perStatus = givePermission(idnt, clientTokenUser);
-                    if (perStatus != 200) {
+                    if (perStatus != 201) {
                         logger.severe("Cannot get permissions " );
                         return;
                     }
@@ -137,7 +137,7 @@ public class GlobusServiceBean implements java.io.Serializable{
                 logger.severe("Endpoint ACL already has the maximum number of access rules");
             } else if (pr.getCode().equals("Exists")) {
                 logger.warning("ACL already exists" );
-                return 200;
+                return 201;
             }
 
         }
