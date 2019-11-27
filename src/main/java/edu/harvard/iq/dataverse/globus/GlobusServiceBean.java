@@ -108,9 +108,9 @@ public class GlobusServiceBean implements java.io.Serializable{
         StringBuilder result = makeRequest(url, "Bearer",
                 clientTokenUser.getOtherTokens().get(0).getAccessToken(),"POST", status, gson.toJson(permissions));
 
-        if (status == 400) {
+        if (status.intValue() == 400) {
             logger.severe("Path " + permissions.getPath() + " is not valid");
-        } else if (status == 409) {
+        } else if (status.intValue() == 409) {
             PermissionsResponse pr = parseJson(result, PermissionsResponse.class);
             if (pr.getCode().equals("LimitExceeded")) {
                 logger.severe("Endpoint ACL already has the maximum number of access rules");
@@ -136,15 +136,15 @@ public class GlobusServiceBean implements java.io.Serializable{
                 clientTokenUser.getOtherTokens().get(0).getAccessToken(),"POST", status, gson.toJson(mkDir));
         logger.info(result.toString());
 
-        if (status == 502) {
+        if (status.intValue() == 502) {
             logger.warning("Cannot create directory " + mkDir.getPath() + ", it already exists");
-        } else if (status == 403) {
+        } else if (status.intValue() == 403) {
             logger.severe("Cannot create directory " + mkDir.getPath() + ", permission denied");
-        } else if  (status == 202) {
+        } else if  (status.intValue() == 202) {
             logger.info("Directory created " + mkDir.getPath());
         }
 
-        return status;
+        return status.intValue();
 
     }
 
@@ -155,7 +155,7 @@ public class GlobusServiceBean implements java.io.Serializable{
                 "ODA0ODBhNzEtODA5ZC00ZTJhLWExNmQtY2JkMzA1NTk0ZDdhOmQvM3NFd1BVUGY0V20ra2hkSkF3NTZMWFJPaFZSTVhnRmR3TU5qM2Q3TjA9","GET", status,null);
         Identities ids = null;
         Identity id = null;
-        if (status == 200) {
+        if (status.intValue() == 200) {
             ids = parseJson(result, Identities.class);
             if (ids.getIdentities().size() > 0) {
                 id = ids.getIdentities().get(0);
@@ -170,7 +170,7 @@ public class GlobusServiceBean implements java.io.Serializable{
         StringBuilder result = makeRequest(url, "Basic",
                 "ODA0ODBhNzEtODA5ZC00ZTJhLWExNmQtY2JkMzA1NTk0ZDdhOmQvM3NFd1BVUGY0V20ra2hkSkF3NTZMWFJPaFZSTVhnRmR3TU5qM2Q3TjA9","POST",  status, null);
         AccessToken clientTokenUser = null;
-        if (status == 200) {
+        if (status.intValue() == 200) {
             clientTokenUser = parseJson(result, AccessToken.class);
         }
         return null;
@@ -189,7 +189,8 @@ public class GlobusServiceBean implements java.io.Serializable{
                     //"NThjMGYxNDQtN2QzMy00ZTYzLTk3MmUtMjljNjY5YzJjNGJiOktzSUVDMDZtTUxlRHNKTDBsTmRibXBIbjZvaWpQNGkwWVVuRmQyVDZRSnc9", "POST");
                     "ODA0ODBhNzEtODA5ZC00ZTJhLWExNmQtY2JkMzA1NTk0ZDdhOmQvM3NFd1BVUGY0V20ra2hkSkF3NTZMWFJPaFZSTVhnRmR3TU5qM2Q3TjA9","POST",  status, null);
         AccessToken accessTokenUser = null;
-        if (status == 200) {
+        logger.info(status.toString());
+        if (status.intValue() == 200) {
             logger.info("Access Token: \n" + result.toString());
             accessTokenUser = parseJson(result, AccessToken.class);
             logger.info(accessTokenUser.getAccessToken());
