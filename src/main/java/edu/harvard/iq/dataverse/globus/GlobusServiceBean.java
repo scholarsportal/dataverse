@@ -94,13 +94,13 @@ public class GlobusServiceBean implements java.io.Serializable{
                 }
                 logger.info("Identity email " + idnt.getId());
                 int status = createDirectory(clientTokenUser);
-                if (status == 202) {
+                if (status == 202 || status == 502) {
                     int perStatus = givePermission(idnt, clientTokenUser);
                     if (perStatus != 200) {
                         logger.severe("Cannot get permissions " );
                         return;
                     }
-                } else if (status != 502) {
+                } else {
                     logger.severe ("Cannot create directory, status code " + status);
                     return;
                 }
