@@ -10,6 +10,7 @@ import javax.inject.Named;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
 
@@ -31,6 +32,7 @@ public class GlobusServiceBean implements java.io.Serializable{
     private static final Logger logger = Logger.getLogger(FeaturedDataverseServiceBean.class.getCanonicalName());
 
     private String code;
+    private String datasetId;
 
     public String getCode() {
         return code;
@@ -42,7 +44,18 @@ public class GlobusServiceBean implements java.io.Serializable{
 
     public void onLoad() {
         logger.info("Start Globus " + code);
+        logger.info("DatasetId " + datasetId);
         HttpServletRequest origRequest = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+        //Cookie[] userCookies = origRequest.getCookies();
+        /*if (userCookies != null && userCookies.length > 0 ) {
+            for (int i = 0; i < userCookies.length; i++) {
+                if (userCookies[i].getName().equals("datasetId")) {
+                    Cookie cookie = userCookies[i];
+                    logger.info(cookie.getValue());
+                    break;
+                }
+            }
+        }*/
         logger.info(origRequest.getScheme());
         logger.info(origRequest.getServerName());
 
@@ -99,7 +112,7 @@ public class GlobusServiceBean implements java.io.Serializable{
         permissions.setDATA_TYPE("access");
         permissions.setPrincipalType("identity");
         permissions.setPrincipal(idnt.getId());
-        permissions.setPath("/~/testvictoria3");
+        permissions.setPath("/~/" + datasetId);
         permissions.setPermissions("rw");
 
         Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
