@@ -42,6 +42,14 @@ public class GlobusServiceBean implements java.io.Serializable{
         this.code = code;
     }
 
+    public String getDatasetId() {
+        return datasetId;
+    }
+
+    public void setDatasetId(String datasetId) {
+        this.datasetId = datasetId;
+    }
+
     public void onLoad() {
         logger.info("Start Globus " + code);
         logger.info("DatasetId " + datasetId);
