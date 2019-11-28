@@ -4,8 +4,8 @@ public class PermissionsResponse {
     private String code;
     private String resource;
     private String DATA_TYPE;
-    private String requestId;
-    private String accessId;
+    private String request_id;
+    private String access_id;
     private String message;
 
     public String getDATA_TYPE() {
@@ -17,7 +17,7 @@ public class PermissionsResponse {
     }
 
     public String getRequestId() {
-        return requestId;
+        return request_id;
     }
 
     public String getMessage() {
@@ -29,7 +29,7 @@ public class PermissionsResponse {
     }
 
     public String getAccessId() {
-        return accessId;
+        return access_id;
     }
 
     public void setDATA_TYPE(String DATA_TYPE) {
@@ -41,7 +41,7 @@ public class PermissionsResponse {
     }
 
     public void setRequestId(String requestId) {
-        this.requestId = requestId;
+        this.request_id = requestId;
     }
 
     public void setMessage(String message) {
@@ -53,6 +53,6 @@ public class PermissionsResponse {
     }
 
     public void setAccessId(String accessId) {
-        this.accessId = accessId;
+        this.access_id = accessId;
     }
 }

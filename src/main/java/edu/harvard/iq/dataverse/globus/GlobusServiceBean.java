@@ -145,7 +145,7 @@ public class GlobusServiceBean implements java.io.Serializable{
         if (result.status == 400) {
             logger.severe("Path " + permissions.getPath() + " is not valid");
         } else if (result.status == 409) {
-            PermissionsResponse pr = parseJson(result.jsonResponse, PermissionsResponse.class);
+            PermissionsResponse pr = parseJson(result.jsonResponse, PermissionsResponse.class, false);
             if (pr.getCode().equals("LimitExceeded")) {
                 logger.severe("Endpoint ACL already has the maximum number of access rules");
             } else if (pr.getCode().equals("Exists")) {
@@ -190,7 +190,7 @@ public class GlobusServiceBean implements java.io.Serializable{
         Identities ids = null;
         Identity id = null;
         if (result.status == 200) {
-            ids = parseJson(result.jsonResponse, Identities.class);
+            ids = parseJson(result.jsonResponse, Identities.class, true);
             if (ids.getIdentities().size() > 0) {
                 id = ids.getIdentities().get(0);
             }
@@ -205,7 +205,7 @@ public class GlobusServiceBean implements java.io.Serializable{
                 "ODA0ODBhNzEtODA5ZC00ZTJhLWExNmQtY2JkMzA1NTk0ZDdhOmQvM3NFd1BVUGY0V20ra2hkSkF3NTZMWFJPaFZSTVhnRmR3TU5qM2Q3TjA9","POST",   null);
         AccessToken clientTokenUser = null;
         if (result.status == 200) {
-            clientTokenUser = parseJson(result.jsonResponse, AccessToken.class);
+            clientTokenUser = parseJson(result.jsonResponse, AccessToken.class, true);
         }
         return clientTokenUser;
     }
@@ -225,7 +225,7 @@ public class GlobusServiceBean implements java.io.Serializable{
 
         if (result.status == 200) {
             logger.info("Access Token: \n" + result.toString());
-            accessTokenUser = parseJson(result.jsonResponse, AccessToken.class);
+            accessTokenUser = parseJson(result.jsonResponse, AccessToken.class, true);
             logger.info(accessTokenUser.getAccessToken());
         }
 
@@ -239,7 +239,7 @@ public class GlobusServiceBean implements java.io.Serializable{
         MakeRequestResponse result = makeRequest(url, "Bearer" , accessTokenUser.getAccessToken() , "GET",  null);
         UserInfo usr = null;
         if (result.status == 200) {
-            usr = parseJson(result.jsonResponse, UserInfo.class);
+            usr = parseJson(result.jsonResponse, UserInfo.class, true);
         }
 
         return usr;
@@ -267,12 +267,15 @@ public class GlobusServiceBean implements java.io.Serializable{
             }
 
             status = connection.getResponseCode();
-
+            logger.info("Status now " + status);
             InputStream result = connection.getInputStream();
             if (result != null) {
+                logger.info("Result is not null");
                 str = readResultJson(result).toString();
+                logger.info("str is ");
                 logger.info(result.toString());
             } else {
+                logger.info("Result is null");
                 str = null;
             }
 
@@ -311,9 +314,15 @@ public class GlobusServiceBean implements java.io.Serializable{
         return sb;
     }
 
-    private <T> T parseJson(String sb, Class<T> jsonParserClass) {
+    private <T> T parseJson(String sb, Class<T> jsonParserClass, boolean namingPolicy) {
         if (sb != null) {
-            Gson gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
+            Gson gson = null;
+            if (namingPolicy) {
+                gson = new GsonBuilder().setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES).create();
+
+            } else {
+                gson = new GsonBuilder().create();
+            }
             T jsonClass = gson.fromJson(sb, jsonParserClass);
             return jsonClass;
         } else {

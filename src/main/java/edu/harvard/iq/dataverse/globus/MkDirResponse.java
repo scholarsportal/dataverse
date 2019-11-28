@@ -1,10 +1,10 @@
 package edu.harvard.iq.dataverse.globus;
 
 public class MkDirResponse {
-    private String dataType;
+    private String DATA_TYPE;
     private String code;
     private String message;
-    private String requestId;
+    private String request_id;
     private String resource;
 
     public void setCode(String code) {
@@ -12,7 +12,7 @@ public class MkDirResponse {
     }
 
     public void setDataType(String dataType) {
-        this.dataType = dataType;
+        this.DATA_TYPE = dataType;
     }
 
     public void setMessage(String message) {
@@ -20,7 +20,7 @@ public class MkDirResponse {
     }
 
     public void setRequestId(String requestId) {
-        this.requestId = requestId;
+        this.request_id = requestId;
     }
 
     public void setResource(String resource) {
@@ -32,7 +32,7 @@ public class MkDirResponse {
     }
 
     public String getDataType() {
-        return dataType;
+        return DATA_TYPE;
     }
 
     public String getMessage() {
@@ -40,7 +40,7 @@ public class MkDirResponse {
     }
 
     public String getRequestId() {
-        return requestId;
+        return request_id;
     }
 
     public String getResource() {
