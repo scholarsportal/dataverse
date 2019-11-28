@@ -69,7 +69,7 @@ public class GlobusServiceBean implements java.io.Serializable{
                 logger.severe("Dataset not found " + datasetId);
                 return;
             }
-            logger.info(dataset.getIdentifierForFileStorage());
+            logger.info(dataset.getAuthorityForFileStorage() + "/" + dataset.getIdentifierForFileStorage());
 
         } catch (NumberFormatException nfe) {
            logger.severe(nfe.getMessage());
