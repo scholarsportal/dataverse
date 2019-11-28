@@ -2,8 +2,11 @@ package edu.harvard.iq.dataverse.globus;
 
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.GsonBuilder;
+import edu.harvard.iq.dataverse.Dataset;
+import edu.harvard.iq.dataverse.DatasetServiceBean;
 import edu.harvard.iq.dataverse.FeaturedDataverseServiceBean;
 
+import javax.ejb.EJB;
 import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Named;
@@ -18,8 +21,11 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.Collections;
 import java.util.logging.Logger;
 import com.google.gson.Gson;
+import edu.harvard.iq.dataverse.api.AbstractApiBean;
+import edu.harvard.iq.dataverse.util.BundleUtil;
 import org.apache.poi.ss.formula.functions.T;
 
 @ViewScoped
@@ -28,6 +34,9 @@ public class GlobusServiceBean implements java.io.Serializable{
 
     @PersistenceContext(unitName = "VDCNet-ejbPU")
     private EntityManager em;
+
+    @EJB
+    protected DatasetServiceBean datasetSvc;
 
     private static final Logger logger = Logger.getLogger(FeaturedDataverseServiceBean.class.getCanonicalName());
 
@@ -53,17 +62,21 @@ public class GlobusServiceBean implements java.io.Serializable{
     public void onLoad() {
         logger.info("Start Globus " + code);
         logger.info("DatasetId " + datasetId);
-        HttpServletRequest origRequest = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-        //Cookie[] userCookies = origRequest.getCookies();
-        /*if (userCookies != null && userCookies.length > 0 ) {
-            for (int i = 0; i < userCookies.length; i++) {
-                if (userCookies[i].getName().equals("datasetId")) {
-                    Cookie cookie = userCookies[i];
-                    logger.info(cookie.getValue());
-                    break;
-                }
+        Dataset dataset = null;
+        try {
+            dataset = datasetSvc.find(Long.parseLong(datasetId));
+            if (dataset == null) {
+                logger.severe("Dataset not found " + datasetId);
+                return;
             }
-        }*/
+            logger.info(dataset.getIdentifierForFileStorage());
+
+        } catch (NumberFormatException nfe) {
+           logger.severe(nfe.getMessage());
+           return;
+        }
+        HttpServletRequest origRequest = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+
         logger.info(origRequest.getScheme());
         logger.info(origRequest.getServerName());
 
