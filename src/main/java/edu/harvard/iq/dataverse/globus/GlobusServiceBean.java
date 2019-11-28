@@ -107,11 +107,21 @@ public class GlobusServiceBean implements java.io.Serializable{
                 }
                 logger.info("Identity email " + idnt.getId());
                 int status = createDirectory(clientTokenUser);
-                if (status == 202 || status == 502) {
+                if (status == 202) {
                     int perStatus = givePermission(idnt, clientTokenUser);
                     if (perStatus != 201) {
-                        logger.severe("Cannot get permissions " );
+                        logger.severe("Cannot get permissions ");
                         return;
+                    }
+                } else if (status == 502) {
+                    if (checkPermisions(idnt, clientTokenUser)) {
+                        int perStatus = givePermission(idnt, clientTokenUser);
+                        if (perStatus != 201) {
+                            logger.severe("Cannot get permissions ");
+                            return;
+                        } else {
+                            logger.info("permissions already exist");
+                        }
                     }
                 } else {
                     logger.severe ("Cannot create directory, status code " + status);
@@ -124,6 +134,29 @@ public class GlobusServiceBean implements java.io.Serializable{
             }
         }
 
+    }
+    private boolean checkPermisions(Identity idnt, AccessToken clientTokenUser) throws MalformedURLException {
+        URL url = new URL("https://transfer.api.globusonline.org/v0.10/endpoint/5102894b-f28f-47f9-bc9a-d8e1b4e9e62c/access_list");
+        MakeRequestResponse result = makeRequest(url, "Bearer",
+                clientTokenUser.getOtherTokens().get(0).getAccessToken(),"GET",  null);
+
+        if (result.status == 200) {
+            AccessList al = parseJson(result.jsonResponse, AccessList.class, false);
+            for (int i = 0; i< al.getDATA().size(); i++) {
+                Permissions pr = al.getDATA().get(i);
+                if ((pr.getPath().equals("/~/" + datasetId + "/") || pr.getPath().equals("/~/" + datasetId )) &&
+                     (pr.getPermissions().equals("rw") || pr.getPermissions().equals("wr")) &&
+                         (pr.getPrincipal().equals(idnt.getId()))) {
+                    logger.info("Permissions already exist");
+                    return false;
+                } else {
+                    logger.info("Permissions do not exist");
+                    continue;
+                }
+            }
+        }
+
+        return true;
     }
 
     private int givePermission(Identity idnt, AccessToken clientTokenUser) throws MalformedURLException {
