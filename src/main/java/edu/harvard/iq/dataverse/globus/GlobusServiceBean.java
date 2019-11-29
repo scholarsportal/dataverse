@@ -132,7 +132,7 @@ public class GlobusServiceBean implements java.io.Serializable{
     private void goGlobus() throws MalformedURLException {
         //URL url = new URL("https://app.globus.org/file-manager?origin_id=5102894b-f28f-47f9-bc9a-d8e1b4e9e62c&origin_path=" + directory);
 
-        String httpString = "https://app.globus.org/file-manager?origin_id=5102894b-f28f-47f9-bc9a-d8e1b4e9e62c&origin_path=" + directory;
+        String httpString = "window.open('" + "https://app.globus.org/file-manager?origin_id=5102894b-f28f-47f9-bc9a-d8e1b4e9e62c&origin_path=" + directory + "'" +")";
         PrimeFaces.current().executeScript(httpString);
 
     }
