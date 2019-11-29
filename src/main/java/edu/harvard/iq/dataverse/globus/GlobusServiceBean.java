@@ -13,7 +13,6 @@ import javax.inject.Named;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.io.*;
 
@@ -21,12 +20,11 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.Collections;
+
 import java.util.logging.Logger;
 import com.google.gson.Gson;
-import edu.harvard.iq.dataverse.api.AbstractApiBean;
-import edu.harvard.iq.dataverse.util.BundleUtil;
-import org.apache.poi.ss.formula.functions.T;
+import org.primefaces.PrimeFaces;
+
 
 @ViewScoped
 @Named("GlobusServiceBean")
@@ -63,19 +61,11 @@ public class GlobusServiceBean implements java.io.Serializable{
     public void onLoad() {
         logger.info("Start Globus " + code);
         logger.info("DatasetId " + datasetId);
-        Dataset dataset = null;
-        try {
-            dataset = datasetSvc.find(Long.parseLong(datasetId));
-            if (dataset == null) {
-                logger.severe("Dataset not found " + datasetId);
-                return;
-            }
-            directory = "/~/" + dataset.getAuthorityForFileStorage() + "/" + dataset.getIdentifierForFileStorage();
-            logger.info(dataset.getAuthorityForFileStorage() + "/" + dataset.getIdentifierForFileStorage());
 
-        } catch (NumberFormatException nfe) {
-           logger.severe(nfe.getMessage());
-           return;
+        getDirectory();
+        if (directory == null) {
+            logger.severe("Cannot find directory");
+            return;
         }
         HttpServletRequest origRequest = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
 
@@ -130,6 +120,8 @@ public class GlobusServiceBean implements java.io.Serializable{
                     return;
                 }
 
+                goGlobus();
+
             } catch (MalformedURLException | UnsupportedEncodingException ex) {
                 logger.severe(ex.getMessage());
                 logger.severe(ex.getCause().toString());
@@ -137,6 +129,14 @@ public class GlobusServiceBean implements java.io.Serializable{
         }
 
     }
+    private void goGlobus() throws MalformedURLException {
+        //URL url = new URL("https://app.globus.org/file-manager?origin_id=5102894b-f28f-47f9-bc9a-d8e1b4e9e62c&origin_path=" + directory);
+
+        String httpString = "https://app.globus.org/file-manager?origin_id=5102894b-f28f-47f9-bc9a-d8e1b4e9e62c&origin_path=" + directory;
+        PrimeFaces.current().executeScript(httpString);
+
+    }
+
     private boolean checkPermisions(Identity idnt, AccessToken clientTokenUser) throws MalformedURLException {
         URL url = new URL("https://transfer.api.globusonline.org/v0.10/endpoint/5102894b-f28f-47f9-bc9a-d8e1b4e9e62c/access_list");
         MakeRequestResponse result = makeRequest(url, "Bearer",
@@ -364,6 +364,25 @@ public class GlobusServiceBean implements java.io.Serializable{
             logger.severe("Bad respond from token rquest");
             return null;
         }
+    }
+
+    void getDirectory() {
+        Dataset dataset = null;
+        try {
+            dataset = datasetSvc.find(Long.parseLong(datasetId));
+            if (dataset == null) {
+                logger.severe("Dataset not found " + datasetId);
+                directory = null;
+                return;
+            }
+            directory = "/~/" + dataset.getAuthorityForFileStorage() + "/" + dataset.getIdentifierForFileStorage();
+            logger.info(dataset.getAuthorityForFileStorage() + "/" + dataset.getIdentifierForFileStorage());
+
+        } catch (NumberFormatException nfe) {
+            logger.severe(nfe.getMessage());
+            directory = null;
+        }
+
     }
 
     class MakeRequestResponse {
