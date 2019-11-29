@@ -137,13 +137,8 @@ public class GlobusServiceBean implements java.io.Serializable{
 
     }
     private void goGlobus() throws IOException {
-        //URL url = new URL("https://app.globus.org/file-manager?origin_id=5102894b-f28f-47f9-bc9a-d8e1b4e9e62c&origin_path=" + directory);
-
-        String httpString = "window.open('" + "https://app.globus.org/file-manager?origin_id=5102894b-f28f-47f9-bc9a-d8e1b4e9e62c&origin_path=" + directory + "'" +")";
-        //PrimeFaces.current().executeScript(httpString);
-        HttpServletResponse origResponse = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
-        origResponse.sendRedirect("https://app.globus.org/file-manager?origin_id=5102894b-f28f-47f9-bc9a-d8e1b4e9e62c&origin_path=" + directory);
-
+        String httpString = "window.location.replace('" + "https://app.globus.org/file-manager?origin_id=5102894b-f28f-47f9-bc9a-d8e1b4e9e62c&origin_path=" + directory + "'" +")";
+        PrimeFaces.current().executeScript(httpString);
     }
 
     private boolean checkPermisions(Identity idnt, AccessToken clientTokenUser) throws MalformedURLException {
@@ -161,7 +156,6 @@ public class GlobusServiceBean implements java.io.Serializable{
                     logger.info("Permissions already exist");
                     return false;
                 } else {
-                    logger.info("Permissions do not exist");
                     continue;
                 }
             }
