@@ -14,6 +14,7 @@ import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 
 import java.net.HttpURLConnection;
@@ -122,18 +123,26 @@ public class GlobusServiceBean implements java.io.Serializable{
 
                 goGlobus();
 
-            } catch (MalformedURLException | UnsupportedEncodingException ex) {
+            } catch (MalformedURLException ex) {
+                logger.severe(ex.getMessage());
+                logger.severe(ex.getCause().toString());
+            } catch (UnsupportedEncodingException ex) {
+                logger.severe(ex.getMessage());
+                logger.severe(ex.getCause().toString());
+            } catch (IOException ex) {
                 logger.severe(ex.getMessage());
                 logger.severe(ex.getCause().toString());
             }
         }
 
     }
-    private void goGlobus() throws MalformedURLException {
+    private void goGlobus() throws IOException {
         //URL url = new URL("https://app.globus.org/file-manager?origin_id=5102894b-f28f-47f9-bc9a-d8e1b4e9e62c&origin_path=" + directory);
 
         String httpString = "window.open('" + "https://app.globus.org/file-manager?origin_id=5102894b-f28f-47f9-bc9a-d8e1b4e9e62c&origin_path=" + directory + "'" +")";
-        PrimeFaces.current().executeScript(httpString);
+        //PrimeFaces.current().executeScript(httpString);
+        HttpServletResponse origResponse = (HttpServletResponse) FacesContext.getCurrentInstance().getExternalContext().getResponse();
+        origResponse.sendRedirect("https://app.globus.org/file-manager?origin_id=5102894b-f28f-47f9-bc9a-d8e1b4e9e62c&origin_path=" + directory);
 
     }
 
