@@ -138,14 +138,9 @@ public class GlobusServiceBean implements java.io.Serializable{
         }
 
     }
-    private void activateEndpoint(AccessToken clientTokenUser) throws MalformedURLException {
-        URL url = new URL("https://transfer.api.globusonline.org/v0.10/endpoint/5102894b-f28f-47f9-bc9a-d8e1b4e9e62c/access_list");
-        MakeRequestResponse result = makeRequest(url, "Bearer",
-                clientTokenUser.getOtherTokens().get(0).getAccessToken(),"POST",  null);
-    }
 
     private void goGlobus() throws IOException {
-        logger.info("https://app.globus.org/file-manager?origin_id=5102894b-f28f-47f9-bc9a-d8e1b4e9e62c&origin_path=" + directory);
+
         String httpString = "window.location.replace('" + "https://app.globus.org/file-manager?origin_id=5102894b-f28f-47f9-bc9a-d8e1b4e9e62c&origin_path=" + directory + "'" +")";
         PrimeFaces.current().executeScript(httpString);
     }
@@ -180,9 +175,8 @@ public class GlobusServiceBean implements java.io.Serializable{
         permissions.setDATA_TYPE("access");
         permissions.setPrincipalType("identity");
         permissions.setPrincipal(idnt.getId());
-        //permissions.setPath(directory + "/");
-        permissions.setPath("/");
-        permissions.setPermissions("r");
+        permissions.setPath(directory + "/");
+        permissions.setPermissions("rw");
 
         Gson gson = new GsonBuilder().create();
 
