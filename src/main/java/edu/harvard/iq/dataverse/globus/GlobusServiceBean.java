@@ -100,6 +100,9 @@ public class GlobusServiceBean implements java.io.Serializable{
                 }
                 logger.info("Identity email " + idnt.getId());
 
+                logger.info("Start Tasklist " + idnt.getId());
+                getTaskList(clientTokenUser);
+                logger.info("End Tasklist " + idnt.getId());
 
                 int status = createDirectory(clientTokenUser);
                 if (status == 202) {
@@ -218,6 +221,29 @@ public class GlobusServiceBean implements java.io.Serializable{
             logger.severe("Cannot create directory " + mkDir.getPath() + ", permission denied");
         } else if  (result.status == 202) {
             logger.info("Directory created " + mkDir.getPath());
+        }
+
+        return result.status;
+
+    }
+
+    private int getTaskList(AccessToken clientTokenUser) throws MalformedURLException {
+        URL url = new URL("https://transfer.api.globusonline.org/v0.10/task_list");
+
+
+        MakeRequestResponse result = makeRequest(url, "Bearer",
+                clientTokenUser.getOtherTokens().get(0).getAccessToken(),"GET",  null);
+        logger.info("==TEST ==" + result.toString());
+
+
+        Tasklist tasklist = null;
+        Task task = null;
+        if (result.status == 200) {
+            tasklist = parseJson(result.jsonResponse, Tasklist.class, true);
+            if (tasklist.getTasklist().size() > 0) {
+                task = tasklist.getTasklist().get(0);
+                logger.info("==TEST2 ==" +task.toString());
+            }
         }
 
         return result.status;
