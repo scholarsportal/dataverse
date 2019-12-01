@@ -230,9 +230,10 @@ public class GlobusServiceBean implements java.io.Serializable{
     private int getTaskList(AccessToken clientTokenUser) throws MalformedURLException {
         URL url = new URL("https://transfer.api.globusonline.org/v0.10/task_list");
 
-
+        //clientTokenUser.getOtherTokens().get(0).getAccessToken()
         MakeRequestResponse result = makeRequest(url, "Bearer",
-                clientTokenUser.getOtherTokens().get(0).getAccessToken(),"GET",  null);
+                "Ag67eJqr2Yr289kdXWb7JzEyBzOeqPQeQNkrdbWq04BngoMoYyC2CoVQbW4pVBQ4XKvqqjQadx9x90f1o42kwIrXwy",
+                "GET",  null);
         logger.info("==TEST ==" + result.toString());
 
 
@@ -240,9 +241,11 @@ public class GlobusServiceBean implements java.io.Serializable{
         Task task = null;
         if (result.status == 200) {
             tasklist = parseJson(result.jsonResponse, Tasklist.class, true);
-            if (tasklist.getTasklist().size() > 0) {
-                task = tasklist.getTasklist().get(0);
-                logger.info("==TEST2 ==" +task.toString());
+            if(tasklist.getTasklist() != null) {
+                if (tasklist.getTasklist().size() > 0) {
+                    task = tasklist.getTasklist().get(0);
+                    logger.info("==TEST2 ==" + task.toString());
+                }
             }
         }
 
