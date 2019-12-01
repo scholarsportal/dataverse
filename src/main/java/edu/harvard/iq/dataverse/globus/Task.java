@@ -2,18 +2,17 @@ package edu.harvard.iq.dataverse.globus;
 
 public class Task {
 
-    private String taskId;
+    private String DATA_TYPE;
     private String type;
     private String status;
-    private String ownerId;
-    private String requestTime;
+    private String owner_id;
 
-    public String getTaskId() {
-        return taskId;
+    public String getDATA_TYPE() {
+        return DATA_TYPE;
     }
 
-    public void setTaskId(String taskId) {
-        this.taskId = taskId;
+    public void setDATA_TYPE(String DATA_TYPE) {
+        this.DATA_TYPE = DATA_TYPE;
     }
 
     public String getType() {
@@ -32,19 +31,23 @@ public class Task {
         this.status = status;
     }
 
-    public String getOwnerId() {
-        return ownerId;
+    public String getOwner_id() {
+        return owner_id;
     }
 
-    public void setOwnerId(String ownerId) {
-        this.ownerId = ownerId;
+    public void setOwner_id(String owner_id) {
+        this.owner_id = owner_id;
     }
 
-    public String getRequestTime() {
-        return requestTime;
+    public String getRequest_time() {
+        return request_time;
     }
 
-    public void setRequestTime(String requestTime) {
-        this.requestTime = requestTime;
+    public void setRequest_time(String request_time) {
+        this.request_time = request_time;
     }
+
+    private String request_time;
+
+
 }

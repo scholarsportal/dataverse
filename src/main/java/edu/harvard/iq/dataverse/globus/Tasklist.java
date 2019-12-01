@@ -4,13 +4,14 @@ import java.util.ArrayList;
 
 public class Tasklist {
 
-    ArrayList<Task> Tasklist;
+    private ArrayList<Task> DATA;
 
-    public void setTasklist(ArrayList<Task> Tasklist) {
-        this.Tasklist = Tasklist;
+    public void setDATA(ArrayList<Task> DATA) {
+        this.DATA = DATA;
     }
 
-    public ArrayList<Task> getTasklist() {
-        return Tasklist;
+    public ArrayList<Task> getDATA() {
+        return DATA;
     }
+
 }

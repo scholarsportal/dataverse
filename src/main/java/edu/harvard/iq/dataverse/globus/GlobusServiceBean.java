@@ -238,17 +238,14 @@ public class GlobusServiceBean implements java.io.Serializable{
 
 
         Tasklist tasklist = null;
-        Task task = null;
+
         if (result.status == 200) {
-            tasklist = parseJson(result.jsonResponse, Tasklist.class, true);
-            if(tasklist.getTasklist() != null) {
-                if (tasklist.getTasklist().size() > 0) {
-                    task = tasklist.getTasklist().get(0);
-                    logger.info("==TEST2 ==" + task.toString());
-                }
+            tasklist = parseJson(result.jsonResponse, Tasklist.class, false);
+            for (int i = 0; i< tasklist.getDATA().size(); i++) {
+                Task task = tasklist.getDATA().get(i);
+                logger.info("TASK owner id" + task.getOwner_id());
             }
         }
-
         return result.status;
 
     }
