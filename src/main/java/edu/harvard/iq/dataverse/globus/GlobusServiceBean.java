@@ -22,6 +22,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.logging.Logger;
 import com.google.gson.Gson;
 import org.primefaces.PrimeFaces;
@@ -100,6 +104,10 @@ public class GlobusServiceBean implements java.io.Serializable{
                 }
                 logger.info("Identity email " + idnt.getId());
 */
+
+                //logger.info("Start Tasklist " + idnt.getId());
+                //getTaskList(accessTokenUser);
+                //logger.info("End Tasklist " + idnt.getId());
 
                 int status = createDirectory(clientTokenUser);
                 if (status == 202) {
@@ -220,6 +228,56 @@ public class GlobusServiceBean implements java.io.Serializable{
             logger.info("Directory created " + mkDir.getPath());
         }
 
+        return result.status;
+
+    }
+
+    private int getTaskList(AccessToken accessTokenUser) throws MalformedURLException, ParseException {
+        URL url = new URL("https://transfer.api.globusonline.org/v0.10/task_list");
+
+        //accessTokenUser.getOtherTokens().get(0).getAccessToken()
+        MakeRequestResponse result = makeRequest(url, "Bearer",
+                "Ag67eJqr2Yr289kdXWb7JzEyBzOeqPQeQNkrdbWq04BngoMoYyC2CoVQbW4pVBQ4XKvqqjQadx9x90f1o42kwIrXwy",
+                "GET",  null);
+        logger.info("==TEST ==" + result.toString());
+
+
+
+        //2019-12-01 18:34:37+00:00
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        String timeWhenAsyncStarted = sdf.format(new Date());
+        Calendar cal1 = Calendar.getInstance();
+        cal1.setTime(sdf.parse(timeWhenAsyncStarted));
+
+        Calendar cal2 = Calendar.getInstance();
+
+        Tasklist tasklist = null;
+
+        if (result.status == 200) {
+            tasklist = parseJson(result.jsonResponse, Tasklist.class, false);
+            for (int i = 0; i< tasklist.getDATA().size(); i++) {
+                Task task = tasklist.getDATA().get(i);
+                Date tastTime = sdf.parse(task.getRequest_time().toString());
+                cal2.setTime(tastTime);
+
+                logger.info(" timeWhenAsyncStarted = " + timeWhenAsyncStarted + "task.getRequest_time().toString()  " + task.getRequest_time().toString());
+
+                if ( task.getStatus().equals("SUCCEEDED") && task.getType().equals("TRANSFER" ) &&
+                        task.getDestination_endpoint_display_name().equals("Dataverse GCS test collection") && cal1.before(cal2))  {
+
+                    logger.info(" timeWhenAsyncStarted is before tastTime  =  TASK owner id " + task.getTask_id());
+                    // get /task/<task_id>/successful_transfers
+                    // verify datasetid in "destination_path": "/~/test_godata_copy/file1.txt",
+                    // go to aws and get files and write to database tables
+                }
+                else
+                {
+                    logger.info(" timeWhenAsyncStarted is after tastTime =  TASK owner id " + task.getTask_id());
+
+                }
+            }
+        }
         return result.status;
 
     }
