@@ -6,6 +6,33 @@ public class Task {
     private String type;
     private String status;
     private String owner_id;
+    private Long request_time;
+    private String task_id;
+    private String destination_endpoint_display_name;
+
+    public String getDestination_endpoint_display_name() {
+        return destination_endpoint_display_name;
+    }
+
+    public void setDestination_endpoint_display_name(String destination_endpoint_display_name) {
+        this.destination_endpoint_display_name = destination_endpoint_display_name;
+    }
+
+    public void setRequest_time(Long request_time) {
+        this.request_time = request_time;
+    }
+
+    public Long getRequest_time() {
+        return request_time;
+    }
+
+    public String getTask_id() {
+        return task_id;
+    }
+
+    public void setTask_id(String task_id) {
+        this.task_id = task_id;
+    }
 
     public String getDATA_TYPE() {
         return DATA_TYPE;
@@ -38,16 +65,5 @@ public class Task {
     public void setOwner_id(String owner_id) {
         this.owner_id = owner_id;
     }
-
-    public String getRequest_time() {
-        return request_time;
-    }
-
-    public void setRequest_time(String request_time) {
-        this.request_time = request_time;
-    }
-
-    private String request_time;
-
 
 }
