@@ -104,9 +104,9 @@ public class GlobusServiceBean implements java.io.Serializable{
                 }
                 logger.info("Identity email " + idnt.getId());
 
-                logger.info("Start Tasklist " + idnt.getId());
-                getTaskList(accessTokenUser);
-                logger.info("End Tasklist " + idnt.getId());
+                //logger.info("Start Tasklist " + idnt.getId());
+                //getTaskList(accessTokenUser);
+                //logger.info("End Tasklist " + idnt.getId());
 
                 int status = createDirectory(clientTokenUser);
                 if (status == 202) {
@@ -141,8 +141,6 @@ public class GlobusServiceBean implements java.io.Serializable{
             } catch (IOException ex) {
                 logger.severe(ex.getMessage());
                 logger.severe(ex.getCause().toString());
-            } catch (ParseException e) {
-                e.printStackTrace();
             }
         }
 
