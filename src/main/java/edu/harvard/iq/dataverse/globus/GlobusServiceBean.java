@@ -93,24 +93,24 @@ public class GlobusServiceBean implements java.io.Serializable{
                     return;
                 }
                 logger.info(clientTokenUser.getAccessToken());
-                Identity idnt = getIdentity(usr);
+              /*  Identity idnt = getIdentity(usr);
                 if (idnt == null) {
                     logger.severe("Cannot get client token " );
                     return;
                 }
                 logger.info("Identity email " + idnt.getId());
-
+*/
 
                 int status = createDirectory(clientTokenUser);
                 if (status == 202) {
-                    int perStatus = givePermission(idnt, clientTokenUser);
+                    int perStatus = givePermission(usr.getSub(), clientTokenUser);
                     if (perStatus != 201) {
                         logger.severe("Cannot get permissions ");
                         return;
                     }
                 } else if (status == 502) {
-                    if (checkPermisions(idnt, clientTokenUser)) {
-                        int perStatus = givePermission(idnt, clientTokenUser);
+                    if (checkPermisions(usr.getSub(), clientTokenUser)) {
+                        int perStatus = givePermission(usr.getSub(), clientTokenUser);
                         if (perStatus != 201) {
                             logger.severe("Cannot get permissions ");
                             return;
@@ -145,7 +145,7 @@ public class GlobusServiceBean implements java.io.Serializable{
         PrimeFaces.current().executeScript(httpString);
     }
 
-    private boolean checkPermisions(Identity idnt, AccessToken clientTokenUser) throws MalformedURLException {
+    private boolean checkPermisions(String idnt, AccessToken clientTokenUser) throws MalformedURLException {
         URL url = new URL("https://transfer.api.globusonline.org/v0.10/endpoint/5102894b-f28f-47f9-bc9a-d8e1b4e9e62c/access_list");
         MakeRequestResponse result = makeRequest(url, "Bearer",
                 clientTokenUser.getOtherTokens().get(0).getAccessToken(),"GET",  null);
@@ -156,7 +156,7 @@ public class GlobusServiceBean implements java.io.Serializable{
                 Permissions pr = al.getDATA().get(i);
                 if ((pr.getPath().equals(directory + "/") || pr.getPath().equals(directory )) &&
                      (pr.getPermissions().equals("rw") || pr.getPermissions().equals("wr")) &&
-                         (pr.getPrincipal().equals(idnt.getId()))) {
+                         (pr.getPrincipal().equals(idnt))) {
                     logger.info("Permissions already exist");
                     return false;
                 } else {
@@ -168,13 +168,13 @@ public class GlobusServiceBean implements java.io.Serializable{
         return true;
     }
 
-    private int givePermission(Identity idnt, AccessToken clientTokenUser) throws MalformedURLException {
+    private int givePermission(String idnt, AccessToken clientTokenUser) throws MalformedURLException {
         URL url = new URL("https://transfer.api.globusonline.org/v0.10/endpoint/5102894b-f28f-47f9-bc9a-d8e1b4e9e62c/access");
 
         Permissions permissions = new Permissions();
         permissions.setDATA_TYPE("access");
         permissions.setPrincipalType("identity");
-        permissions.setPrincipal(idnt.getId());
+        permissions.setPrincipal(idnt);
         permissions.setPath(directory + "/");
         permissions.setPermissions("rw");
 
