@@ -136,7 +136,7 @@ public class GlobusServiceBean implements java.io.Serializable{
 
     private void goGlobus() {
 
-        String httpString = "window.location.replace('" + "https://app.globus.org/file-manager?destination_id=5102894b-f28f-47f9-bc9a-d8e1b4e9e62c&origin_path=" + directory + "'" +")";
+        String httpString = "window.location.replace('" + "https://app.globus.org/file-manager?destination_id=5102894b-f28f-47f9-bc9a-d8e1b4e9e62c&destination_path=" + directory + "'" +")";
         PrimeFaces.current().executeScript(httpString);
     }
 
@@ -182,14 +182,7 @@ public class GlobusServiceBean implements java.io.Serializable{
         if (result.status == 400) {
             logger.severe("Path " + permissions.getPath() + " is not valid");
         } else if (result.status == 409) {
-            PermissionsResponse pr = parseJson(result.jsonResponse, PermissionsResponse.class, false);
-            if (pr.getCode().equals("LimitExceeded")) {
-                logger.severe("Endpoint ACL already has the maximum number of access rules");
-            } else if (pr.getCode().equals("Exists")) {
-                logger.warning("ACL already exists" );
-                return 201;
-            }
-
+            logger.warning("ACL already exists or Endpoint ACL already has the maximum number of access rules");
         }
 
         return result.status;
@@ -430,6 +423,7 @@ public class GlobusServiceBean implements java.io.Serializable{
             directory = "/" + dataset.getAuthorityForFileStorage() + "/" + dataset.getIdentifierForFileStorage();
             logger.info(dataset.getAuthorityForFileStorage() + "/" + dataset.getIdentifierForFileStorage());
             logger.info(directory);
+            logger.info("Storage identifier:" + dataset.getIdentifierForFileStorage());
 
         } catch (NumberFormatException nfe) {
             logger.severe(nfe.getMessage());
