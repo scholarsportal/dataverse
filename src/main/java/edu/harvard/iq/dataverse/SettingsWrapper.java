@@ -153,6 +153,8 @@ public class SettingsWrapper implements java.io.Serializable {
     public boolean isRsyncUpload() {
         return systemConfig.isRsyncUpload();
     }
+
+    public boolean isGlobusUpload() { return systemConfig.isGlobusUpload(); }
     
     public boolean isRsyncDownload() {
         return systemConfig.isRsyncDownload();

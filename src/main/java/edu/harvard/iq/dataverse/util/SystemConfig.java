@@ -832,7 +832,13 @@ public class SystemConfig {
          * Traditional Dataverse file handling, which tends to involve users
          * uploading and downloading files using a browser or APIs.
          */
-        NATIVE("native/http");
+        NATIVE("native/http"),
+
+        /**
+         * Upload through Globus of large files
+         */
+
+        GLOBUS("globus");
 
 
         private final String text;
@@ -872,7 +878,8 @@ public class SystemConfig {
          * go through Glassfish.
          */
         RSYNC("rsal/rsync"),
-        NATIVE("native/http");
+        NATIVE("native/http"),
+        GLOBUS("globus");
         private final String text;
 
         private FileDownloadMethods(final String text) {
@@ -961,6 +968,10 @@ public class SystemConfig {
 
     public boolean isRsyncUpload(){
         return getUploadMethodAvailable(SystemConfig.FileUploadMethods.RSYNC.toString());
+    }
+
+    public boolean isGlobusUpload(){
+        return getUploadMethodAvailable(FileUploadMethods.GLOBUS.toString());
     }
 
     // Controls if HTTP upload is enabled for both GUI and API.
