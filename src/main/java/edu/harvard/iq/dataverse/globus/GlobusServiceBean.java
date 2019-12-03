@@ -422,7 +422,7 @@ public class GlobusServiceBean implements java.io.Serializable{
             }
             String storeId = dataset.getStorageIdentifier();
             storeId.substring(storeId.indexOf("//") + 1);
-            directory = "/" + storeId.substring(storeId.indexOf("//") + 1);
+            directory = storeId.substring(storeId.indexOf("//") + 1);
             logger.info(storeId);
             logger.info(directory);
             logger.info("Storage identifier:" + dataset.getIdentifierForFileStorage());
