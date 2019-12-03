@@ -958,6 +958,8 @@ public class DatasetServiceBean implements java.io.Serializable {
         } 
     }
 
+
+
     @Asynchronous
     public void globusAsyncjob(Long dataset_id, String globusUserId, AuthenticatedUser authenticatedUser) throws MalformedURLException {
 
@@ -1009,6 +1011,9 @@ public class DatasetServiceBean implements java.io.Serializable {
             logger.info(" ======= CREATE DATAFILE ");
             StorageIO<Dataset> datasetSIO = DataAccess.getStorageIO(dataset);
 
+            String directory =  dataset.getAuthorityForFileStorage() + "/" + dataset.getIdentifierForFileStorage();
+
+            System.out.println("======= directory ==== " + directory);
             Map<String, Integer> checksumMapOld = new HashMap<>();
 
             Iterator<FileMetadata> fmIt = dataset.getLatestVersion().getFileMetadatas().iterator();
@@ -1026,24 +1031,22 @@ public class DatasetServiceBean implements java.io.Serializable {
 
             for (S3ObjectSummary s3ObjectSummary : datasetSIO.listAuxObjects("")) {
 
-                String destinationKey = s3ObjectSummary.getKey();
-                System.out.println("======= destinationKey ==== " + destinationKey);
-                String t = destinationKey.replace(datasetSIO.getDvObject().getAuthority()+"/"+datasetSIO.getDvObject().getIdentifier()+"/","");
+                String s3ObjectKey = s3ObjectSummary.getKey();
+                System.out.println("======= s3ObjectKey ==== " + s3ObjectKey);
+                String t = s3ObjectKey.replace(directory,"");
+//String t = destinationKey.replace(datasetSIO.getDvObject().getAuthority()+"/"+datasetSIO.getDvObject().getIdentifier()+"/","");
+//
                 System.out.println("======= t ==== " + t);
                 if(t.indexOf(".") > 0 ) {
                     long totalSize = s3ObjectSummary.getSize();
-                    String fileName = destinationKey;
+                    String filePath = s3ObjectKey;
                     String checksumVal = s3ObjectSummary.getETag();
 
-                    System.out.println("======= filename ==== " + fileName);
-
-
-
                     if(  (checksumMapOld.get(checksumVal) != null) ) {
-                        System.out.println("======= filename ==== " + fileName + " == checksum matched ");
+                        System.out.println("======= filename ==== " + filePath + " == file already exists ");
                     }
                     else {
-                        System.out.println("======= filename ==== " + fileName + " == checksum didnot matched ");
+                        System.out.println("======= filename ==== " + filePath + " == new file - add to database ");
 
 
                         DataFile dataFile = new DataFile(DataFileServiceBean.MIME_TYPE_PACKAGE_FILE);
@@ -1063,7 +1066,11 @@ public class DatasetServiceBean implements java.io.Serializable {
                         // Set early so we can generate the storage id with the info
                         FileMetadata fmd = new FileMetadata();
 
-                        fmd.setLabel(fileName.split("/")[fileName.split("/").length - 1]);
+                        String fileName = filePath.split("/")[filePath.split("/").length - 1];
+                        fmd.setLabel(fileName);
+                        fmd.setDirectoryLabel(filePath.replace(directory,"").replace(File.separator + fileName, ""));
+
+
 
                         fmd.setDataFile(dataFile);
                         dataFile.getFileMetadatas().add(fmd);
@@ -1104,4 +1111,6 @@ public class DatasetServiceBean implements java.io.Serializable {
             //return error(Response.Status.INTERNAL_SERVER_ERROR, "Uploaded files have passed checksum validation but something went wrong while attempting to move the files into Dataverse. Message was '" + message + "'.");
         }
     }
+
 }
+
