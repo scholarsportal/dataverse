@@ -429,6 +429,7 @@ public class GlobusServiceBean implements java.io.Serializable{
             }
             directory = "/" + dataset.getAuthorityForFileStorage() + "/" + dataset.getIdentifierForFileStorage();
             logger.info(dataset.getAuthorityForFileStorage() + "/" + dataset.getIdentifierForFileStorage());
+            logger.info(directory);
 
         } catch (NumberFormatException nfe) {
             logger.severe(nfe.getMessage());
