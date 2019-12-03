@@ -6,7 +6,7 @@ public class Task {
     private String type;
     private String status;
     private String owner_id;
-    private Long request_time;
+    private String request_time;
     private String task_id;
     private String destination_endpoint_display_name;
 
@@ -18,11 +18,11 @@ public class Task {
         this.destination_endpoint_display_name = destination_endpoint_display_name;
     }
 
-    public void setRequest_time(Long request_time) {
+    public void setRequest_time(String request_time) {
         this.request_time = request_time;
     }
 
-    public Long getRequest_time() {
+    public String getRequest_time() {
         return request_time;
     }
 

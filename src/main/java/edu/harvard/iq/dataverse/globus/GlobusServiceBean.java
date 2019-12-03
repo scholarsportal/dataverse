@@ -252,12 +252,13 @@ public class GlobusServiceBean implements java.io.Serializable{
         Calendar cal2 = Calendar.getInstance();
 
         Tasklist tasklist = null;
+        //2019-12-01 18:34:37+00:00
 
         if (result.status == 200) {
             tasklist = parseJson(result.jsonResponse, Tasklist.class, false);
             for (int i = 0; i< tasklist.getDATA().size(); i++) {
                 Task task = tasklist.getDATA().get(i);
-                Date tastTime = sdf.parse(task.getRequest_time().toString());
+                Date tastTime = sdf.parse(task.getRequest_time());
                 cal2.setTime(tastTime);
 
                 logger.info(" timeWhenAsyncStarted = " + timeWhenAsyncStarted + "task.getRequest_time().toString()  " + task.getRequest_time().toString());
