@@ -37,6 +37,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -1436,6 +1437,14 @@ public class EditDatafilesPage implements java.io.Serializable {
         //}
        // indexService.indexDataset(dataset, true);
        // indexing is handled by the commands
+        logger.fine("Redirecting to the dataset page, from the edit/upload page.");
+        return returnToDraftVersion();
+    }
+
+    public String saveGLOBUS() throws MalformedURLException {
+        logger.info("GLOBUS ASYNC CALL ");
+        datasetService.globusAsyncjob(dataset.getId(), "globusUserId", (AuthenticatedUser) session.getUser());
+
         logger.fine("Redirecting to the dataset page, from the edit/upload page.");
         return returnToDraftVersion();
     }

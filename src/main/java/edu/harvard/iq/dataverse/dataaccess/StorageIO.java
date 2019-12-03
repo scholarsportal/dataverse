@@ -21,6 +21,7 @@
 package edu.harvard.iq.dataverse.dataaccess;
 
 
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 import edu.harvard.iq.dataverse.DataFile;
 import edu.harvard.iq.dataverse.Dataset;
 import edu.harvard.iq.dataverse.Dataverse;
@@ -66,8 +67,8 @@ public abstract class StorageIO<T extends DvObject> {
         }
     }
 
-    
-    
+
+
     // Abstract methods to be implemented by the storage drivers:
 
     public abstract void open(DataAccessOption... option) throws IOException;
@@ -85,108 +86,108 @@ public abstract class StorageIO<T extends DvObject> {
 
     public abstract String getStorageLocation() throws IOException;
 
-    // This method will return a Path, if the storage method is a 
-    // local filesystem. Otherwise should throw an IOException. 
+    // This method will return a Path, if the storage method is a
+    // local filesystem. Otherwise should throw an IOException.
     public abstract Path getFileSystemPath() throws IOException;
-        
-    public abstract boolean exists() throws IOException; 
-        
+
+    public abstract boolean exists() throws IOException;
+
     public abstract void delete() throws IOException;
-    
+
     // this method for copies a local Path (for ex., a
     // temp file, into this DataAccess location):
     public abstract void savePath(Path fileSystemPath) throws IOException;
-    
+
     // same, for an InputStream:
     /**
      * This method copies a local InputStream into this DataAccess location.
-     * Note that the S3 driver implementation of this abstract method is problematic, 
-     * because S3 cannot save an object of an unknown length. This effectively 
-     * nullifies any benefits of streaming; as we cannot start saving until we 
-     * have read the entire stream. 
-     * One way of solving this would be to buffer the entire stream as byte[], 
-     * in memory, then save it... Which of course would be limited by the amount 
-     * of memory available, and thus would not work for streams larger than that. 
-     * So we have eventually decided to save save the stream to a temp file, then 
-     * save to S3. This is slower, but guaranteed to work on any size stream. 
-     * An alternative we may want to consider is to not implement this method 
-     * in the S3 driver, and make it throw the UnsupportedDataAccessOperationException, 
-     * similarly to how we handle attempts to open OutputStreams, in this and the 
-     * Swift driver. 
+     * Note that the S3 driver implementation of this abstract method is problematic,
+     * because S3 cannot save an object of an unknown length. This effectively
+     * nullifies any benefits of streaming; as we cannot start saving until we
+     * have read the entire stream.
+     * One way of solving this would be to buffer the entire stream as byte[],
+     * in memory, then save it... Which of course would be limited by the amount
+     * of memory available, and thus would not work for streams larger than that.
+     * So we have eventually decided to save save the stream to a temp file, then
+     * save to S3. This is slower, but guaranteed to work on any size stream.
+     * An alternative we may want to consider is to not implement this method
+     * in the S3 driver, and make it throw the UnsupportedDataAccessOperationException,
+     * similarly to how we handle attempts to open OutputStreams, in this and the
+     * Swift driver.
      * (Not an issue in either FileAccessIO or SwiftAccessIO implementations)
-     * 
+     *
      * @param inputStream InputStream we want to save
      * @param auxItemTag String representing this Auxiliary type ("extension")
      * @throws IOException if anything goes wrong.
-    */
+     */
     public abstract void saveInputStream(InputStream inputStream) throws IOException;
     public abstract void saveInputStream(InputStream inputStream, Long filesize) throws IOException;
-    
+
     // Auxiliary File Management: (new as of 4.0.2!)
-    
+
     // An "auxiliary object" is an abstraction of the traditional DVN/Dataverse
-    // mechanism of storing extra files related to the man StudyFile/DataFile - 
-    // such as "saved original" and cached format conversions for tabular files, 
-    // thumbnails for images, etc. - in physical files with the same file 
-    // name but various reserved extensions. 
-   
+    // mechanism of storing extra files related to the man StudyFile/DataFile -
+    // such as "saved original" and cached format conversions for tabular files,
+    // thumbnails for images, etc. - in physical files with the same file
+    // name but various reserved extensions.
+
     //This function retrieves auxiliary files related to datasets, and returns them as inputstream
     public abstract InputStream getAuxFileAsInputStream(String auxItemTag) throws IOException ;
-    
+
     public abstract Channel openAuxChannel(String auxItemTag, DataAccessOption... option) throws IOException;
-    
-    public abstract long getAuxObjectSize(String auxItemTag) throws IOException; 
-    
-    public abstract Path getAuxObjectAsPath(String auxItemTag) throws IOException; 
-    
-    public abstract boolean isAuxObjectCached(String auxItemTag) throws IOException; 
-    
-    public abstract void backupAsAux(String auxItemTag) throws IOException; 
-    
-    public abstract void revertBackupAsAux(String auxItemTag) throws IOException; 
-    
+
+    public abstract long getAuxObjectSize(String auxItemTag) throws IOException;
+
+    public abstract Path getAuxObjectAsPath(String auxItemTag) throws IOException;
+
+    public abstract boolean isAuxObjectCached(String auxItemTag) throws IOException;
+
+    public abstract void backupAsAux(String auxItemTag) throws IOException;
+
+    public abstract void revertBackupAsAux(String auxItemTag) throws IOException;
+
     // this method copies a local filesystem Path into this DataAccess Auxiliary location:
     public abstract void savePathAsAux(Path fileSystemPath, String auxItemTag) throws IOException;
-    
+
     /**
      * This method copies a local InputStream into this DataAccess Auxiliary location.
-     * Note that the S3 driver implementation of this abstract method is problematic, 
-     * because S3 cannot save an object of an unknown length. This effectively 
-     * nullifies any benefits of streaming; as we cannot start saving until we 
-     * have read the entire stream. 
-     * One way of solving this would be to buffer the entire stream as byte[], 
-     * in memory, then save it... Which of course would be limited by the amount 
-     * of memory available, and thus would not work for streams larger than that. 
-     * So we have eventually decided to save save the stream to a temp file, then 
-     * save to S3. This is slower, but guaranteed to work on any size stream. 
-     * An alternative we may want to consider is to not implement this method 
-     * in the S3 driver, and make it throw the UnsupportedDataAccessOperationException, 
-     * similarly to how we handle attempts to open OutputStreams, in this and the 
-     * Swift driver. 
+     * Note that the S3 driver implementation of this abstract method is problematic,
+     * because S3 cannot save an object of an unknown length. This effectively
+     * nullifies any benefits of streaming; as we cannot start saving until we
+     * have read the entire stream.
+     * One way of solving this would be to buffer the entire stream as byte[],
+     * in memory, then save it... Which of course would be limited by the amount
+     * of memory available, and thus would not work for streams larger than that.
+     * So we have eventually decided to save save the stream to a temp file, then
+     * save to S3. This is slower, but guaranteed to work on any size stream.
+     * An alternative we may want to consider is to not implement this method
+     * in the S3 driver, and make it throw the UnsupportedDataAccessOperationException,
+     * similarly to how we handle attempts to open OutputStreams, in this and the
+     * Swift driver.
      * (Not an issue in either FileAccessIO or SwiftAccessIO implementations)
-     * 
+     *
      * @param inputStream InputStream we want to save
      * @param auxItemTag String representing this Auxiliary type ("extension")
      * @throws IOException if anything goes wrong.
-    */
-    public abstract void saveInputStreamAsAux(InputStream inputStream, String auxItemTag) throws IOException; 
+     */
+    public abstract void saveInputStreamAsAux(InputStream inputStream, String auxItemTag) throws IOException;
     public abstract void saveInputStreamAsAux(InputStream inputStream, String auxItemTag, Long filesize) throws IOException;
-    
+
     public abstract List<String>listAuxObjects() throws IOException;
-    
-    public abstract void deleteAuxObject(String auxItemTag) throws IOException; 
-    
+
+    public abstract void deleteAuxObject(String auxItemTag) throws IOException;
+
     public abstract void deleteAllAuxObjects() throws IOException;
 
     private DataAccessRequest req;
     private InputStream in;
-    private OutputStream out; 
+    private OutputStream out;
     protected Channel channel;
     protected DvObject dvObject;
 
     /*private int status;*/
     private long size;
-    
+
     private String mimeType;
     private String fileName;
     private String varHeader;
@@ -211,13 +212,13 @@ public abstract class StorageIO<T extends DvObject> {
     private String swiftFileName;
 
     private String remoteUrl;
-    
+
     // For HTTP-based downloads:
     /*private GetMethod method = null;
     private Header[] responseHeaders;*/
 
     // getters:
-    
+
     public Channel getChannel() throws IOException {
         return channel;
     }
@@ -237,16 +238,16 @@ public abstract class StorageIO<T extends DvObject> {
 
         return (ReadableByteChannel) channel;
     }
-    
+
     public DvObject getDvObject()
     {
         return dvObject;
     }
-    
+
     public DataFile getDataFile() {
         return (DataFile) dvObject;
     }
-    
+
     public Dataset getDataset() {
         return (Dataset) dvObject;
     }
@@ -270,9 +271,9 @@ public abstract class StorageIO<T extends DvObject> {
     public InputStream getInputStream() throws IOException {
         return in;
     }
-    
+
     public OutputStream getOutputStream() throws IOException {
-        return out; 
+        return out;
     }
 
     public String getMimeType() {
@@ -298,15 +299,15 @@ public abstract class StorageIO<T extends DvObject> {
     public String getTemporarySwiftUrl(){
         return temporarySwiftUrl;
     }
-    
+
     public String getTempUrlExpiry() {
         return tempUrlExpiry;
     }
-    
+
     public String getTempUrlSignature() {
         return tempUrlSignature;
     }
-    
+
     public String getSwiftFileName() {
         return swiftFileName;
     }
@@ -326,13 +327,13 @@ public abstract class StorageIO<T extends DvObject> {
     public boolean isLocalFile() {
         return isLocalFile;
     }
-    
-    // "Direct Access" StorageIO is used to access a physical storage 
-    // location not associated with any dvObject. (For example, when we 
-    // are deleting a physical file left behind by a DataFile that's 
-    // already been deleted from the database). 
+
+    // "Direct Access" StorageIO is used to access a physical storage
+    // location not associated with any dvObject. (For example, when we
+    // are deleting a physical file left behind by a DataFile that's
+    // already been deleted from the database).
     public boolean isDirectAccess() {
-        return dvObject == null; 
+        return dvObject == null;
     }
 
     /*public boolean isRemoteAccess() {
@@ -379,11 +380,11 @@ public abstract class StorageIO<T extends DvObject> {
     public void setInputStream(InputStream is) {
         in = is;
     }
-    
+
     public void setOutputStream(OutputStream os) {
-        out = os; 
-    } 
-    
+        out = os;
+    }
+
     public void setChannel(Channel c) {
         channel = c;
     }
@@ -411,15 +412,15 @@ public abstract class StorageIO<T extends DvObject> {
     public void setTemporarySwiftUrl(String u){
         temporarySwiftUrl = u;
     }
-    
+
     public void setTempUrlExpiry(Long u){
         tempUrlExpiry = String.valueOf(u);
     }
-    
+
     public void setSwiftFileName(String u) {
         swiftFileName = u;
     }
-    
+
     public void setTempUrlSignature(String u){
         tempUrlSignature = u;
     }
@@ -464,7 +465,7 @@ public abstract class StorageIO<T extends DvObject> {
         noVarHeader = nvh;
     }
 
-        // connection management methods:
+    // connection management methods:
     /*public void releaseConnection() {
         if (method != null) {
             method.releaseConnection();
@@ -486,7 +487,7 @@ public abstract class StorageIO<T extends DvObject> {
             }
         }
     }
-    
+
     public String generateVariableHeader(List<DataVariable> dvs) {
         String varHeader = null;
 
@@ -528,4 +529,6 @@ public abstract class StorageIO<T extends DvObject> {
         // By default, we open the file in read mode:
         return false;
     }
+
+    public abstract List<S3ObjectSummary>listAuxObjects(String s) throws IOException;
 }
