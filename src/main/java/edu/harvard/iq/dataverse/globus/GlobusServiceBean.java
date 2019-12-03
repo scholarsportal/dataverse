@@ -7,6 +7,7 @@ import edu.harvard.iq.dataverse.DatasetServiceBean;
 import edu.harvard.iq.dataverse.FeaturedDataverseServiceBean;
 
 import javax.ejb.EJB;
+import javax.ejb.Stateless;
 import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Named;
@@ -31,7 +32,7 @@ import com.google.gson.Gson;
 import org.primefaces.PrimeFaces;
 
 
-@ViewScoped
+@Stateless
 @Named("GlobusServiceBean")
 public class GlobusServiceBean implements java.io.Serializable{
 
