@@ -93,21 +93,10 @@ public class GlobusServiceBean implements java.io.Serializable{
                 logger.info(usr.getEmail());
                 AccessToken clientTokenUser = getClientToken();
                 if (clientTokenUser == null) {
-                    logger.severe("Cannot get client token " );
+                    logger.severe("Cannot get client token ");
                     return;
                 }
                 logger.info(clientTokenUser.getAccessToken());
-              /*  Identity idnt = getIdentity(usr);
-                if (idnt == null) {
-                    logger.severe("Cannot get client token " );
-                    return;
-                }
-                logger.info("Identity email " + idnt.getId());
-*/
-
-                //logger.info("Start Tasklist " + idnt.getId());
-                //getTaskList(accessTokenUser);
-                //logger.info("End Tasklist " + idnt.getId());
 
                 int status = createDirectory(clientTokenUser);
                 if (status == 202) {
@@ -116,15 +105,13 @@ public class GlobusServiceBean implements java.io.Serializable{
                         logger.severe("Cannot get permissions ");
                         return;
                     }
-                } else if (status == 502) {
-                    if (checkPermisions(usr.getSub(), clientTokenUser)) {
-                        int perStatus = givePermission(usr.getSub(), clientTokenUser);
-                        if (perStatus != 201) {
-                            logger.severe("Cannot get permissions ");
-                            return;
-                        } else {
-                            logger.info("permissions already exist");
-                        }
+                } else if (status == 502) { //directory already exists
+                    int perStatus = givePermission(usr.getSub(), clientTokenUser);
+                    if (perStatus == 409) {
+                        logger.info("permissions already exist");
+                    } else if (perStatus != 201) {
+                        logger.severe("Cannot get permissions ");
+                        return;
                     }
                 } else {
                     logger.severe ("Cannot create directory, status code " + status);
@@ -147,9 +134,9 @@ public class GlobusServiceBean implements java.io.Serializable{
 
     }
 
-    private void goGlobus() throws IOException {
+    private void goGlobus() {
 
-        String httpString = "window.location.replace('" + "https://app.globus.org/file-manager?origin_id=5102894b-f28f-47f9-bc9a-d8e1b4e9e62c&origin_path=" + directory + "'" +")";
+        String httpString = "window.location.replace('" + "https://app.globus.org/file-manager?destination_id=5102894b-f28f-47f9-bc9a-d8e1b4e9e62c&origin_path=" + directory + "'" +")";
         PrimeFaces.current().executeScript(httpString);
     }
 
