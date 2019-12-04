@@ -46,7 +46,6 @@ public class GlobusServiceBean implements java.io.Serializable{
 
     private String code;
     private String datasetId;
-    private String directory;
 
     public String getCode() {
         return code;
@@ -68,7 +67,7 @@ public class GlobusServiceBean implements java.io.Serializable{
         logger.info("Start Globus " + code);
         logger.info("DatasetId " + datasetId);
 
-        getDirectory();
+        String directory = getDirectory(datasetId);
         if (directory == null) {
             logger.severe("Cannot find directory");
             return;
@@ -99,15 +98,15 @@ public class GlobusServiceBean implements java.io.Serializable{
                 }
                 logger.info(clientTokenUser.getAccessToken());
 
-                int status = createDirectory(clientTokenUser);
+                int status = createDirectory(clientTokenUser, directory);
                 if (status == 202) {
-                    int perStatus = givePermission(usr.getSub(), clientTokenUser);
+                    int perStatus = givePermission("identity", usr.getSub(), "rw", clientTokenUser, directory);
                     if (perStatus != 201) {
                         logger.severe("Cannot get permissions ");
                         return;
                     }
                 } else if (status == 502) { //directory already exists
-                    int perStatus = givePermission(usr.getSub(), clientTokenUser);
+                    int perStatus =  givePermission("identity", usr.getSub(), "rw", clientTokenUser, directory);
                     if (perStatus == 409) {
                         logger.info("permissions already exist");
                     } else if (perStatus != 201) {
@@ -119,7 +118,7 @@ public class GlobusServiceBean implements java.io.Serializable{
                     return;
                 }
 
-                goGlobus();
+                goGlobus(directory);
 
             } catch (MalformedURLException ex) {
                 logger.severe(ex.getMessage());
@@ -135,13 +134,13 @@ public class GlobusServiceBean implements java.io.Serializable{
 
     }
 
-    private void goGlobus() {
+    private void goGlobus(String directory) {
 
         String httpString = "window.location.replace('" + "https://app.globus.org/file-manager?destination_id=5102894b-f28f-47f9-bc9a-d8e1b4e9e62c&destination_path=" + directory + "'" +")";
         PrimeFaces.current().executeScript(httpString);
     }
 
-    private boolean checkPermisions(String idnt, AccessToken clientTokenUser) throws MalformedURLException {
+    String  checkPermisions(String idnt, AccessToken clientTokenUser, String directory) throws MalformedURLException {
         URL url = new URL("https://transfer.api.globusonline.org/v0.10/endpoint/5102894b-f28f-47f9-bc9a-d8e1b4e9e62c/access_list");
         MakeRequestResponse result = makeRequest(url, "Bearer",
                 clientTokenUser.getOtherTokens().get(0).getAccessToken(),"GET",  null);
@@ -150,29 +149,26 @@ public class GlobusServiceBean implements java.io.Serializable{
             AccessList al = parseJson(result.jsonResponse, AccessList.class, false);
             for (int i = 0; i< al.getDATA().size(); i++) {
                 Permissions pr = al.getDATA().get(i);
-                if ((pr.getPath().equals(directory + "/") || pr.getPath().equals(directory )) &&
-                     (pr.getPermissions().equals("rw") || pr.getPermissions().equals("wr")) &&
-                         (pr.getPrincipal().equals(idnt))) {
-                    logger.info("Permissions already exist");
-                    return false;
+                if (pr.getPath().equals(directory + "/") || pr.getPath().equals(directory )) {
+                    return pr.getId();
                 } else {
                     continue;
                 }
             }
         }
 
-        return true;
+        return null;
     }
 
-    private int givePermission(String idnt, AccessToken clientTokenUser) throws MalformedURLException {
+    public int givePermission(String principalType, String principal, String perm, AccessToken clientTokenUser, String directory) throws MalformedURLException {
         URL url = new URL("https://transfer.api.globusonline.org/v0.10/endpoint/5102894b-f28f-47f9-bc9a-d8e1b4e9e62c/access");
 
         Permissions permissions = new Permissions();
         permissions.setDATA_TYPE("access");
-        permissions.setPrincipalType("identity");
-        permissions.setPrincipal(idnt);
+        permissions.setPrincipalType(principalType);
+        permissions.setPrincipal(principal);
         permissions.setPath(directory + "/");
-        permissions.setPermissions("rw");
+        permissions.setPermissions(perm);
 
         Gson gson = new GsonBuilder().create();
 
@@ -189,7 +185,7 @@ public class GlobusServiceBean implements java.io.Serializable{
         return result.status;
     }
 
-    private int createDirectory(AccessToken clientTokenUser) throws MalformedURLException {
+    private int createDirectory(AccessToken clientTokenUser, String directory) throws MalformedURLException {
         URL url = new URL("https://transfer.api.globusonline.org/v0.10/operation/endpoint/5102894b-f28f-47f9-bc9a-d8e1b4e9e62c/mkdir");
 
         MkDir mkDir = new MkDir();
@@ -279,7 +275,7 @@ public class GlobusServiceBean implements java.io.Serializable{
         return id;
     }
 
-    private AccessToken getClientToken() throws MalformedURLException {
+    public AccessToken getClientToken() throws MalformedURLException {
         URL url = new URL("https://auth.globus.org/v2/oauth2/token?scope=openid+email+profile+urn:globus:auth:scope:transfer.api.globus.org:all&grant_type=client_credentials");
 
         MakeRequestResponse result = makeRequest(url, "Basic",
@@ -291,7 +287,7 @@ public class GlobusServiceBean implements java.io.Serializable{
         return clientTokenUser;
     }
 
-    private AccessToken getAccessToken(HttpServletRequest origRequest ) throws UnsupportedEncodingException, MalformedURLException {
+    public AccessToken getAccessToken(HttpServletRequest origRequest ) throws UnsupportedEncodingException, MalformedURLException {
         String redirectURL = "https://" + origRequest.getServerName() + "/globus.xhtml";
         redirectURL = URLEncoder.encode(redirectURL, "UTF-8");
 
@@ -314,7 +310,7 @@ public class GlobusServiceBean implements java.io.Serializable{
 
     }
 
-    private UserInfo getUserInfo(AccessToken accessTokenUser) throws MalformedURLException {
+    public UserInfo getUserInfo(AccessToken accessTokenUser) throws MalformedURLException {
 
         URL url = new URL("https://auth.globus.org/v2/oauth2/userinfo");
         MakeRequestResponse result = makeRequest(url, "Bearer" , accessTokenUser.getAccessToken() , "GET",  null);
@@ -326,7 +322,7 @@ public class GlobusServiceBean implements java.io.Serializable{
         return usr;
     }
 
-    private MakeRequestResponse  makeRequest(URL url, String authType, String authCode, String method, String jsonString) {
+    public MakeRequestResponse  makeRequest(URL url, String authType, String authCode, String method, String jsonString) {
         String str = null;
         HttpURLConnection connection = null;
         int status = 0;
@@ -412,14 +408,14 @@ public class GlobusServiceBean implements java.io.Serializable{
         }
     }
 
-    void getDirectory() {
+    String getDirectory(String datasetId) {
         Dataset dataset = null;
+        String directory = null;
         try {
             dataset = datasetSvc.find(Long.parseLong(datasetId));
             if (dataset == null) {
                 logger.severe("Dataset not found " + datasetId);
-                directory = null;
-                return;
+                return null;
             }
             String storeId = dataset.getStorageIdentifier();
             storeId.substring(storeId.indexOf("//") + 1);
@@ -427,10 +423,12 @@ public class GlobusServiceBean implements java.io.Serializable{
             logger.info(storeId);
             logger.info(directory);
             logger.info("Storage identifier:" + dataset.getIdentifierForFileStorage());
+            return directory;
 
         } catch (NumberFormatException nfe) {
             logger.severe(nfe.getMessage());
-            directory = null;
+
+            return null;
         }
 
     }
@@ -443,6 +441,30 @@ public class GlobusServiceBean implements java.io.Serializable{
             this.status = status;
         }
 
+    }
+
+    public boolean giveGlobusPublicPermissions(String datasetId) throws UnsupportedEncodingException, MalformedURLException {
+
+        AccessToken clientTokenUser = getClientToken();
+        if (clientTokenUser == null) {
+            logger.severe("Cannot get client token ");
+            return false ;
+        }
+
+        String directory = getDirectory(datasetId);
+        logger.info(directory);
+
+        int perStatus = givePermission("all_authenticated_users", "", "r", clientTokenUser, directory);
+
+        if (perStatus == 409) {
+            logger.info("Permissions already exist or limit was reached");
+        } else if (perStatus == 400) {
+            logger.info("No directory in Globus");
+        } else if (perStatus != 201) {
+            return false;
+        }
+
+        return true;
     }
 
 
