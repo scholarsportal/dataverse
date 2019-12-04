@@ -9,11 +9,13 @@ import edu.harvard.iq.dataverse.FeaturedDataverseServiceBean;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.faces.context.FacesContext;
+import javax.faces.view.ViewScoped;
 import javax.inject.Named;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 
 import java.net.HttpURLConnection;
@@ -28,6 +30,7 @@ import java.util.Date;
 import java.util.logging.Logger;
 import com.google.gson.Gson;
 import org.primefaces.PrimeFaces;
+
 
 @Stateless
 @Named("GlobusServiceBean")
@@ -91,21 +94,10 @@ public class GlobusServiceBean implements java.io.Serializable{
                 logger.info(usr.getEmail());
                 AccessToken clientTokenUser = getClientToken();
                 if (clientTokenUser == null) {
-                    logger.severe("Cannot get client token " );
+                    logger.severe("Cannot get client token ");
                     return;
                 }
                 logger.info(clientTokenUser.getAccessToken());
-              /*  Identity idnt = getIdentity(usr);
-                if (idnt == null) {
-                    logger.severe("Cannot get client token " );
-                    return;
-                }
-                logger.info("Identity email " + idnt.getId());
-*/
-
-                //logger.info("Start Tasklist " );
-                //getTaskList(accessTokenUser);
-                //logger.info("End Tasklist " );
 
                 int status = createDirectory(clientTokenUser);
                 if (status == 202) {
@@ -114,15 +106,13 @@ public class GlobusServiceBean implements java.io.Serializable{
                         logger.severe("Cannot get permissions ");
                         return;
                     }
-                } else if (status == 502) {
-                    if (checkPermisions(usr.getSub(), clientTokenUser)) {
-                        int perStatus = givePermission(usr.getSub(), clientTokenUser);
-                        if (perStatus != 201) {
-                            logger.severe("Cannot get permissions ");
-                            return;
-                        } else {
-                            logger.info("permissions already exist");
-                        }
+                } else if (status == 502) { //directory already exists
+                    int perStatus = givePermission(usr.getSub(), clientTokenUser);
+                    if (perStatus == 409) {
+                        logger.info("permissions already exist");
+                    } else if (perStatus != 201) {
+                        logger.severe("Cannot get permissions ");
+                        return;
                     }
                 } else {
                     logger.severe ("Cannot create directory, status code " + status);
@@ -140,18 +130,15 @@ public class GlobusServiceBean implements java.io.Serializable{
             } catch (IOException ex) {
                 logger.severe(ex.getMessage());
                 logger.severe(ex.getCause().toString());
-            } catch (Exception e) {
-                e.printStackTrace();
             }
         }
 
     }
 
-    private void goGlobus() throws IOException {
+    private void goGlobus() {
 
-        String httpString = "window.location.replace('" + "https://app.globus.org/file-manager?origin_id=5102894b-f28f-47f9-bc9a-d8e1b4e9e62c&origin_path=" + directory + "'" +")";
+        String httpString = "window.location.replace('" + "https://app.globus.org/file-manager?destination_id=5102894b-f28f-47f9-bc9a-d8e1b4e9e62c&destination_path=" + directory + "'" +")";
         PrimeFaces.current().executeScript(httpString);
-
     }
 
     private boolean checkPermisions(String idnt, AccessToken clientTokenUser) throws MalformedURLException {
@@ -196,14 +183,7 @@ public class GlobusServiceBean implements java.io.Serializable{
         if (result.status == 400) {
             logger.severe("Path " + permissions.getPath() + " is not valid");
         } else if (result.status == 409) {
-            PermissionsResponse pr = parseJson(result.jsonResponse, PermissionsResponse.class, false);
-            if (pr.getCode().equals("LimitExceeded")) {
-                logger.severe("Endpoint ACL already has the maximum number of access rules");
-            } else if (pr.getCode().equals("Exists")) {
-                logger.warning("ACL already exists" );
-                return 201;
-            }
-
+            logger.warning("ACL already exists or Endpoint ACL already has the maximum number of access rules");
         }
 
         return result.status;
@@ -487,8 +467,12 @@ public class GlobusServiceBean implements java.io.Serializable{
                 directory = null;
                 return;
             }
-            directory = "/" + dataset.getAuthorityForFileStorage() + "/" + dataset.getIdentifierForFileStorage();
-            logger.info(dataset.getAuthorityForFileStorage() + "/" + dataset.getIdentifierForFileStorage());
+            String storeId = dataset.getStorageIdentifier();
+            storeId.substring(storeId.indexOf("//") + 1);
+            directory = storeId.substring(storeId.indexOf("//") + 1);
+            logger.info(storeId);
+            logger.info(directory);
+            logger.info("Storage identifier:" + dataset.getIdentifierForFileStorage());
 
         } catch (NumberFormatException nfe) {
             logger.severe(nfe.getMessage());
@@ -496,12 +480,6 @@ public class GlobusServiceBean implements java.io.Serializable{
         }
 
     }
-
-    public String getClientTokenLocal() {
-        return "Return from getclienttokenlocal method " ;
-    }
-
-
 
     class MakeRequestResponse {
         public String jsonResponse;
