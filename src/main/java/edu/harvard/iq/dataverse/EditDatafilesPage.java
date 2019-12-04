@@ -42,6 +42,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Timestamp;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -1441,8 +1442,17 @@ public class EditDatafilesPage implements java.io.Serializable {
         return returnToDraftVersion();
     }
 
-    public String saveGLOBUS() throws MalformedURLException {
+    public String saveGLOBUS() throws MalformedURLException, ParseException {
         logger.info("GLOBUS ASYNC CALL ");
+        // If the script has been successfully downloaded, lock the dataset:
+        String lockInfoMessage = "Globus upload in progress";
+        DatasetLock lock = datasetService.addDatasetLock(dataset.getId(), DatasetLock.Reason.GlobusUpload, session.getUser() != null ? ((AuthenticatedUser)session.getUser()).getId() : null, lockInfoMessage);
+        if (lock != null) {
+            dataset.addLock(lock);
+        } else {
+            logger.log(Level.WARNING, "Failed to lock the dataset (dataset id={0})", dataset.getId());
+        }
+
         datasetService.globusAsyncjob(dataset.getId(), "globusUserId", (AuthenticatedUser) session.getUser());
 
         logger.fine("Redirecting to the dataset page, from the edit/upload page.");
@@ -1453,8 +1463,6 @@ public class EditDatafilesPage implements java.io.Serializable {
             
         JH.addMessage(FacesMessage.SEVERITY_FATAL, getBundleString("dataset.message.filesFailure"));
     }
-    
-    
     
     private String returnToDraftVersion(){      
          return "/dataset.xhtml?persistentId=" + dataset.getGlobalId().asString() + "&version=DRAFT&faces-redirect=true";    

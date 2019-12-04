@@ -7,14 +7,13 @@ import edu.harvard.iq.dataverse.DatasetServiceBean;
 import edu.harvard.iq.dataverse.FeaturedDataverseServiceBean;
 
 import javax.ejb.EJB;
+import javax.ejb.Stateless;
 import javax.faces.context.FacesContext;
-import javax.faces.view.ViewScoped;
 import javax.inject.Named;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 
 import java.net.HttpURLConnection;
@@ -30,8 +29,7 @@ import java.util.logging.Logger;
 import com.google.gson.Gson;
 import org.primefaces.PrimeFaces;
 
-
-@ViewScoped
+@Stateless
 @Named("GlobusServiceBean")
 public class GlobusServiceBean implements java.io.Serializable{
 
@@ -105,9 +103,9 @@ public class GlobusServiceBean implements java.io.Serializable{
                 logger.info("Identity email " + idnt.getId());
 */
 
-                logger.info("Start Tasklist " );
-                getTaskList(accessTokenUser);
-                logger.info("End Tasklist " );
+                //logger.info("Start Tasklist " );
+                //getTaskList(accessTokenUser);
+                //logger.info("End Tasklist " );
 
                 int status = createDirectory(clientTokenUser);
                 if (status == 202) {
@@ -142,7 +140,7 @@ public class GlobusServiceBean implements java.io.Serializable{
             } catch (IOException ex) {
                 logger.severe(ex.getMessage());
                 logger.severe(ex.getCause().toString());
-            } catch (ParseException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -153,6 +151,7 @@ public class GlobusServiceBean implements java.io.Serializable{
 
         String httpString = "window.location.replace('" + "https://app.globus.org/file-manager?origin_id=5102894b-f28f-47f9-bc9a-d8e1b4e9e62c&origin_path=" + directory + "'" +")";
         PrimeFaces.current().executeScript(httpString);
+
     }
 
     private boolean checkPermisions(String idnt, AccessToken clientTokenUser) throws MalformedURLException {
@@ -234,14 +233,17 @@ public class GlobusServiceBean implements java.io.Serializable{
 
     }
 
-    private int getTaskList(AccessToken accessTokenUser) throws MalformedURLException, ParseException {
+    public String getTaskList(String identifierForFileStorage) throws MalformedURLException  {
+        try
+        {
         URL url = new URL("https://transfer.api.globusonline.org/v0.10/task_list");
 
+        //AccessToken accessTokenUser
         //accessTokenUser.getOtherTokens().get(0).getAccessToken()
         MakeRequestResponse result = makeRequest(url, "Bearer",
-                "Ag67eJqr2Yr289kdXWb7JzEyBzOeqPQeQNkrdbWq04BngoMoYyC2CoVQbW4pVBQ4XKvqqjQadx9x90f1o42kwIrXwy",
+                "Ag1XY4azj2NY707deQDgW68zmMpmw5qaQ2jJ9ddaza42we0wQ3F2CKEEywb6rnOQoyVbNr9vXKNkoDf4NBM05SmmG9",
                 "GET",  null);
-        logger.info("==TEST ==" + result.toString());
+        //logger.info("==TEST ==" + result.toString());
 
 
 
@@ -264,26 +266,68 @@ public class GlobusServiceBean implements java.io.Serializable{
                 Date tastTime = sdf.parse(task.getRequest_time());
                 cal2.setTime(tastTime);
 
-                logger.info(" timeWhenAsyncStarted = " + timeWhenAsyncStarted + "task.getRequest_time().toString()  " + task.getRequest_time().toString());
 
                 if ( task.getStatus().equals("SUCCEEDED") && task.getType().equals("TRANSFER" ) &&
                         task.getDestination_endpoint_display_name().equals("Dataverse GCS test collection") && cal1.before(cal2))  {
 
-                    logger.info(" timeWhenAsyncStarted is before tastTime  =  TASK owner id " + task.getTask_id());
                     // get /task/<task_id>/successful_transfers
                     // verify datasetid in "destination_path": "/~/test_godata_copy/file1.txt",
                     // go to aws and get files and write to database tables
+
+
+                    boolean success = getSuccessfulTransfers(task.getTask_id() , identifierForFileStorage) ;
+
+                    if(success)
+                    {
+                        logger.info("====== timeWhenAsyncStarted = " + timeWhenAsyncStarted + "    ====== task.getRequest_time().toString() ====== " + task.getRequest_time().toString());
+                        logger.info("====== " + timeWhenAsyncStarted + " timeWhenAsyncStarted is before tastTime  =  TASK time =  " + task.getTask_id());
+                        return task.getTask_id();
+                    }
                 }
                 else
                 {
-                    logger.info(" timeWhenAsyncStarted is after tastTime =  TASK owner id " + task.getTask_id());
-
+                    //logger.info("====== " + timeWhenAsyncStarted + " timeWhenAsyncStarted is after tastTime =  TASK time = " + task.getTask_id());
+                    //return task.getTask_id();
                 }
             }
         }
-        return result.status;
-
+        } catch (MalformedURLException ex) {
+            logger.severe(ex.getMessage());
+            logger.severe(ex.getCause().toString());
+        }   catch (IOException ex) {
+            logger.severe(ex.getMessage());
+            logger.severe(ex.getCause().toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
+
+    public boolean getSuccessfulTransfers(String taskId, String identifierForFileStorage) throws MalformedURLException {
+
+        URL url = new URL("https://transfer.api.globusonline.org/v0.10/task/"+taskId+"/successful_transfers");
+
+        MakeRequestResponse result = makeRequest(url, "Bearer",
+                "Ag1XY4azj2NY707deQDgW68zmMpmw5qaQ2jJ9ddaza42we0wQ3F2CKEEywb6rnOQoyVbNr9vXKNkoDf4NBM05SmmG9",
+                "GET",  null);
+
+        Transferlist transferlist = null;
+
+        if (result.status == 200) {
+            transferlist = parseJson(result.jsonResponse, Transferlist.class, false);
+            for (int i = 0; i < transferlist.getDATA().size(); i++) {
+                SuccessfulTransfer successfulTransfer = transferlist.getDATA().get(i);
+                String pathToVerify = successfulTransfer.getDestination_path();
+                if(pathToVerify.contains(identifierForFileStorage))
+                {
+                    logger.info("====== " + pathToVerify + " ====  " + identifierForFileStorage);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
 
     private Identity getIdentity(UserInfo usr) throws MalformedURLException {
         URL url = new URL("https://auth.globus.org/v2/api/identities?usernames=" + usr.getEmail());
@@ -301,7 +345,7 @@ public class GlobusServiceBean implements java.io.Serializable{
         return id;
     }
 
-    private AccessToken getClientToken() throws MalformedURLException {
+    public AccessToken getClientToken() throws MalformedURLException {
         URL url = new URL("https://auth.globus.org/v2/oauth2/token?scope=openid+email+profile+urn:globus:auth:scope:transfer.api.globus.org:all&grant_type=client_credentials");
 
         MakeRequestResponse result = makeRequest(url, "Basic",
@@ -452,6 +496,12 @@ public class GlobusServiceBean implements java.io.Serializable{
         }
 
     }
+
+    public String getClientTokenLocal() {
+        return "Return from getclienttokenlocal method " ;
+    }
+
+
 
     class MakeRequestResponse {
         public String jsonResponse;

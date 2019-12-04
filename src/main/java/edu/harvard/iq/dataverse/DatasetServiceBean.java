@@ -1,5 +1,6 @@
 package edu.harvard.iq.dataverse;
 
+import com.amazonaws.services.cloudformation.model.CreateChangeSetRequest;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.Permission;
@@ -18,6 +19,10 @@ import edu.harvard.iq.dataverse.engine.command.impl.DestroyDatasetCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.FinalizeDatasetPublicationCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
 import edu.harvard.iq.dataverse.export.ExportService;
+import edu.harvard.iq.dataverse.globus.AccessToken;
+import edu.harvard.iq.dataverse.globus.GlobusServiceBean;
+import edu.harvard.iq.dataverse.globus.Task;
+import edu.harvard.iq.dataverse.globus.Tasklist;
 import edu.harvard.iq.dataverse.harvest.server.OAIRecordServiceBean;
 import edu.harvard.iq.dataverse.search.IndexServiceBean;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
@@ -29,6 +34,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.sql.Timestamp;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.FileHandler;
@@ -95,6 +101,9 @@ public class DatasetServiceBean implements java.io.Serializable {
     
     @EJB
     SystemConfig systemConfig;
+
+    @EJB
+    protected GlobusServiceBean globusServiceBean;
 
     private static final SimpleDateFormat logFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss");
     
@@ -961,7 +970,7 @@ public class DatasetServiceBean implements java.io.Serializable {
 
 
     @Asynchronous
-    public void globusAsyncjob(Long dataset_id, String globusUserId, AuthenticatedUser authenticatedUser) throws MalformedURLException {
+    public void globusAsyncjob(Long dataset_id, String globusUserId, AuthenticatedUser authenticatedUser) throws MalformedURLException, ParseException {
 
         /*
 
@@ -981,35 +990,66 @@ public class DatasetServiceBean implements java.io.Serializable {
 
          */
 
+        logger.info("======Start Tasklist " );
+
         /*
+
         AccessToken clientTokenUser = null;
-        clientTokenUser = globusServiceBean.getClientToken();
+        String output = globusServiceBean.getClientTokenLocal();
         logger.info(clientTokenUser.getAccessToken());
 
         if (clientTokenUser == null) {
             logger.severe("Cannot get client token " );
             return;
         }
-
-
-        Tasklist tl = globusServiceBean.getTaskList(clientTokenUser);
-
-        for (Task task : tl.getTasklist()) {
-            String ownerId = task.getOwnerId();
-            String status = task.getStatus();
-
-        }
         */
 
 
-        logger.log(Level.INFO, "S3 storage driver used for DCM (dataset id={0})", dataset_id);
+
+
+        logger.log(Level.INFO, "====S3 storage driver used for DCM (dataset id={0})", dataset_id);
         try {
-
-            logger.info(" ======= FIND DATASET ");
             Dataset dataset = find(dataset_id);
-
-            logger.info(" ======= CREATE DATAFILE ");
             StorageIO<Dataset> datasetSIO = DataAccess.getStorageIO(dataset);
+
+            String task_id = "";
+            int i = 0;
+            int duration = 25;
+
+            do {
+                try {
+                    task_id = globusServiceBean.getTaskList(dataset.getIdentifierForFileStorage());
+                    Thread.sleep(10000);
+
+                    i++;
+
+                    if (i > duration) {
+                        logger.info("======Loop Tasklist " + i );
+                        logger.info("======first condition ==== "  );
+
+                        break;
+                    }
+                    else if(task_id != null)
+                    {
+
+                        //globusServiceBean.getSuccessfulTransfers(task_id, dataset.getIdentifierForFileStorage());
+
+                        logger.info("======second condition ==== "  );
+
+                        break;
+                    }
+
+                } catch (Exception ex) {
+                    logger.info("======third condition ==== "  );
+                    logger.info(ex.getMessage());
+                }
+
+            } while (task_id == null);
+
+
+            logger.info("======End Tasklist " + task_id );
+
+
 
             String directory =  dataset.getAuthorityForFileStorage() + "/" + dataset.getIdentifierForFileStorage();
 
@@ -1085,8 +1125,16 @@ public class DatasetServiceBean implements java.io.Serializable {
                 }
             }
 
+            DatasetLock dcmLock = dataset.getLockFor(DatasetLock.Reason.GlobusUpload);
+            if (dcmLock == null) {
+                logger.info("Dataset not locked for DCM upload");
+            } else {
+                removeDatasetLocks(dataset, DatasetLock.Reason.GlobusUpload);
+                dataset.removeLock(dcmLock);
+            }
 
-            logger.info(" ======= CHECK VERSION");
+            logger.info(" ======= Remove Dataset Lock ");
+
 
             // update version using the command engine to enforce user permissions and constraints
             if (dataset.getVersions().size() == 1 && dataset.getLatestVersion().getVersionState() == DatasetVersion.VersionState.DRAFT) {
@@ -1104,6 +1152,7 @@ public class DatasetServiceBean implements java.io.Serializable {
             }
 
             logger.info(" ======= DONE GLOBUS ASYNC CALL ");
+
 
         }  catch (Exception e) {
             String message = e.getMessage();

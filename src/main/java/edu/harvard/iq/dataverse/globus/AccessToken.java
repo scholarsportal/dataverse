@@ -15,7 +15,7 @@ public class AccessToken implements java.io.Serializable {
     private String refreshToken;
     private ArrayList<AccessToken> otherTokens;
 
-    String getAccessToken() { return accessToken; }
+    public String getAccessToken() { return accessToken; }
 
     String getIdToken() { return idToken; }
 
