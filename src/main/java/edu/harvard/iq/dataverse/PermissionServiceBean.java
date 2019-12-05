@@ -728,6 +728,10 @@ public class PermissionServiceBean {
             if (dataset.isLockedFor(DatasetLock.Reason.DcmUpload)) {
                 throw new IllegalCommandException(BundleUtil.getStringFromBundle("dataset.message.locked.editNotAllowed"), command);
             }
+            // TODO: Do we need to check for "GlobusUpload"? Should the message be more specific?
+            if (dataset.isLockedFor(DatasetLock.Reason.GlobusUpload)) {
+                throw new IllegalCommandException(BundleUtil.getStringFromBundle("dataset.message.locked.editNotAllowed"), command);
+            }
             if (dataset.isLockedFor(DatasetLock.Reason.EditInProgress)) {
                 throw new IllegalCommandException(BundleUtil.getStringFromBundle("dataset.message.locked.editNotAllowed"), command);
             }
@@ -754,6 +758,11 @@ public class PermissionServiceBean {
             }
             // TODO: Do we need to check for "DcmUpload"? Should the message be more specific?
             if (dataset.isLockedFor(DatasetLock.Reason.DcmUpload)) {
+                throw new IllegalCommandException(BundleUtil.getStringFromBundle("dataset.message.locked.downloadNotAllowed"), command);
+            }
+
+            // TODO: Do we need to check for "DcmUpload"? Should the message be more specific?
+            if (dataset.isLockedFor(DatasetLock.Reason.GlobusUpload)) {
                 throw new IllegalCommandException(BundleUtil.getStringFromBundle("dataset.message.locked.downloadNotAllowed"), command);
             }
         }

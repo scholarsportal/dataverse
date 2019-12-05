@@ -970,7 +970,7 @@ public class DatasetServiceBean implements java.io.Serializable {
 
 
     @Asynchronous
-    public void globusAsyncjob(Long dataset_id, String globusUserId, AuthenticatedUser authenticatedUser) throws MalformedURLException, ParseException {
+    public void globusAsyncjob(Long dataset_id, String globusUserId, AuthenticatedUser authenticatedUser)  {
 
         /*
 
@@ -1005,42 +1005,53 @@ public class DatasetServiceBean implements java.io.Serializable {
         */
 
 
-
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         logger.log(Level.INFO, "====S3 storage driver used for DCM (dataset id={0})", dataset_id);
         try {
             Dataset dataset = find(dataset_id);
             StorageIO<Dataset> datasetSIO = DataAccess.getStorageIO(dataset);
 
-            String task_id = "";
+            String task_id = null;
             int i = 0;
             int duration = 25;
 
+            String timeWhenAsyncStarted = sdf.format(new Date(System.currentTimeMillis() + (5 * 60 * 60 * 1000)));  // added 5 hrs to match output from globus api
+
+            String endDateTime = sdf.format(new Date(System.currentTimeMillis() + (4 * 60 * 60 * 1000)));
+            Calendar cal1 = Calendar.getInstance();
+            cal1.setTime(sdf.parse(endDateTime));
+
             do {
                 try {
-                    task_id = globusServiceBean.getTaskList(dataset.getIdentifierForFileStorage());
-                    Thread.sleep(10000);
+                    if (globusServiceBean.getUserTransferToken() != null) {
+                        task_id = globusServiceBean.getTaskList(globusServiceBean.getUserTransferToken(), dataset.getIdentifierForFileStorage(), timeWhenAsyncStarted);
+                        Thread.sleep(10000);
+                        String currentDateTime = sdf.format(new Date(System.currentTimeMillis()));
+                        Calendar cal2 = Calendar.getInstance();
+                        cal2.setTime(sdf.parse(currentDateTime));
+                        i++;
 
-                    i++;
+                        if (i > duration) {
+                            logger.info("======Loop Tasklist " + i);
+                            logger.info("======first condition ==== ");
 
-                    if (i > duration) {
-                        logger.info("======Loop Tasklist " + i );
-                        logger.info("======first condition ==== "  );
-
-                        break;
+                            break;
+                        } else if (cal2.after(cal1)) {
+                            logger.info("======Time exceeded " + endDateTime + " ====== " + currentDateTime);
+                            logger.info("======second condition ==== ");
+                            break;
+                        } else if (task_id != null) {
+                            break;
+                        }
                     }
-                    else if(task_id != null)
+                    else
                     {
-
-                        //globusServiceBean.getSuccessfulTransfers(task_id, dataset.getIdentifierForFileStorage());
-
-                        logger.info("======second condition ==== "  );
-
-                        break;
+                        logger.info(" Get User Transfer Token is NULL ");
                     }
-
                 } catch (Exception ex) {
                     logger.info("======third condition ==== "  );
+                    ex.printStackTrace();
                     logger.info(ex.getMessage());
                 }
 
@@ -1050,112 +1061,115 @@ public class DatasetServiceBean implements java.io.Serializable {
             logger.info("======End Tasklist " + task_id );
 
 
+            //if(task_id != null)
+            {
+                String directory = dataset.getAuthorityForFileStorage() + "/" + dataset.getIdentifierForFileStorage();
 
-            String directory =  dataset.getAuthorityForFileStorage() + "/" + dataset.getIdentifierForFileStorage();
+                System.out.println("======= directory ==== " + directory);
+                Map<String, Integer> checksumMapOld = new HashMap<>();
 
-            System.out.println("======= directory ==== " + directory);
-            Map<String, Integer> checksumMapOld = new HashMap<>();
+                Iterator<FileMetadata> fmIt = dataset.getLatestVersion().getFileMetadatas().iterator();
 
-            Iterator<FileMetadata> fmIt = dataset.getLatestVersion().getFileMetadatas().iterator();
+                while (fmIt.hasNext()) {
+                    FileMetadata fm = fmIt.next();
+                    if (fm.getDataFile() != null && fm.getDataFile().getId() != null) {
+                        String chksum = fm.getDataFile().getChecksumValue();
+                        if (chksum != null) {
+                            checksumMapOld.put(chksum, 1);
 
-            while (fmIt.hasNext()) {
-                FileMetadata fm = fmIt.next();
-                if (fm.getDataFile() != null && fm.getDataFile().getId() != null) {
-                    String chksum = fm.getDataFile().getChecksumValue();
-                    if (chksum != null) {
-                        checksumMapOld.put(chksum, 1);
-
+                        }
                     }
                 }
-            }
 
-            for (S3ObjectSummary s3ObjectSummary : datasetSIO.listAuxObjects("")) {
+                for (S3ObjectSummary s3ObjectSummary : datasetSIO.listAuxObjects("")) {
 
-                String s3ObjectKey = s3ObjectSummary.getKey();
-                System.out.println("======= s3ObjectKey ==== " + s3ObjectKey);
-                String t = s3ObjectKey.replace(directory,"");
-//String t = destinationKey.replace(datasetSIO.getDvObject().getAuthority()+"/"+datasetSIO.getDvObject().getIdentifier()+"/","");
-//
-                System.out.println("======= t ==== " + t);
-                if(t.indexOf(".") > 0 ) {
-                    long totalSize = s3ObjectSummary.getSize();
-                    String filePath = s3ObjectKey;
-                    String checksumVal = s3ObjectSummary.getETag();
+                    String s3ObjectKey = s3ObjectSummary.getKey();
+                    System.out.println("======= s3ObjectKey ==== " + s3ObjectKey);
+                    String t = s3ObjectKey.replace(directory, "");
+            //String t = destinationKey.replace(datasetSIO.getDvObject().getAuthority()+"/"+datasetSIO.getDvObject().getIdentifier()+"/","");
+            //
+                    System.out.println("======= t ==== " + t);
+                    if (t.indexOf(".") > 0) {
+                        long totalSize = s3ObjectSummary.getSize();
+                        String filePath = s3ObjectKey;
+                        String checksumVal = s3ObjectSummary.getETag();
 
-                    if(  (checksumMapOld.get(checksumVal) != null) ) {
-                        System.out.println("======= filename ==== " + filePath + " == file already exists ");
-                    }
-                    else {
-                        System.out.println("======= filename ==== " + filePath + " == new file - add to database ");
-
-
-                        DataFile dataFile = new DataFile(DataFileServiceBean.MIME_TYPE_PACKAGE_FILE);
-                        dataFile.setChecksumType(DataFile.ChecksumType.SHA1);
-                        dataFile.setChecksumValue(checksumVal);
+                        if ((checksumMapOld.get(checksumVal) != null)) {
+                            System.out.println("======= filename ==== " + filePath + " == file already exists ");
+                        } else if ( ! filePath.contains("cached"))
+                            {
+                            System.out.println("======= filename ==== " + filePath + " == new file - add to database ");
 
 
-                        dataFile.setFilesize(totalSize);
-                        dataFile.setModificationTime(new Timestamp(new Date().getTime()));
-                        dataFile.setCreateDate(new Timestamp(new Date().getTime()));
-                        dataFile.setPermissionModificationTime(new Timestamp(new Date().getTime()));
-                        dataFile.setOwner(dataset);
-                        dataset.getFiles().add(dataFile);
-                        dataFile.setIngestDone();
-
-                        // set metadata and add to latest version
-                        // Set early so we can generate the storage id with the info
-                        FileMetadata fmd = new FileMetadata();
-
-                        String fileName = filePath.split("/")[filePath.split("/").length - 1];
-                        fmd.setLabel(fileName);
-                        fmd.setDirectoryLabel(filePath.replace(directory,"").replace(File.separator + fileName, ""));
+                            DataFile dataFile = new DataFile(DataFileServiceBean.MIME_TYPE_PACKAGE_FILE);
+                            dataFile.setChecksumType(DataFile.ChecksumType.SHA1);
+                            dataFile.setChecksumValue(checksumVal);
 
 
+                            dataFile.setFilesize(totalSize);
+                            dataFile.setModificationTime(new Timestamp(new Date().getTime()));
+                            dataFile.setCreateDate(new Timestamp(new Date().getTime()));
+                            dataFile.setPermissionModificationTime(new Timestamp(new Date().getTime()));
+                            dataFile.setOwner(dataset);
+                            dataset.getFiles().add(dataFile);
+                            dataFile.setIngestDone();
 
-                        fmd.setDataFile(dataFile);
-                        dataFile.getFileMetadatas().add(fmd);
-                        if (dataset.getLatestVersion().getFileMetadatas() == null)
-                            dataset.getLatestVersion().setFileMetadatas(new ArrayList<>());
+                            // set metadata and add to latest version
+                            // Set early so we can generate the storage id with the info
+                            FileMetadata fmd = new FileMetadata();
 
-                        dataset.getLatestVersion().getFileMetadatas().add(fmd);
-                        fmd.setDatasetVersion(dataset.getLatestVersion());
+                            String fileName = filePath.split("/")[filePath.split("/").length - 1];
+                            fmd.setLabel(fileName);
+                            fmd.setDirectoryLabel(filePath.replace(directory, "").replace(File.separator + fileName, ""));
 
-                        FileUtil.generateS3PackageStorageIdentifier(dataFile);
+
+                            fmd.setDataFile(dataFile);
+                            dataFile.getFileMetadatas().add(fmd);
+                            if (dataset.getLatestVersion().getFileMetadatas() == null)
+                                dataset.getLatestVersion().setFileMetadatas(new ArrayList<>());
+
+                            dataset.getLatestVersion().getFileMetadatas().add(fmd);
+                            fmd.setDatasetVersion(dataset.getLatestVersion());
+
+                            FileUtil.generateS3PackageStorageIdentifier(dataFile);
+                        }
                     }
                 }
-            }
 
-            DatasetLock dcmLock = dataset.getLockFor(DatasetLock.Reason.GlobusUpload);
-            if (dcmLock == null) {
-                logger.info("Dataset not locked for DCM upload");
-            } else {
-                removeDatasetLocks(dataset, DatasetLock.Reason.GlobusUpload);
-                dataset.removeLock(dcmLock);
-            }
-
-            logger.info(" ======= Remove Dataset Lock ");
-
-
-            // update version using the command engine to enforce user permissions and constraints
-            if (dataset.getVersions().size() == 1 && dataset.getLatestVersion().getVersionState() == DatasetVersion.VersionState.DRAFT) {
-                try {
-                    Command<Dataset> cmd;
-                    cmd = new UpdateDatasetVersionCommand(dataset, new DataverseRequest(authenticatedUser, (HttpServletRequest) null));
-                    commandEngine.submit(cmd);
-                } catch (CommandException ex) {
-                    logger.log(Level.WARNING, "CommandException updating DatasetVersion from batch job: " + ex.getMessage());
+                DatasetLock dcmLock = dataset.getLockFor(DatasetLock.Reason.GlobusUpload);
+                if (dcmLock == null) {
+                    logger.info("Dataset not locked for DCM upload");
+                } else {
+                    removeDatasetLocks(dataset, DatasetLock.Reason.GlobusUpload);
+                    dataset.removeLock(dcmLock);
                 }
-            } else {
-                String constraintError = "ConstraintException updating DatasetVersion form batch job: dataset must be a "
-                        + "single version in draft mode.";
-                logger.log(Level.SEVERE, constraintError);
+
+                logger.info(" ======= Remove Dataset Lock ");
+
+
+                // update version using the command engine to enforce user permissions and constraints
+                if (dataset.getVersions().size() == 1 && dataset.getLatestVersion().getVersionState() == DatasetVersion.VersionState.DRAFT) {
+                    try {
+                        Command<Dataset> cmd;
+                        cmd = new UpdateDatasetVersionCommand(dataset, new DataverseRequest(authenticatedUser, (HttpServletRequest) null));
+                        commandEngine.submit(cmd);
+                    } catch (CommandException ex) {
+                        logger.log(Level.WARNING, "CommandException updating DatasetVersion from batch job: " + ex.getMessage());
+                    }
+                } else {
+                    String constraintError = "ConstraintException updating DatasetVersion form batch job: dataset must be a "
+                            + "single version in draft mode.";
+                    logger.log(Level.SEVERE, constraintError);
+                }
+
+                Thread.sleep(10000);
+                logger.info(" ======= DONE GLOBUS ASYNC CALL ");
             }
-
-            logger.info(" ======= DONE GLOBUS ASYNC CALL ");
-
 
         }  catch (Exception e) {
             String message = e.getMessage();
+
+            logger.info(" ======= DONE GLOBUS ASYNC CALL Exception ============== " + message);
             e.printStackTrace();
             //return error(Response.Status.INTERNAL_SERVER_ERROR, "Uploaded files have passed checksum validation but something went wrong while attempting to move the files into Dataverse. Message was '" + message + "'.");
         }

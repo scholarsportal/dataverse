@@ -1442,9 +1442,13 @@ public class EditDatafilesPage implements java.io.Serializable {
         return returnToDraftVersion();
     }
 
-    public String saveGLOBUS() throws MalformedURLException, ParseException {
+    public String saveGLOBUS() throws MalformedURLException, ParseException, InterruptedException {
         logger.info("GLOBUS ASYNC CALL ");
         // If the script has been successfully downloaded, lock the dataset:
+
+        Thread.sleep(50000);
+
+
         String lockInfoMessage = "Globus upload in progress";
         DatasetLock lock = datasetService.addDatasetLock(dataset.getId(), DatasetLock.Reason.GlobusUpload, session.getUser() != null ? ((AuthenticatedUser)session.getUser()).getId() : null, lockInfoMessage);
         if (lock != null) {
@@ -1452,6 +1456,8 @@ public class EditDatafilesPage implements java.io.Serializable {
         } else {
             logger.log(Level.WARNING, "Failed to lock the dataset (dataset id={0})", dataset.getId());
         }
+
+        Thread.sleep(20000);
 
         datasetService.globusAsyncjob(dataset.getId(), "globusUserId", (AuthenticatedUser) session.getUser());
 

@@ -47,6 +47,7 @@ public class GlobusServiceBean implements java.io.Serializable{
     private String code;
     private String datasetId;
     private String directory;
+    private String userTransferToken;
 
     public String getCode() {
         return code;
@@ -62,6 +63,14 @@ public class GlobusServiceBean implements java.io.Serializable{
 
     public void setDatasetId(String datasetId) {
         this.datasetId = datasetId;
+    }
+
+    public String getUserTransferToken() {
+        return userTransferToken;
+    }
+
+    public void setUserTransferToken(String userTransferToken) {
+        this.userTransferToken = userTransferToken;
     }
 
     public void onLoad() {
@@ -85,6 +94,11 @@ public class GlobusServiceBean implements java.io.Serializable{
                     logger.severe("Cannot get access user token for code " + code);
                     return;
                 }
+                else
+                {
+                    setUserTransferToken(accessTokenUser.getOtherTokens().get(0).getAccessToken());
+                }
+
                 UserInfo usr = getUserInfo(accessTokenUser);
                 if (usr == null) {
                     logger.severe("Cannot get user info for " + accessTokenUser.getAccessToken());
@@ -213,16 +227,14 @@ public class GlobusServiceBean implements java.io.Serializable{
 
     }
 
-    public String getTaskList(String identifierForFileStorage) throws MalformedURLException  {
+    public String getTaskList(String userTransferToken, String identifierForFileStorage, String timeWhenAsyncStarted) throws MalformedURLException  {
         try
         {
         URL url = new URL("https://transfer.api.globusonline.org/v0.10/task_list");
 
         //AccessToken accessTokenUser
         //accessTokenUser.getOtherTokens().get(0).getAccessToken()
-        MakeRequestResponse result = makeRequest(url, "Bearer",
-                "Ag1XY4azj2NY707deQDgW68zmMpmw5qaQ2jJ9ddaza42we0wQ3F2CKEEywb6rnOQoyVbNr9vXKNkoDf4NBM05SmmG9",
-                "GET",  null);
+        MakeRequestResponse result = makeRequest(url, "Bearer", userTransferToken,"GET",  null);
         //logger.info("==TEST ==" + result.toString());
 
 
@@ -230,7 +242,6 @@ public class GlobusServiceBean implements java.io.Serializable{
         //2019-12-01 18:34:37+00:00
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
-        String timeWhenAsyncStarted = sdf.format(new Date());
         Calendar cal1 = Calendar.getInstance();
         cal1.setTime(sdf.parse(timeWhenAsyncStarted));
 
@@ -246,6 +257,9 @@ public class GlobusServiceBean implements java.io.Serializable{
                 Date tastTime = sdf.parse(task.getRequest_time());
                 cal2.setTime(tastTime);
 
+                logger.info("====== timeWhenAsyncStarted = " + timeWhenAsyncStarted + "    ====== task.getRequest_time().toString() ====== " + task.getRequest_time());
+
+
 
                 if ( task.getStatus().equals("SUCCEEDED") && task.getType().equals("TRANSFER" ) &&
                         task.getDestination_endpoint_display_name().equals("Dataverse GCS test collection") && cal1.before(cal2))  {
@@ -255,11 +269,10 @@ public class GlobusServiceBean implements java.io.Serializable{
                     // go to aws and get files and write to database tables
 
 
-                    boolean success = getSuccessfulTransfers(task.getTask_id() , identifierForFileStorage) ;
+                    boolean success = getSuccessfulTransfers(userTransferToken, task.getTask_id() , identifierForFileStorage) ;
 
                     if(success)
                     {
-                        logger.info("====== timeWhenAsyncStarted = " + timeWhenAsyncStarted + "    ====== task.getRequest_time().toString() ====== " + task.getRequest_time().toString());
                         logger.info("====== " + timeWhenAsyncStarted + " timeWhenAsyncStarted is before tastTime  =  TASK time =  " + task.getTask_id());
                         return task.getTask_id();
                     }
@@ -274,21 +287,17 @@ public class GlobusServiceBean implements java.io.Serializable{
         } catch (MalformedURLException ex) {
             logger.severe(ex.getMessage());
             logger.severe(ex.getCause().toString());
-        }   catch (IOException ex) {
-            logger.severe(ex.getMessage());
-            logger.severe(ex.getCause().toString());
         } catch (Exception e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    public boolean getSuccessfulTransfers(String taskId, String identifierForFileStorage) throws MalformedURLException {
+    public boolean getSuccessfulTransfers(String userTransferToken, String taskId, String identifierForFileStorage) throws MalformedURLException {
 
         URL url = new URL("https://transfer.api.globusonline.org/v0.10/task/"+taskId+"/successful_transfers");
 
-        MakeRequestResponse result = makeRequest(url, "Bearer",
-                "Ag1XY4azj2NY707deQDgW68zmMpmw5qaQ2jJ9ddaza42we0wQ3F2CKEEywb6rnOQoyVbNr9vXKNkoDf4NBM05SmmG9",
+        MakeRequestResponse result = makeRequest(url, "Bearer",userTransferToken,
                 "GET",  null);
 
         Transferlist transferlist = null;
@@ -399,8 +408,8 @@ public class GlobusServiceBean implements java.io.Serializable{
             if (result != null) {
                 logger.info("Result is not null");
                 str = readResultJson(result).toString();
-                logger.info("str is ");
-                logger.info(result.toString());
+                //logger.info("str is ");
+                //logger.info(result.toString());
             } else {
                 logger.info("Result is null");
                 str = null;
