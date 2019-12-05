@@ -8,6 +8,7 @@ import edu.harvard.iq.dataverse.FeaturedDataverseServiceBean;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
+import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
 import javax.inject.Named;
@@ -29,7 +30,11 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.logging.Logger;
 import com.google.gson.Gson;
+import edu.harvard.iq.dataverse.util.BundleUtil;
+import edu.harvard.iq.dataverse.util.JsfHelper;
 import org.primefaces.PrimeFaces;
+
+import static edu.harvard.iq.dataverse.util.JsfHelper.JH;
 
 
 @Stateless
@@ -70,6 +75,7 @@ public class GlobusServiceBean implements java.io.Serializable{
         String directory = getDirectory(datasetId);
         if (directory == null) {
             logger.severe("Cannot find directory");
+            JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("dataset.message.GlobusError"));
             return;
         }
         HttpServletRequest origRequest = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
@@ -82,11 +88,13 @@ public class GlobusServiceBean implements java.io.Serializable{
                 AccessToken accessTokenUser = getAccessToken(origRequest);
                 if (accessTokenUser == null) {
                     logger.severe("Cannot get access user token for code " + code);
+                    JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("dataset.message.GlobusError"));
                     return;
                 }
                 UserInfo usr = getUserInfo(accessTokenUser);
                 if (usr == null) {
                     logger.severe("Cannot get user info for " + accessTokenUser.getAccessToken());
+                    JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("dataset.message.GlobusError"));
                     return;
                 }
                 logger.info(accessTokenUser.getAccessToken());
@@ -94,6 +102,7 @@ public class GlobusServiceBean implements java.io.Serializable{
                 AccessToken clientTokenUser = getClientToken();
                 if (clientTokenUser == null) {
                     logger.severe("Cannot get client token ");
+                    JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("dataset.message.GlobusError"));
                     return;
                 }
                 logger.info(clientTokenUser.getAccessToken());
@@ -103,6 +112,7 @@ public class GlobusServiceBean implements java.io.Serializable{
                     int perStatus = givePermission("identity", usr.getSub(), "rw", clientTokenUser, directory);
                     if (perStatus != 201) {
                         logger.severe("Cannot get permissions ");
+                        JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("dataset.message.GlobusError"));
                         return;
                     }
                 } else if (status == 502) { //directory already exists
@@ -111,10 +121,12 @@ public class GlobusServiceBean implements java.io.Serializable{
                         logger.info("permissions already exist");
                     } else if (perStatus != 201) {
                         logger.severe("Cannot get permissions ");
+                        JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("dataset.message.GlobusError"));
                         return;
                     }
                 } else {
                     logger.severe ("Cannot create directory, status code " + status);
+                    JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("dataset.message.GlobusError"));
                     return;
                 }
 
@@ -123,12 +135,15 @@ public class GlobusServiceBean implements java.io.Serializable{
             } catch (MalformedURLException ex) {
                 logger.severe(ex.getMessage());
                 logger.severe(ex.getCause().toString());
+                JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("dataset.message.GlobusError"));
             } catch (UnsupportedEncodingException ex) {
                 logger.severe(ex.getMessage());
                 logger.severe(ex.getCause().toString());
+                JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("dataset.message.GlobusError"));
             } catch (IOException ex) {
                 logger.severe(ex.getMessage());
                 logger.severe(ex.getCause().toString());
+                JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("dataset.message.GlobusError"));
             }
         }
 

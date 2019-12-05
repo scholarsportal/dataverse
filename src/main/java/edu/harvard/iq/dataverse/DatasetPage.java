@@ -2544,9 +2544,13 @@ public class DatasetPage implements java.io.Serializable {
                 
                 if ( result.isCompleted() ) {
 
-                    JsfHelper.addSuccessMessage(BundleUtil.getStringFromBundle("dataset.message.publishSuccess"));
+
                     logger.info("Check globus for publishing");
-                    globusService.giveGlobusPublicPermissions(dataset.getId().toString());
+                    if (!globusService.giveGlobusPublicPermissions(dataset.getId().toString()))  {
+                        JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("dataset.message.publishGlobusFailure.details"));
+                    } else {
+                        JsfHelper.addSuccessMessage(BundleUtil.getStringFromBundle("dataset.message.publishSuccess"));
+                    }
                 } else {
                     JH.addMessage(FacesMessage.SEVERITY_WARN, BundleUtil.getStringFromBundle("dataset.locked.message"), BundleUtil.getStringFromBundle("dataset.locked.message.details"));
                 }
