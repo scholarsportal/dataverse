@@ -463,6 +463,7 @@ public class GlobusServiceBean implements java.io.Serializable{
 
         MakeRequestResponse result = makeRequest(url, "Bearer",
                 clientTokenUser.getOtherTokens().get(0).getAccessToken(),"GET", null);
+        logger.info("find directory status:" + result.status);
 
         return result.status;
     }
@@ -480,7 +481,7 @@ public class GlobusServiceBean implements java.io.Serializable{
 
         int status = findDirectory(directory, clientTokenUser);
 
-        if (status == 404 || status == 200) {
+        if (status == 404 || status == 201) {
 
             int perStatus = givePermission("all_authenticated_users", "", "r", clientTokenUser, directory);
 
