@@ -418,7 +418,15 @@ public class SettingsServiceBean {
          * Lifespan, in minutes, of a login user session 
          * (both DataverseSession and the underlying HttpSession)
          */
-        LoginSessionTimeout;
+        LoginSessionTimeout,
+        /**
+         * BasicGlobusToken for Globus Application
+         */
+        BasicGlobusToken,
+        /**
+         * GlobusEndpoint is Glopus endpoint for Globus application
+         */
+        GlobusEndpoint;
 
         @Override
         public String toString() {
