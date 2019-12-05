@@ -4,6 +4,7 @@ public class Permissions {
     private String DATA_TYPE;
     private String principal_type;
     private String principal;
+    private String id;
     private String path;
     private String permissions;
 
@@ -47,4 +48,11 @@ public class Permissions {
         return principal_type;
     }
 
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getId() {
+        return id;
+    }
 }

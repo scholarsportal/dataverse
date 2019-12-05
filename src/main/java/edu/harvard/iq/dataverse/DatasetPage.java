@@ -1,5 +1,8 @@
 package edu.harvard.iq.dataverse;
 
+import edu.harvard.iq.dataverse.globus.AccessToken;
+import edu.harvard.iq.dataverse.globus.GlobusServiceBean;
+import edu.harvard.iq.dataverse.globus.UserInfo;
 import edu.harvard.iq.dataverse.provenance.ProvPopupFragmentBean;
 import edu.harvard.iq.dataverse.PackagePopupFragmentBean;
 import edu.harvard.iq.dataverse.api.AbstractApiBean;
@@ -52,10 +55,9 @@ import edu.harvard.iq.dataverse.util.JsfHelper;
 import static edu.harvard.iq.dataverse.util.JsfHelper.JH;
 import edu.harvard.iq.dataverse.util.StringUtil;
 import edu.harvard.iq.dataverse.util.SystemConfig;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+
+import java.io.*;
+import java.net.MalformedURLException;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -237,6 +239,9 @@ public class DatasetPage implements java.io.Serializable {
     ProvPopupFragmentBean provPopupFragmentBean;
     @Inject
     MakeDataCountLoggingServiceBean mdcLogService;
+
+    @Inject
+    protected GlobusServiceBean globusService;
 
     private Dataset dataset = new Dataset();
     private EditMode editMode;
@@ -2542,7 +2547,14 @@ public class DatasetPage implements java.io.Serializable {
                 // the process. So it may be premature to show the "success" message at this point. 
                 
                 if ( result.isCompleted() ) {
-                    JsfHelper.addSuccessMessage(BundleUtil.getStringFromBundle("dataset.message.publishSuccess"));
+
+
+                    logger.info("Check globus for publishing");
+                    if (!globusService.giveGlobusPublicPermissions(dataset.getId().toString()))  {
+                        JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("dataset.message.publishGlobusFailure.details"));
+                    } else {
+                        JsfHelper.addSuccessMessage(BundleUtil.getStringFromBundle("dataset.message.publishSuccess"));
+                    }
                 } else {
                     JH.addMessage(FacesMessage.SEVERITY_WARN, BundleUtil.getStringFromBundle("dataset.locked.message"), BundleUtil.getStringFromBundle("dataset.locked.message.details"));
                 }
@@ -2550,8 +2562,14 @@ public class DatasetPage implements java.io.Serializable {
             } catch (CommandException ex) {
                 JsfHelper.addErrorMessage(ex.getLocalizedMessage());
                 logger.severe(ex.getMessage());
+            } catch (UnsupportedEncodingException ex) {
+                JsfHelper.addErrorMessage(ex.getLocalizedMessage());
+                logger.severe(ex.getMessage());
+            } catch (MalformedURLException ex) {
+                JsfHelper.addErrorMessage(ex.getLocalizedMessage());
+                logger.severe(ex.getMessage());
             }
-            
+
         } else {
             JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("dataset.message.only.authenticatedUsers"));
         }
