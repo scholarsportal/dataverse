@@ -473,7 +473,7 @@ public class GlobusServiceBean implements java.io.Serializable{
         AccessToken clientTokenUser = getClientToken();
         if (clientTokenUser == null) {
             logger.severe("Cannot get client token ");
-            return false ;
+            return false;
         }
 
         String directory = getDirectory(datasetId);
@@ -481,7 +481,7 @@ public class GlobusServiceBean implements java.io.Serializable{
 
         int status = findDirectory(directory, clientTokenUser);
 
-        if (status == 404 || status == 200) {
+        if (status == 200) {
 
             int perStatus = givePermission("all_authenticated_users", "", "r", clientTokenUser, directory);
             logger.info("givePermission status " + perStatus);
@@ -492,7 +492,9 @@ public class GlobusServiceBean implements java.io.Serializable{
             } else if (perStatus != 201) {
                 return false;
             }
-        } else {
+        } else if (status == 404) {
+            logger.info("There is no globus directory");
+        }else {
             logger.severe("Cannot find directory in globus, status " + status );
             return false;
         }
