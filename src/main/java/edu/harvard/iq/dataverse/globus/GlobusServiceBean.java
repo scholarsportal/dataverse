@@ -443,6 +443,15 @@ public class GlobusServiceBean implements java.io.Serializable{
 
     }
 
+    private int findDirectory(String directory, AccessToken clientTokenUser) throws MalformedURLException {
+        URL url = new URL(" https://transfer.api.globusonline.org/v0.10/endpoint/5102894b-f28f-47f9-bc9a-d8e1b4e9e62c/ls?path=" + directory + "/");
+
+        MakeRequestResponse result = makeRequest(url, "Bearer",
+                clientTokenUser.getOtherTokens().get(0).getAccessToken(),"GET", null);
+
+        return result.status;
+    }
+
     public boolean giveGlobusPublicPermissions(String datasetId) throws UnsupportedEncodingException, MalformedURLException {
 
         AccessToken clientTokenUser = getClientToken();
@@ -454,13 +463,21 @@ public class GlobusServiceBean implements java.io.Serializable{
         String directory = getDirectory(datasetId);
         logger.info(directory);
 
-        int perStatus = givePermission("all_authenticated_users", "", "r", clientTokenUser, directory);
+        int status = findDirectory(directory, clientTokenUser);
 
-        if (perStatus == 409) {
-            logger.info("Permissions already exist or limit was reached");
-        } else if (perStatus == 400) {
-            logger.info("No directory in Globus");
-        } else if (perStatus != 201) {
+        if (status == 404 || status == 200) {
+
+            int perStatus = givePermission("all_authenticated_users", "", "r", clientTokenUser, directory);
+
+            if (perStatus == 409) {
+                logger.info("Permissions already exist or limit was reached");
+            } else if (perStatus == 400) {
+                logger.info("No directory in Globus");
+            } else if (perStatus != 201) {
+                return false;
+            }
+        } else {
+            logger.severe("Cannot find directory in globus, status " + status );
             return false;
         }
 
