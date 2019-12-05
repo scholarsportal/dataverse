@@ -481,10 +481,10 @@ public class GlobusServiceBean implements java.io.Serializable{
 
         int status = findDirectory(directory, clientTokenUser);
 
-        if (status == 404 || status == 201) {
+        if (status == 404 || status == 200) {
 
             int perStatus = givePermission("all_authenticated_users", "", "r", clientTokenUser, directory);
-
+            logger.info("givePermission status " + perStatus);
             if (perStatus == 409) {
                 logger.info("Permissions already exist or limit was reached");
             } else if (perStatus == 400) {
