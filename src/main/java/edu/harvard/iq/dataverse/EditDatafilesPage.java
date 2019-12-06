@@ -1442,7 +1442,7 @@ public class EditDatafilesPage implements java.io.Serializable {
         return returnToDraftVersion();
     }
 
-    public String saveGLOBUS() throws MalformedURLException, ParseException, InterruptedException {
+    public String handleGlobusUpload() throws MalformedURLException, ParseException, InterruptedException {
         logger.info("GLOBUS ASYNC CALL ");
         // If the script has been successfully downloaded, lock the dataset:
 
