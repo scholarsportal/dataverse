@@ -79,6 +79,33 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
             s3CB.withPathStyleAccessEnabled(s3pathStyleAccess);
             // let's build the client :-)
             this.s3 = s3CB.build();
+            logger.info(" ===== S3 connection getS3AccountOwner ====" +this.s3.getS3AccountOwner().getDisplayName());
+            try {
+
+                System.out.println((" 1 ...s3 listBuckets..   " + this.s3.listBuckets().size()));
+
+                List<Bucket> buckets = this.s3.listBuckets();
+                System.out.println("Your Amazon S3 buckets are:");
+                for (Bucket b : buckets) {
+                    System.out.println("* " + b.getName());
+                }
+
+
+                System.out.println((" 1 ...s3 getS3AccountOwner..   " + s3.getS3AccountOwner().getDisplayName()));
+
+                //System.out.println((" 1 ...s3 getRegion..   " + s3.getRegion()));
+
+                //System.out.println((" 1 ...s3 getRegionName..   " + s3.getRegionName()));
+
+
+            }
+            catch(Exception q )
+            {
+                q.printStackTrace();
+            }
+
+
+
         } catch (Exception e) {
             logger.info(" ===== S3 connection Exception ====" + s3CERegion);
             e.printStackTrace();
@@ -130,29 +157,6 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
         }
 
 
-try {
-
-    System.out.println((" 1 ...s3 listBuckets..   " + s3.listBuckets().size()));
-
-    List<Bucket> buckets = s3.listBuckets();
-    System.out.println("Your Amazon S3 buckets are:");
-    for (Bucket b : buckets) {
-        System.out.println("* " + b.getName());
-    }
-
-
-    System.out.println((" 1 ...s3 getS3AccountOwner..   " + s3.getS3AccountOwner().getDisplayName()));
-
-    //System.out.println((" 1 ...s3 getRegion..   " + s3.getRegion()));
-
-    //System.out.println((" 1 ...s3 getRegionName..   " + s3.getRegionName()));
-
-
-}
-catch(Exception q )
-{
-q.printStackTrace();
-}
 
 
         try {
