@@ -140,6 +140,11 @@ public class GlobusServiceBean implements java.io.Serializable{
                 }
 
                 goGlobus(directory);
+                String task_id = null;
+
+                do {
+                    getTaskList(clientTokenUser,usr,globusEndpoint);
+                } while (task_id == null);
 
             } catch (MalformedURLException ex) {
                 logger.severe(ex.getMessage());
@@ -229,6 +234,19 @@ public class GlobusServiceBean implements java.io.Serializable{
             logger.info("Directory created " + mkDir.getPath());
         }
 
+        return result.status;
+
+    }
+
+    private int getTaskList(AccessToken clinetAccessToken,  UserInfo user, String destination_endpoint_id) throws MalformedURLException {
+        URL url = new URL("https://transfer.api.globusonline.org/v0.10/task_list?filter=owner_id:" + user.getSub() + "/destination_endpoint_id:" + destination_endpoint_id  );
+
+        MakeRequestResponse result = makeRequest(url, "Bearer",
+                clinetAccessToken.getOtherTokens().get(0).getAccessToken(),
+                "GET",  null);
+
+        logger.info(result.jsonResponse);
+        
         return result.status;
 
     }
