@@ -140,13 +140,6 @@ public class GlobusServiceBean implements java.io.Serializable{
                 }
 
                 goGlobus(directory);
-                String task_id = null;
-                int id =0;
-                do {
-                    id++;
-                    Thread.sleep(10000);
-                    getTaskList(clientTokenUser,usr,globusEndpoint);
-                } while (task_id == null && id < 10);
 
             } catch (MalformedURLException ex) {
                 logger.severe(ex.getMessage());
@@ -160,8 +153,6 @@ public class GlobusServiceBean implements java.io.Serializable{
                 logger.severe(ex.getMessage());
                 logger.severe(ex.getCause().toString());
                 JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("dataset.message.GlobusError"));
-            } catch (InterruptedException e) {
-                e.printStackTrace();
             }
         }
 
