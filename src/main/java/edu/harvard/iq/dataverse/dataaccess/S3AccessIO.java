@@ -122,7 +122,7 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
             throw new IOException("ERROR: s3 not initialised. ");
         }
 
-/*
+
 try {
 
     System.out.println((" 1 ...s3 listBuckets..   " + s3.listBuckets().size()));
@@ -147,7 +147,7 @@ catch(Exception q )
 q.printStackTrace();
 }
 
-*/
+
         try {
             if (bucketName == null || !s3.doesBucketExist(bucketName)) {
                 throw new IOException("ERROR: S3AccessIO - You must create and configure a bucket before creating datasets.");

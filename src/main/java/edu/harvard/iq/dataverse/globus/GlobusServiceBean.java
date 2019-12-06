@@ -277,7 +277,7 @@ public class GlobusServiceBean implements java.io.Serializable{
                 Date tastTime = sdf.parse(task.getRequest_time());
                 cal2.setTime(tastTime);
 
-                logger.info("====== timeWhenAsyncStarted = " + timeWhenAsyncStarted + "    ====== task.getRequest_time().toString() ====== " + task.getRequest_time());
+                //logger.info("====== timeWhenAsyncStarted = " + timeWhenAsyncStarted + "    ====== task.getRequest_time().toString() ====== " + task.getRequest_time());
 
 
 
