@@ -65,9 +65,14 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
 
         try {
             // get a standard client, using the standard way of configuration the credentials, etc.
+
+            logger.info(" ===== S3 connection 1 ====");
             AmazonS3ClientBuilder s3CB = AmazonS3ClientBuilder.standard();
             // if the admin has set a system property (see below) we use this endpoint URL instead of the standard ones.
+
+            logger.info(" ===== S3 connection 2 ====" + s3CEUrl);
             if (!s3CEUrl.isEmpty()) {
+                logger.info(" ===== S3 connection 2 ====" + s3CERegion);
                 s3CB.setEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(s3CEUrl, s3CERegion));
             }
             // some custom S3 implementations require "PathStyleAccess" as they us a path, not a subdomain. default = false
@@ -75,6 +80,8 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
             // let's build the client :-)
             this.s3 = s3CB.build();
         } catch (Exception e) {
+            logger.info(" ===== S3 connection Exception ====" + s3CERegion);
+            e.printStackTrace();
             throw new AmazonClientException(
                     "Cannot instantiate a S3 client; check your AWS credentials and region",
                     e);
