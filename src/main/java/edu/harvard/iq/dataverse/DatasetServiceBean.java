@@ -1018,7 +1018,7 @@ public class DatasetServiceBean implements java.io.Serializable {
 
             String timeWhenAsyncStarted = sdf.format(new Date(System.currentTimeMillis() + (5 * 60 * 60 * 1000)));  // added 5 hrs to match output from globus api
 
-            String endDateTime = sdf.format(new Date(System.currentTimeMillis() + (0.25 * 60 * 60 * 1000)));
+            String endDateTime = sdf.format(new Date(System.currentTimeMillis() + (1 * 60 * 60 * 1000)));
             Calendar cal1 = Calendar.getInstance();
             cal1.setTime(sdf.parse(endDateTime));
 
