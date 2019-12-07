@@ -67,53 +67,19 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
 
         try {
             // get a standard client, using the standard way of configuration the credentials, etc.
-
-            logger.info(" ===== S3 connection 1 ====");
             AmazonS3ClientBuilder s3CB = AmazonS3ClientBuilder.standard();
-            // if the admin has set a system property (see below) we use this endpoint URL instead of the standard ones.
 
+            // if the admin has set a system property (see below) we use this endpoint URL instead of the standard ones.
+            if (!s3CEUrl.isEmpty()) {
+                BasicAWSCredentials creds = new BasicAWSCredentials("14e4f8b986874272894d527a16c06473", "f7b28fbec4984588b0da7d0288ce67f6");
+                s3CB.withCredentials(new AWSStaticCredentialsProvider(creds));
+                s3CB.setEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(s3CEUrl.trim(), s3CERegion.trim()));
+            }
             // some custom S3 implementations require "PathStyleAccess" as they us a path, not a subdomain. default = false
             s3CB.withPathStyleAccessEnabled(s3pathStyleAccess);
-            //aws_access_key_id = 14e4f8b986874272894d527a16c06473
-            //aws_secret_access_key = f7b28fbec4984588b0da7d0288ce67f6
-            BasicAWSCredentials creds = new BasicAWSCredentials("14e4f8b986874272894d527a16c06473", "f7b28fbec4984588b0da7d0288ce67f6");
-            s3CB.withCredentials(new AWSStaticCredentialsProvider(creds));
-            logger.info(s3CEUrl.trim() + " ===== S3 connection 1 ====" + s3CERegion.trim());
-            s3CB.setEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(s3CEUrl.trim(), s3CERegion.trim()));
-
-
             // let's build the client :-)
             this.s3 = s3CB.build();
-
-            logger.info(" ===== S3 connection build completed ====" );
-
-
-            logger.info(" ===== S3 connection getS3AccountOwner ====" +this.s3.getS3AccountOwner().getDisplayName());
-
-
-                System.out.println((" 1 ...s3 listBuckets..   "  ));
-
-                List<Bucket> buckets = this.s3.listBuckets();
-                System.out.println("Your Amazon S3 buckets are:");
-                for (Bucket b : buckets) {
-                    System.out.println("* " + b.getName());
-                }
-
-
-                System.out.println((" 1 ...s3 getS3AccountOwner..   " + s3.getS3AccountOwner().getDisplayName()));
-
-                //System.out.println((" 1 ...s3 getRegion..   " + s3.getRegion()));
-
-                //System.out.println((" 1 ...s3 getRegionName..   " + s3.getRegionName()));
-
-
-
-
-
-
         } catch (Exception e) {
-            logger.info(" ===== S3 connection Exception ====" + s3CERegion);
-            e.printStackTrace();
             throw new AmazonClientException(
                     "Cannot instantiate a S3 client; check your AWS credentials and region",
                     e);
