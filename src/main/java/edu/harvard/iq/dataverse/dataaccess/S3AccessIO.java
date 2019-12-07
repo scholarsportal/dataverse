@@ -3,6 +3,8 @@ package edu.harvard.iq.dataverse.dataaccess;
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.HttpMethod;
 import com.amazonaws.SdkClientException;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
@@ -70,19 +72,26 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
             AmazonS3ClientBuilder s3CB = AmazonS3ClientBuilder.standard();
             // if the admin has set a system property (see below) we use this endpoint URL instead of the standard ones.
 
-            logger.info(" ===== S3 connection 2 ====" + s3CEUrl);
-            if (!s3CEUrl.isEmpty()) {
-                logger.info(" ===== S3 connection 2 ====" + s3CERegion);
-                s3CB.setEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(s3CEUrl, s3CERegion));
-            }
             // some custom S3 implementations require "PathStyleAccess" as they us a path, not a subdomain. default = false
             s3CB.withPathStyleAccessEnabled(s3pathStyleAccess);
+            //aws_access_key_id = 14e4f8b986874272894d527a16c06473
+            //aws_secret_access_key = f7b28fbec4984588b0da7d0288ce67f6
+            BasicAWSCredentials creds = new BasicAWSCredentials("14e4f8b986874272894d527a16c06473", "f7b28fbec4984588b0da7d0288ce67f6");
+            s3CB.withCredentials(new AWSStaticCredentialsProvider(creds));
+            logger.info(s3CEUrl.trim() + " ===== S3 connection 1 ====" + s3CERegion.trim());
+            s3CB.setEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(s3CEUrl.trim(), s3CERegion.trim()));
+
+
             // let's build the client :-)
             this.s3 = s3CB.build();
-            logger.info(" ===== S3 connection getS3AccountOwner ====" +this.s3.getS3AccountOwner().getDisplayName());
-            try {
 
-                System.out.println((" 1 ...s3 listBuckets..   " + this.s3.listBuckets().size()));
+            logger.info(" ===== S3 connection build completed ====" );
+
+
+            logger.info(" ===== S3 connection getS3AccountOwner ====" +this.s3.getS3AccountOwner().getDisplayName());
+
+
+                System.out.println((" 1 ...s3 listBuckets..   "  ));
 
                 List<Bucket> buckets = this.s3.listBuckets();
                 System.out.println("Your Amazon S3 buckets are:");
@@ -98,11 +107,7 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
                 //System.out.println((" 1 ...s3 getRegionName..   " + s3.getRegionName()));
 
 
-            }
-            catch(Exception q )
-            {
-                q.printStackTrace();
-            }
+
 
 
 
