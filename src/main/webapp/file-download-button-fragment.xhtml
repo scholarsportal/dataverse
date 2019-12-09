@@ -129,7 +129,7 @@
                               and fileMetadata.dataFile.filePackage and fileMetadata.isGlobusUpload()}"
                    styleClass="btn btn-default btn-download" process="@this"
                    disabled="#{(fileMetadata.dataFile.ingestInProgress  or lockedFromDownload) ? 'disabled' : ''}"
-                   onclick="openGlobus(#{EditDatafilesPage.dataset.id});">
+                   onclick="openGlobus(#{fileMetadata.getDatasetVersion().getDataset().getId();});">
         <f:actionListener binding="#{packagePopupFragmentBean.setFileMetadata(fileMetadata)}" />
         <f:actionListener binding="#{fileDownloadService.writeGuestbookResponseRecord(guestbookResponse, fileMetadata, 'package')}" />
         <!-- package data file: -->
