@@ -1006,6 +1006,12 @@ public class SystemConfig {
         return downloadMethods !=null && downloadMethods.toLowerCase().contains(SystemConfig.FileDownloadMethods.NATIVE.toString());
     }
 
+    public boolean isGlobusDownload() {
+        String downloadMethods = settingsService.getValueForKey(SettingsServiceBean.Key.DownloadMethods);
+        logger.warning("Download Methods:" + downloadMethods);
+        return downloadMethods !=null && downloadMethods.toLowerCase().contains(FileDownloadMethods.GLOBUS.toString());
+    }
+
     private Boolean getUploadMethodAvailable(String method){
         String uploadMethods = settingsService.getValueForKey(SettingsServiceBean.Key.UploadMethods);
         if (uploadMethods==null){
