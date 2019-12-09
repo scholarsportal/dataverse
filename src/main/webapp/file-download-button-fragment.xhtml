@@ -134,7 +134,7 @@
         <f:actionListener binding="#{fileDownloadService.writeGuestbookResponseRecord(guestbookResponse, fileMetadata, 'package')}" />
         <!-- package data file: -->
         <!-- no guest book/terms of use/etc. - straight package popup -->
-        <span class="glyphicon glyphicon-download-alt"/> #{bundle.file.downloadFromGlobus}
+        <span class="glyphicon glyphicon-download-alt"/> #{bundle['file.downloadFromGlobus']}
     </p:commandLink>
 
     <p:commandLink rendered="#{ fileDownloadHelper.canDownloadFile(fileMetadata) and !(fileMetadata.dataFile.tabularData) and (downloadPopupRequired) 
@@ -160,7 +160,7 @@
         <f:actionListener binding="#{packagePopupFragmentBean.setFileMetadata(fileMetadata)}" />
         <!-- package data file: -->
         <!-- guest book or terms of use, etc. enabled - open "download popup" first: -->
-        <span class="glyphicon glyphicon-download-alt"/> #{bundle.file.downloadFromGlobus}
+        <span class="glyphicon glyphicon-download-alt"/> #{bundle['file.downloadFromGlobus']}
     </p:commandLink>
 
     <p:commandLink rendered="#{ fileDownloadHelper.canDownloadFile(fileMetadata) and !(fileMetadata.dataFile.tabularData) and !(downloadPopupRequired) 
