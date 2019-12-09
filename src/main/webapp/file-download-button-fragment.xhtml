@@ -129,7 +129,7 @@
                               and fileMetadata.dataFile.filePackage and fileMetadata.isGlobusUpload()}"
                    styleClass="btn btn-default btn-download" process="@this"
                    disabled="#{(fileMetadata.dataFile.ingestInProgress  or lockedFromDownload) ? 'disabled' : ''}"
-                   onclick="openGlobus(#{fileMetadata.getDatasetVersion().getDataset().getId();});">
+                   onclick="openGlobus(#{fileMetadata.datasetVersion.dataset.id});">
         <f:actionListener binding="#{packagePopupFragmentBean.setFileMetadata(fileMetadata)}" />
         <f:actionListener binding="#{fileDownloadService.writeGuestbookResponseRecord(guestbookResponse, fileMetadata, 'package')}" />
         <!-- package data file: -->
@@ -156,7 +156,7 @@
                    process="@this"
                    disabled="#{(fileMetadata.dataFile.ingestInProgress  or lockedFromDownload) ? 'disabled' : ''}"
                    action="#{guestbookResponseService.modifyDatafileAndFormat(guestbookResponse, fileMetadata, 'package')}"
-                   onclick="openGlobus(#{EditDatafilesPage.dataset.id});">
+                   onclick="openGlobus(#{fileMetadata.datasetVersion.dataset.id});">
         <f:actionListener binding="#{packagePopupFragmentBean.setFileMetadata(fileMetadata)}" />
         <!-- package data file: -->
         <!-- guest book or terms of use, etc. enabled - open "download popup" first: -->
