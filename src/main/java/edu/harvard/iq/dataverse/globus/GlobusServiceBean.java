@@ -277,9 +277,6 @@ public class GlobusServiceBean implements java.io.Serializable{
                 Date tastTime = sdf.parse(task.getRequest_time());
                 cal2.setTime(tastTime);
 
-                logger.info("====== timeWhenAsyncStarted = " + timeWhenAsyncStarted + "    ====== task.getRequest_time().toString() ====== " + task.getRequest_time());
-
-
 
                 if ( task.getStatus().equals("SUCCEEDED") && task.getType().equals("TRANSFER" ) &&
                         task.getDestination_endpoint_display_name().equals("Dataverse GCS test collection") && cal1.before(cal2))  {
@@ -288,12 +285,13 @@ public class GlobusServiceBean implements java.io.Serializable{
                     // verify datasetid in "destination_path": "/~/test_godata_copy/file1.txt",
                     // go to aws and get files and write to database tables
 
+                    logger.info("====== timeWhenAsyncStarted = " + timeWhenAsyncStarted + "    ====== task.getRequest_time().toString() ====== " + task.getRequest_time());
 
                     boolean success = getSuccessfulTransfers(userTransferToken, task.getTask_id() , identifierForFileStorage) ;
 
                     if(success)
                     {
-                        logger.info("====== " + timeWhenAsyncStarted + " timeWhenAsyncStarted is before tastTime  =  TASK time =  " + task.getTask_id());
+                        logger.info("SUCCESS ====== " + timeWhenAsyncStarted + " timeWhenAsyncStarted is before tastTime  =  TASK time =  " + task.getTask_id());
                         return task.getTask_id();
                     }
                 }

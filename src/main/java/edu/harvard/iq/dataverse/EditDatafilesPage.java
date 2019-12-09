@@ -1446,7 +1446,7 @@ public class EditDatafilesPage implements java.io.Serializable {
         logger.info("GLOBUS ASYNC CALL ");
         // If the script has been successfully downloaded, lock the dataset:
 
-        Thread.sleep(50000);
+       // Thread.sleep(50000);
 
 
         String lockInfoMessage = "Globus upload in progress";
@@ -1457,7 +1457,7 @@ public class EditDatafilesPage implements java.io.Serializable {
             logger.log(Level.WARNING, "Failed to lock the dataset (dataset id={0})", dataset.getId());
         }
 
-        Thread.sleep(20000);
+        //Thread.sleep(20000);
 
         datasetService.globusAsyncjob(dataset.getId(), "globusUserId", (AuthenticatedUser) session.getUser());
 
