@@ -125,6 +125,18 @@
         <span class="glyphicon glyphicon-download-alt"/> #{bundle.download}
     </p:commandLink>
 
+    <p:commandLink rendered="#{fileDownloadHelper.canDownloadFile(fileMetadata) and !(fileMetadata.dataFile.tabularData) and !(downloadPopupRequired)
+                              and fileMetadata.dataFile.filePackage and fileMetadata.isGlobusUpload()}"
+                   styleClass="btn btn-default btn-download" process="@this"
+                   disabled="#{(fileMetadata.dataFile.ingestInProgress  or lockedFromDownload) ? 'disabled' : ''}"
+                   update="@widgetVar(downloadPackagePopup)" oncomplete="PF('downloadPackagePopup').show();handleResizeDialog('downloadPackagePopup');">
+        <f:actionListener binding="#{packagePopupFragmentBean.setFileMetadata(fileMetadata)}" />
+        <f:actionListener binding="#{fileDownloadService.writeGuestbookResponseRecord(guestbookResponse, fileMetadata, 'package')}" />
+        <!-- package data file: -->
+        <!-- no guest book/terms of use/etc. - straight package popup -->
+        <span class="glyphicon glyphicon-download-alt"/> #{bundle.download}
+    </p:commandLink>
+
     <p:commandLink rendered="#{ fileDownloadHelper.canDownloadFile(fileMetadata) and !(fileMetadata.dataFile.tabularData) and (downloadPopupRequired) 
                               and fileMetadata.dataFile.filePackage and !fileMetadata.isGlobusUpload() and systemConfig.HTTPDownload}"
                    styleClass="btn btn-default btn-download"
