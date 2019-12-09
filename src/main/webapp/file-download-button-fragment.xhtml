@@ -126,7 +126,7 @@
     </p:commandLink>
 
     <p:commandLink rendered="#{ fileDownloadHelper.canDownloadFile(fileMetadata) and !(fileMetadata.dataFile.tabularData) and (downloadPopupRequired) 
-                              and fileMetadata.dataFile.filePackage and systemConfig.HTTPDownload}"
+                              and fileMetadata.dataFile.filePackage and !fileMetadata.isGlobusUpload() and systemConfig.HTTPDownload}"
                    styleClass="btn btn-default btn-download"
                    process="@this"
                    disabled="#{(fileMetadata.dataFile.ingestInProgress  or lockedFromDownload) ? 'disabled' : ''}" 
@@ -136,6 +136,19 @@
         <!-- package data file: -->
         <!-- guest book or terms of use, etc. enabled - open "download popup" first: -->
         <span class="glyphicon glyphicon-download-alt"/> #{bundle.download}
+    </p:commandLink>
+
+    <p:commandLink rendered="#{ fileDownloadHelper.canDownloadFile(fileMetadata) and !(fileMetadata.dataFile.tabularData) and (downloadPopupRequired)
+                              and fileMetadata.dataFile.filePackage and fileMetadata.isGlobusUpload() }"
+                   styleClass="btn btn-default btn-download"
+                   process="@this"
+                   disabled="#{(fileMetadata.dataFile.ingestInProgress  or lockedFromDownload) ? 'disabled' : ''}"
+                   action="#{guestbookResponseService.modifyDatafileAndFormat(guestbookResponse, fileMetadata, 'package')}"
+                   update="@widgetVar(downloadPopup)" oncomplete="PF('downloadPopup').show();handleResizeDialog('downloadPopup');">
+        <f:actionListener binding="#{packagePopupFragmentBean.setFileMetadata(fileMetadata)}" />
+        <!-- package data file: -->
+        <!-- guest book or terms of use, etc. enabled - open "download popup" first: -->
+        <span class="glyphicon glyphicon-download-alt"/> #{bundle.file.downloadFromGlobus}
     </p:commandLink>
 
     <p:commandLink rendered="#{ fileDownloadHelper.canDownloadFile(fileMetadata) and !(fileMetadata.dataFile.tabularData) and !(downloadPopupRequired) 

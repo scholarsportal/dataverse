@@ -1125,6 +1125,7 @@ public class DatasetServiceBean implements java.io.Serializable {
                             fmd.setLabel(fileName);
                             fmd.setDirectoryLabel(filePath.replace(directory, "").replace(File.separator + fileName, ""));
 
+                            fmd.setUploadMethod("globus");
 
                             fmd.setDataFile(dataFile);
                             dataFile.getFileMetadatas().add(fmd);

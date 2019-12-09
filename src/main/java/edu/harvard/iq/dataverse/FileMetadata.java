@@ -770,5 +770,13 @@ public class FileMetadata implements Serializable {
 
         return returnSet;
     }
+
+    public boolean isGlobusUpload() {
+        if (uploadMethod.equals("globus")) {
+            return true;
+        } else {
+            return false;
+        }
+    }
     
 }
