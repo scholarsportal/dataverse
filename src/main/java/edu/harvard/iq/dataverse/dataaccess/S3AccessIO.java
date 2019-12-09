@@ -3,6 +3,8 @@ package edu.harvard.iq.dataverse.dataaccess;
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.HttpMethod;
 import com.amazonaws.SdkClientException;
+import com.amazonaws.auth.AWSStaticCredentialsProvider;
+import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
@@ -69,7 +71,9 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
 
             // if the admin has set a system property (see below) we use this endpoint URL instead of the standard ones.
             if (!s3CEUrl.isEmpty()) {
-                s3CB.setEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(s3CEUrl, s3CERegion));
+                BasicAWSCredentials creds = new BasicAWSCredentials("14e4f8b986874272894d527a16c06473", "f7b28fbec4984588b0da7d0288ce67f6");
+                s3CB.withCredentials(new AWSStaticCredentialsProvider(creds));
+                s3CB.setEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(s3CEUrl.trim(), s3CERegion.trim()));
             }
             // some custom S3 implementations require "PathStyleAccess" as they us a path, not a subdomain. default = false
             s3CB.withPathStyleAccessEnabled(s3pathStyleAccess);
