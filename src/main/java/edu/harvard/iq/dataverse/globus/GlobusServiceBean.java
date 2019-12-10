@@ -54,7 +54,6 @@ public class GlobusServiceBean implements java.io.Serializable{
     private static final Logger logger = Logger.getLogger(FeaturedDataverseServiceBean.class.getCanonicalName());
 
     private String code;
-    private String datasetId;
     private String userTransferToken;
     private String state;
     private String method;
@@ -83,14 +82,6 @@ public class GlobusServiceBean implements java.io.Serializable{
         this.code = code;
     }
 
-    public String getDatasetId() {
-        return datasetId;
-    }
-
-    public void setDatasetId(String datasetId) {
-        this.datasetId = datasetId;
-    }
-
     public String getUserTransferToken() {
         return userTransferToken;
     }
@@ -101,14 +92,16 @@ public class GlobusServiceBean implements java.io.Serializable{
 
     public void onLoad() {
         logger.info("Start Globus " + code);
-        logger.info("DatasetId " + datasetId);
+
         String globusEndpoint = settingsSvc.getValueForKey(SettingsServiceBean.Key.GlobusEndpoint, "");
         String basicGlobusToken = settingsSvc.getValueForKey(SettingsServiceBean.Key.BasicGlobusToken, "");
         if (globusEndpoint.equals("") || basicGlobusToken.equals("")) {
             JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("dataset.message.GlobusError"));
             return;
         }
-        datasetId = state.substring(0, state.indexOf("_"));
+        String datasetId = state.substring(0, state.indexOf("_"));
+        logger.info("DatasetId = " + datasetId);
+
         method = state.substring(state.indexOf("_") +1);
         logger.info("Method " + method);
         String directory = getDirectory(datasetId);
