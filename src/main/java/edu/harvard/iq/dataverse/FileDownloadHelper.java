@@ -7,6 +7,7 @@ package edu.harvard.iq.dataverse;
 
 import edu.harvard.iq.dataverse.authorization.Permission;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
+import edu.harvard.iq.dataverse.datavariable.DataVariable;
 import edu.harvard.iq.dataverse.externaltools.ExternalTool;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import static edu.harvard.iq.dataverse.util.JsfHelper.JH;
@@ -24,6 +25,9 @@ import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
 import org.primefaces.context.RequestContext;
 
 /**
@@ -37,6 +41,10 @@ import org.primefaces.context.RequestContext;
 public class FileDownloadHelper implements java.io.Serializable {
      
     private static final Logger logger = Logger.getLogger(FileDownloadHelper.class.getCanonicalName());
+
+    @PersistenceContext(unitName = "VDCNet-ejbPU")
+    private EntityManager em;
+
     @Inject
     DataverseSession session;
         
@@ -393,6 +401,7 @@ public class FileDownloadHelper implements java.io.Serializable {
         if ((fileMetadata.getId() == null) || (fileMetadata.getDataFile().getId() == null)){
             return false;
         }
+       FileMetadata fm = em.find(FileMetadata.class, fileMetadata.getId());
 
        if (fileMetadata.isGlobusUpload()) {
            logger.info(" It is globus");
@@ -401,6 +410,15 @@ public class FileDownloadHelper implements java.io.Serializable {
            logger.info("It is not globus");
            logger.info("fileMetadataId" + fileMetadata.getId());
        }
+
+       if (fm.isGlobusUpload()) {
+           logger.info(" It is globus");
+
+       } else {
+           logger.info("It is not globus");
+           logger.info("fileMetadataId" + fm.getId());
+       }
+
 
         Long fid = fileMetadata.getId();
         //logger.info("calling candownloadfile on filemetadata "+fid);
