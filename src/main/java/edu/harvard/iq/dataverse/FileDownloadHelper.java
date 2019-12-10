@@ -396,8 +396,10 @@ public class FileDownloadHelper implements java.io.Serializable {
 
        if (fileMetadata.isGlobusUpload()) {
            logger.info(" It is globus");
+
        } else {
            logger.info("It is not globus");
+           logger.info("fileMetadataId" + fileMetadata.getId());
        }
 
         Long fid = fileMetadata.getId();
