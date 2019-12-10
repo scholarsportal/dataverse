@@ -428,7 +428,11 @@ public class FileDownloadHelper implements java.io.Serializable {
             this.fileDownloadPermissionMap.put(fid, true);
             return true;
         }
-
+        if (fileMetadata.isGlobusUpload()) {
+            logger.info(" It is globus");
+        } else {
+            logger.info("It is not globus");
+        }
         this.fileDownloadPermissionMap.put(fid, false);
         return false;
     }
