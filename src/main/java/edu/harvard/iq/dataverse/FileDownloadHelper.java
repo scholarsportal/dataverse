@@ -401,26 +401,7 @@ public class FileDownloadHelper implements java.io.Serializable {
         if ((fileMetadata.getId() == null) || (fileMetadata.getDataFile().getId() == null)){
             return false;
         }
-       FileMetadata fm = em.find(FileMetadata.class, fileMetadata.getId());
 
-       if (fileMetadata.isGlobusUpload()) {
-           logger.info(" It is globus");
-
-       } else {
-           logger.info("It is not globus");
-           logger.info("fileMetadataId" + fileMetadata.getId());
-       }
-       if (fm != null) {
-           if (fm.isGlobusUpload()) {
-               logger.info(" It is globus");
-
-           } else {
-               logger.info("It is not globus");
-               logger.info("fileMetadataId" + fm.getId());
-           }
-       } else {
-           logger.info("fm is null");
-       }
 
 
         Long fid = fileMetadata.getId();
@@ -446,6 +427,27 @@ public class FileDownloadHelper implements java.io.Serializable {
        }
 
         if (!isRestrictedFile){
+
+            FileMetadata fm = em.find(FileMetadata.class, fileMetadata.getId());
+
+            if (fileMetadata.isGlobusUpload()) {
+                logger.info(" It is globus");
+
+            } else {
+                logger.info("It is not globus");
+                logger.info("fileMetadataId" + fileMetadata.getId());
+            }
+            if (fm != null) {
+                if (fm.isGlobusUpload()) {
+                    logger.info(" It is globus");
+
+                } else {
+                    logger.info("It is not globus");
+                    logger.info("fileMetadataId" + fm.getId());
+                }
+            } else {
+                logger.info("fm is null");
+            }
             // Yes, save answer and return true
             this.fileDownloadPermissionMap.put(fid, true);
             return true;
