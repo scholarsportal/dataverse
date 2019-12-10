@@ -114,7 +114,7 @@
     </h:outputLink>
     
     <p:commandLink rendered="#{fileDownloadHelper.canDownloadFile(fileMetadata) and !(fileMetadata.dataFile.tabularData) and !(downloadPopupRequired) 
-                              and fileMetadata.dataFile.filePackage and systemConfig.HTTPDownload and fileMetadata.uploadMethod}"
+                              and fileMetadata.dataFile.filePackage and systemConfig.HTTPDownload and !fileMetadata.uploadMethod}"
                    styleClass="btn btn-default btn-download" process="@this"
                    disabled="#{(fileMetadata.dataFile.ingestInProgress  or lockedFromDownload) ? 'disabled' : ''}" 
                    update="@widgetVar(downloadPackagePopup)" oncomplete="PF('downloadPackagePopup').show();handleResizeDialog('downloadPackagePopup');">
