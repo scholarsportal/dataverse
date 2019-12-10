@@ -114,24 +114,26 @@
     </h:outputLink>
     
     <p:commandLink rendered="#{fileDownloadHelper.canDownloadFile(fileMetadata) and !(fileMetadata.dataFile.tabularData) and !(downloadPopupRequired) 
-                              and fileMetadata.dataFile.filePackage and systemConfig.HTTPDownload and !fileMetadata.uploadMethod}"
+                              and fileMetadata.dataFile.filePackage and systemConfig.HTTPDownload and !globusUpload}"
                    styleClass="btn btn-default btn-download" process="@this"
                    disabled="#{(fileMetadata.dataFile.ingestInProgress  or lockedFromDownload) ? 'disabled' : ''}" 
                    update="@widgetVar(downloadPackagePopup)" oncomplete="PF('downloadPackagePopup').show();handleResizeDialog('downloadPackagePopup');">
         <f:actionListener binding="#{packagePopupFragmentBean.setFileMetadata(fileMetadata)}" />
         <f:actionListener binding="#{fileDownloadService.writeGuestbookResponseRecord(guestbookResponse, fileMetadata, 'package')}" />
+        <f:param name="globusUpload" value="#{fileMetadata.isGlobusUpload()}" />
         <!-- package data file: -->
         <!-- no guest book/terms of use/etc. - straight package popup -->
         <span class="glyphicon glyphicon-download-alt"/> #{"Test"}
     </p:commandLink>
 
     <p:commandLink rendered="#{fileDownloadHelper.canDownloadFile(fileMetadata) and !(fileMetadata.dataFile.tabularData) and !(downloadPopupRequired)
-                              and fileMetadata.dataFile.filePackage and fileMetadata.isGlobusUpload()}"
+                              and fileMetadata.dataFile.filePackage and globusUpload}"
                    styleClass="btn btn-default btn-download" process="@this"
                    disabled="#{(fileMetadata.dataFile.ingestInProgress  or lockedFromDownload) ? 'disabled' : ''}"
                    onclick="openGlobus(#{fileMetadata.datasetVersion.dataset.id});">
         <f:actionListener binding="#{packagePopupFragmentBean.setFileMetadata(fileMetadata)}" />
         <f:actionListener binding="#{fileDownloadService.writeGuestbookResponseRecord(guestbookResponse, fileMetadata, 'package')}" />
+        <f:param name="globusUpload" value="#{fileMetadata.isGlobusUpload()}" />
         <!-- package data file: -->
         <!-- no guest book/terms of use/etc. - straight package popup -->
         <span class="glyphicon glyphicon-download-alt"/> #{bundle['file.downloadFromGlobus']}

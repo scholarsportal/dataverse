@@ -392,8 +392,14 @@ public class FileDownloadHelper implements java.io.Serializable {
        
         if ((fileMetadata.getId() == null) || (fileMetadata.getDataFile().getId() == null)){
             return false;
-        } 
-        
+        }
+
+       if (fileMetadata.isGlobusUpload()) {
+           logger.info(" It is globus");
+       } else {
+           logger.info("It is not globus");
+       }
+
         Long fid = fileMetadata.getId();
         //logger.info("calling candownloadfile on filemetadata "+fid);
         // Note that `isRestricted` at the FileMetadata level is for expressing intent by version. Enforcement is done with `isRestricted` at the DataFile level.
@@ -428,11 +434,7 @@ public class FileDownloadHelper implements java.io.Serializable {
             this.fileDownloadPermissionMap.put(fid, true);
             return true;
         }
-        if (fileMetadata.isGlobusUpload()) {
-            logger.info(" It is globus");
-        } else {
-            logger.info("It is not globus");
-        }
+
         this.fileDownloadPermissionMap.put(fid, false);
         return false;
     }
