@@ -92,6 +92,7 @@ public class GlobusServiceBean implements java.io.Serializable{
 
     public void onLoad() {
         logger.info("Start Globus " + code);
+        logger.info("State " + state);
 
         String globusEndpoint = settingsSvc.getValueForKey(SettingsServiceBean.Key.GlobusEndpoint, "");
         String basicGlobusToken = settingsSvc.getValueForKey(SettingsServiceBean.Key.BasicGlobusToken, "");
