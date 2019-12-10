@@ -122,7 +122,7 @@
         <f:actionListener binding="#{fileDownloadService.writeGuestbookResponseRecord(guestbookResponse, fileMetadata, 'package')}" />
         <!-- package data file: -->
         <!-- no guest book/terms of use/etc. - straight package popup -->
-        <span class="glyphicon glyphicon-download-alt"/> #{Test}
+        <span class="glyphicon glyphicon-download-alt"/> #{"Test"}
     </p:commandLink>
 
     <p:commandLink rendered="#{fileDownloadHelper.canDownloadFile(fileMetadata) and !(fileMetadata.dataFile.tabularData) and !(downloadPopupRequired)
@@ -147,7 +147,7 @@
         <f:actionListener binding="#{packagePopupFragmentBean.setFileMetadata(fileMetadata)}" /> 
         <!-- package data file: -->
         <!-- guest book or terms of use, etc. enabled - open "download popup" first: -->
-        <span class="glyphicon glyphicon-download-alt"/> #{Test2}
+        <span class="glyphicon glyphicon-download-alt"/> #{"Test2"}
     </p:commandLink>
 
     <p:commandLink rendered="#{ fileDownloadHelper.canDownloadFile(fileMetadata) and !(fileMetadata.dataFile.tabularData) and (downloadPopupRequired)
@@ -171,7 +171,7 @@
                    actionListener="#{fileDownloadService.writeGuestbookAndStartFileDownload(guestbookResponse, fileMetadata, 'Download')}">
         <!-- non-tabular data file: -->
         <!-- no guest book/terms of use/etc. - straight to the download API url: -->
-        <span class="glyphicon glyphicon-download-alt"/> #{Test3}
+        <span class="glyphicon glyphicon-download-alt"/> #{"Test3"}
     </p:commandLink>
 
     <p:commandLink rendered="#{ fileDownloadHelper.canDownloadFile(fileMetadata) and !(fileMetadata.dataFile.tabularData) and downloadPopupRequired 
@@ -182,7 +182,7 @@
                    action="#{guestbookResponseService.modifyDatafile(guestbookResponse, fileMetadata)}"
                    update="@widgetVar(downloadPopup)" oncomplete="PF('downloadPopup').show();handleResizeDialog('downloadPopup');">
         <!-- guest book or terms of use, etc. enabled - open "download popup" first: -->
-        <span class="glyphicon glyphicon-download-alt"/> #{Test4}
+        <span class="glyphicon glyphicon-download-alt"/> #{"Test4"}
     </p:commandLink>
 
     <div class="btn-group" jsf:rendered="#{ fileDownloadHelper.canDownloadFile(fileMetadata) and fileMetadata.dataFile.tabularData }">
