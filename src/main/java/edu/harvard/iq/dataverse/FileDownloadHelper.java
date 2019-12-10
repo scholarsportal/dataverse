@@ -410,13 +410,16 @@ public class FileDownloadHelper implements java.io.Serializable {
            logger.info("It is not globus");
            logger.info("fileMetadataId" + fileMetadata.getId());
        }
+       if (fm != null) {
+           if (fm.isGlobusUpload()) {
+               logger.info(" It is globus");
 
-       if (fm.isGlobusUpload()) {
-           logger.info(" It is globus");
-
+           } else {
+               logger.info("It is not globus");
+               logger.info("fileMetadataId" + fm.getId());
+           }
        } else {
-           logger.info("It is not globus");
-           logger.info("fileMetadataId" + fm.getId());
+           logger.info("fm is null");
        }
 
 
