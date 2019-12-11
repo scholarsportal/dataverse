@@ -114,7 +114,7 @@
     </h:outputLink>
     
     <p:commandLink rendered="#{fileDownloadHelper.canDownloadFile(fileMetadata) and !(fileMetadata.dataFile.tabularData) and !(downloadPopupRequired) 
-                              and fileMetadata.dataFile.filePackage and systemConfig.HTTPDownload and !globusUpload}"
+                              and fileMetadata.dataFile.filePackage and systemConfig.HTTPDownload and !fileDownloadHelper.isUploadGlobus(fileMetadata.id)}"
                    styleClass="btn btn-default btn-download" process="@this"
                    disabled="#{(fileMetadata.dataFile.ingestInProgress  or lockedFromDownload) ? 'disabled' : ''}" 
                    update="@widgetVar(downloadPackagePopup)" oncomplete="PF('downloadPackagePopup').show();handleResizeDialog('downloadPackagePopup');">
@@ -127,7 +127,7 @@
     </p:commandLink>
 
     <p:commandLink rendered="#{fileDownloadHelper.canDownloadFile(fileMetadata) and !(fileMetadata.dataFile.tabularData) and !(downloadPopupRequired)
-                              and fileMetadata.dataFile.filePackage and globusUpload}"
+                              and fileMetadata.dataFile.filePackage and fileDownloadHelper.isUploadGlobus(fileMetadata.id) }"
                    styleClass="btn btn-default btn-download" process="@this"
                    disabled="#{(fileMetadata.dataFile.ingestInProgress  or lockedFromDownload) ? 'disabled' : ''}"
                    onclick="openGlobus(#{fileMetadata.datasetVersion.dataset.id});">

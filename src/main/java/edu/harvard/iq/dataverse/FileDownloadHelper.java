@@ -42,8 +42,6 @@ public class FileDownloadHelper implements java.io.Serializable {
      
     private static final Logger logger = Logger.getLogger(FileDownloadHelper.class.getCanonicalName());
 
-    @PersistenceContext(unitName = "VDCNet-ejbPU")
-    private EntityManager em;
 
     @Inject
     DataverseSession session;
@@ -428,26 +426,6 @@ public class FileDownloadHelper implements java.io.Serializable {
 
         if (!isRestrictedFile){
 
-            FileMetadata fm = em.find(FileMetadata.class, fileMetadata.getId());
-
-            if (fileMetadata.isGlobusUpload()) {
-                logger.info(" It is globus");
-
-            } else {
-                logger.info("It is not globus");
-                logger.info("fileMetadataId" + fileMetadata.getId());
-            }
-            if (fm != null) {
-                if (fm.isGlobusUpload()) {
-                    logger.info(" It is globus");
-
-                } else {
-                    logger.info("It is not globus");
-                    logger.info("fileMetadataId" + fm.getId());
-                }
-            } else {
-                logger.info("fm is null");
-            }
             // Yes, save answer and return true
             this.fileDownloadPermissionMap.put(fid, true);
             return true;
@@ -560,6 +538,15 @@ public class FileDownloadHelper implements java.io.Serializable {
 
     public void setSession(DataverseSession session) {
         this.session = session;
+    }
+
+    public boolean isUploadGlobus(Long id) {
+        FileMetadata fm = datafileService.findFileMetadata(id);
+        if (fm != null && fm.getUploadMethod().equals("globus")) {
+            return true;
+        } else {
+            return false;
+        }
     }
     
 }
