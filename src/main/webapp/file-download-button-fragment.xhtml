@@ -117,7 +117,7 @@
                               and fileMetadata.dataFile.fileGlobus and systemConfig.globusUpload}"
                    styleClass="btn btn-default btn-download" process="@this"
                    disabled="#{(fileMetadata.dataFile.ingestInProgress  or lockedFromDownload) ? 'disabled' : ''}"
-                   action="#{globusServiceBean.goGlobusDownload(fileMetadata.datasetVersion.id)});">
+                   action="#{globusServiceBean.goGlobusDownload(fileMetadata.datasetVersion.dataset.id)});">
         <f:actionListener binding="#{packagePopupFragmentBean.setFileMetadata(fileMetadata)}" />
         <f:actionListener binding="#{fileDownloadService.writeGuestbookResponseRecord(guestbookResponse, fileMetadata, 'package')}" />
         <!-- package data file: -->
