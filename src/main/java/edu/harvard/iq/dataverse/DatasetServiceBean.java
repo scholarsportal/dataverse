@@ -1104,7 +1104,7 @@ public class DatasetServiceBean implements java.io.Serializable {
                             System.out.println("======= filename ==== " + filePath + " == new file - add to database ");
 
 
-                            DataFile dataFile = new DataFile(DataFileServiceBean.MIME_TYPE_PACKAGE_FILE);
+                            DataFile dataFile = new DataFile(DataFileServiceBean.MIME_TYPE_GLOBUS_FILE);
                             dataFile.setChecksumType(DataFile.ChecksumType.SHA1);
                             dataFile.setChecksumValue(checksumVal);
 
@@ -1125,7 +1125,7 @@ public class DatasetServiceBean implements java.io.Serializable {
                             fmd.setLabel(fileName);
                             fmd.setDirectoryLabel(filePath.replace(directory, "").replace(File.separator + fileName, ""));
 
-                            fmd.setUploadMethod("globus");
+                            fmd.setUploadMethod(SystemConfig.FileUploadMethods.GLOBUS.toString());
 
                             fmd.setDataFile(dataFile);
                             dataFile.getFileMetadatas().add(fmd);

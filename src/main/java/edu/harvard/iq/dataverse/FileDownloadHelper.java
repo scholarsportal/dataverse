@@ -28,6 +28,7 @@ import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
+import edu.harvard.iq.dataverse.util.SystemConfig;
 import org.primefaces.context.RequestContext;
 
 /**
@@ -542,7 +543,7 @@ public class FileDownloadHelper implements java.io.Serializable {
 
     public boolean isUploadGlobus(Long id) {
         FileMetadata fm = datafileService.findFileMetadata(id);
-        if (fm != null && fm.getUploadMethod().equals("globus")) {
+        if (fm != null && fm.getUploadMethod().equals(SystemConfig.FileUploadMethods.GLOBUS.toString())) {
             return true;
         } else {
             return false;

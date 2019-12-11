@@ -112,48 +112,21 @@
     <h:outputLink value="#{DatasetPage.getComputeUrl(fileMetadata)}" class="btn btn-default btn-compute" target="_blank" rendered="#{!isFilePg and DatasetPage.showComputeButton(fileMetadata) and fileDownloadHelper.canDownloadFile(fileMetadata)}"> 
         <span class="glyphicon glyphicon-flash"/> #{bundle['file.compute']}
     </h:outputLink>
-    
-    <p:commandLink rendered="#{fileDownloadHelper.canDownloadFile(fileMetadata) and !(fileMetadata.dataFile.tabularData) and !(downloadPopupRequired) 
-                              and fileMetadata.dataFile.filePackage and systemConfig.HTTPDownload and !fileDownloadHelper.isUploadGlobus(fileMetadata.id)}"
-                   styleClass="btn btn-default btn-download" process="@this"
-                   disabled="#{(fileMetadata.dataFile.ingestInProgress  or lockedFromDownload) ? 'disabled' : ''}" 
-                   update="@widgetVar(downloadPackagePopup)" oncomplete="PF('downloadPackagePopup').show();handleResizeDialog('downloadPackagePopup');">
-        <f:actionListener binding="#{packagePopupFragmentBean.setFileMetadata(fileMetadata)}" />
-        <f:actionListener binding="#{fileDownloadService.writeGuestbookResponseRecord(guestbookResponse, fileMetadata, 'package')}" />
-        <f:param name="globusUpload" value="#{fileMetadata.isGlobusUpload()}" />
-        <!-- package data file: -->
-        <!-- no guest book/terms of use/etc. - straight package popup -->
-        <span class="glyphicon glyphicon-download-alt"/> #{"Test"}
-    </p:commandLink>
 
     <p:commandLink rendered="#{fileDownloadHelper.canDownloadFile(fileMetadata) and !(fileMetadata.dataFile.tabularData) and !(downloadPopupRequired)
-                              and fileMetadata.dataFile.filePackage and fileDownloadHelper.isUploadGlobus(fileMetadata.id) }"
+                              and fileMetadata.dataFile.fileGlobus and systemConfig.globusUpload}"
                    styleClass="btn btn-default btn-download" process="@this"
                    disabled="#{(fileMetadata.dataFile.ingestInProgress  or lockedFromDownload) ? 'disabled' : ''}"
                    onclick="openGlobus(#{fileMetadata.datasetVersion.dataset.id});">
         <f:actionListener binding="#{packagePopupFragmentBean.setFileMetadata(fileMetadata)}" />
         <f:actionListener binding="#{fileDownloadService.writeGuestbookResponseRecord(guestbookResponse, fileMetadata, 'package')}" />
-        <f:param name="globusUpload" value="#{fileMetadata.isGlobusUpload()}" />
         <!-- package data file: -->
         <!-- no guest book/terms of use/etc. - straight package popup -->
         <span class="glyphicon glyphicon-download-alt"/> #{bundle['file.downloadFromGlobus']}
-    </p:commandLink>
-
-    <p:commandLink rendered="#{ fileDownloadHelper.canDownloadFile(fileMetadata) and !(fileMetadata.dataFile.tabularData) and (downloadPopupRequired) 
-                              and fileMetadata.dataFile.filePackage and !fileMetadata.isGlobusUpload() and systemConfig.HTTPDownload}"
-                   styleClass="btn btn-default btn-download"
-                   process="@this"
-                   disabled="#{(fileMetadata.dataFile.ingestInProgress  or lockedFromDownload) ? 'disabled' : ''}" 
-                   action="#{guestbookResponseService.modifyDatafileAndFormat(guestbookResponse, fileMetadata, 'package')}"
-                   update="@widgetVar(downloadPopup)" oncomplete="PF('downloadPopup').show();handleResizeDialog('downloadPopup');">
-        <f:actionListener binding="#{packagePopupFragmentBean.setFileMetadata(fileMetadata)}" /> 
-        <!-- package data file: -->
-        <!-- guest book or terms of use, etc. enabled - open "download popup" first: -->
-        <span class="glyphicon glyphicon-download-alt"/> #{"Test2"}
     </p:commandLink>
 
     <p:commandLink rendered="#{ fileDownloadHelper.canDownloadFile(fileMetadata) and !(fileMetadata.dataFile.tabularData) and (downloadPopupRequired)
-                              and fileMetadata.dataFile.filePackage and fileMetadata.isGlobusUpload() }"
+                              and fileMetadata.dataFile.fileGlobus and systemConfig.globusUpload}"
                    styleClass="btn btn-default btn-download"
                    process="@this"
                    disabled="#{(fileMetadata.dataFile.ingestInProgress  or lockedFromDownload) ? 'disabled' : ''}"
@@ -165,26 +138,51 @@
         <span class="glyphicon glyphicon-download-alt"/> #{bundle['file.downloadFromGlobus']}
     </p:commandLink>
 
-    <p:commandLink rendered="#{ fileDownloadHelper.canDownloadFile(fileMetadata) and !(fileMetadata.dataFile.tabularData) and !(downloadPopupRequired) 
-                                and !(fileMetadata.dataFile.filePackage and systemConfig.HTTPDownload) and !fileMetadata.isGlobusUpload()}"
+    <p:commandLink rendered="#{fileDownloadHelper.canDownloadFile(fileMetadata) and !(fileMetadata.dataFile.tabularData) and !(downloadPopupRequired)
+                              and fileMetadata.dataFile.filePackage and systemConfig.HTTPDownload}"
+                   styleClass="btn btn-default btn-download" process="@this"
+                   disabled="#{(fileMetadata.dataFile.ingestInProgress  or lockedFromDownload) ? 'disabled' : ''}"
+                   update="@widgetVar(downloadPackagePopup)" oncomplete="PF('downloadPackagePopup').show();handleResizeDialog('downloadPackagePopup');">
+        <f:actionListener binding="#{packagePopupFragmentBean.setFileMetadata(fileMetadata)}" />
+        <f:actionListener binding="#{fileDownloadService.writeGuestbookResponseRecord(guestbookResponse, fileMetadata, 'package')}" />
+        <!-- package data file: -->
+        <!-- no guest book/terms of use/etc. - straight package popup -->
+        <span class="glyphicon glyphicon-download-alt"/> #{bundle.download}
+    </p:commandLink>
+
+    <p:commandLink rendered="#{ fileDownloadHelper.canDownloadFile(fileMetadata) and !(fileMetadata.dataFile.tabularData) and (downloadPopupRequired)
+                              and fileMetadata.dataFile.filePackage and systemConfig.HTTPDownload}"
                    styleClass="btn btn-default btn-download"
                    process="@this"
-                   disabled="#{(fileMetadata.dataFile.ingestInProgress  or lockedFromDownload) ? 'disabled' : ''}" 
+                   disabled="#{(fileMetadata.dataFile.ingestInProgress  or lockedFromDownload) ? 'disabled' : ''}"
+                   action="#{guestbookResponseService.modifyDatafileAndFormat(guestbookResponse, fileMetadata, 'package')}"
+                   update="@widgetVar(downloadPopup)" oncomplete="PF('downloadPopup').show();handleResizeDialog('downloadPopup');">
+        <f:actionListener binding="#{packagePopupFragmentBean.setFileMetadata(fileMetadata)}" />
+        <!-- package data file: -->
+        <!-- guest book or terms of use, etc. enabled - open "download popup" first: -->
+        <span class="glyphicon glyphicon-download-alt"/> #{bundle.download}
+    </p:commandLink>
+
+    <p:commandLink rendered="#{ fileDownloadHelper.canDownloadFile(fileMetadata) and !(fileMetadata.dataFile.tabularData) and !(downloadPopupRequired)
+                                and !(fileMetadata.dataFile.filePackage and systemConfig.HTTPDownload)}"
+                   styleClass="btn btn-default btn-download"
+                   process="@this"
+                   disabled="#{(fileMetadata.dataFile.ingestInProgress  or lockedFromDownload) ? 'disabled' : ''}"
                    actionListener="#{fileDownloadService.writeGuestbookAndStartFileDownload(guestbookResponse, fileMetadata, 'Download')}">
         <!-- non-tabular data file: -->
         <!-- no guest book/terms of use/etc. - straight to the download API url: -->
-        <span class="glyphicon glyphicon-download-alt"/> #{"Test3"}
+        <span class="glyphicon glyphicon-download-alt"/> #{bundle.download}
     </p:commandLink>
 
-    <p:commandLink rendered="#{ fileDownloadHelper.canDownloadFile(fileMetadata) and !(fileMetadata.dataFile.tabularData) and downloadPopupRequired 
-                                and !(fileMetadata.dataFile.filePackage and systemConfig.HTTPDownload) and  !fileMetadata.isGlobusUpload()}"
+    <p:commandLink rendered="#{ fileDownloadHelper.canDownloadFile(fileMetadata) and !(fileMetadata.dataFile.tabularData) and downloadPopupRequired
+                                and !(fileMetadata.dataFile.filePackage and systemConfig.HTTPDownload)}"
                    styleClass="btn btn-default btn-download"
                    process="@this"
-                   disabled="#{(fileMetadata.dataFile.ingestInProgress  or lockedFromDownload) ? 'disabled' : ''}" 
+                   disabled="#{(fileMetadata.dataFile.ingestInProgress  or lockedFromDownload) ? 'disabled' : ''}"
                    action="#{guestbookResponseService.modifyDatafile(guestbookResponse, fileMetadata)}"
                    update="@widgetVar(downloadPopup)" oncomplete="PF('downloadPopup').show();handleResizeDialog('downloadPopup');">
         <!-- guest book or terms of use, etc. enabled - open "download popup" first: -->
-        <span class="glyphicon glyphicon-download-alt"/> #{"Test4"}
+        <span class="glyphicon glyphicon-download-alt"/> #{bundle.download}
     </p:commandLink>
 
     <div class="btn-group" jsf:rendered="#{ fileDownloadHelper.canDownloadFile(fileMetadata) and fileMetadata.dataFile.tabularData }">
