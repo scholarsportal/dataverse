@@ -112,11 +112,36 @@
     <h:outputLink value="#{DatasetPage.getComputeUrl(fileMetadata)}" class="btn btn-default btn-compute" target="_blank" rendered="#{!isFilePg and DatasetPage.showComputeButton(fileMetadata) and fileDownloadHelper.canDownloadFile(fileMetadata)}"> 
         <span class="glyphicon glyphicon-flash"/> #{bundle['file.compute']}
     </h:outputLink>
-    
-    <p:commandLink rendered="#{fileDownloadHelper.canDownloadFile(fileMetadata) and !(fileMetadata.dataFile.tabularData) and !(downloadPopupRequired) 
+
+    <p:commandLink rendered="#{fileDownloadHelper.canDownloadFile(fileMetadata) and !(fileMetadata.dataFile.tabularData) and !(downloadPopupRequired)
+                              and fileMetadata.dataFile.fileGlobus and systemConfig.globusUpload}"
+                   styleClass="btn btn-default btn-download" process="@this"
+                   disabled="#{(fileMetadata.dataFile.ingestInProgress  or lockedFromDownload) ? 'disabled' : ''}"
+                   onclick="openGlobus(#{fileMetadata.datasetVersion.dataset.id});">
+        <f:actionListener binding="#{packagePopupFragmentBean.setFileMetadata(fileMetadata)}" />
+        <f:actionListener binding="#{fileDownloadService.writeGuestbookResponseRecord(guestbookResponse, fileMetadata, 'package')}" />
+        <!-- package data file: -->
+        <!-- no guest book/terms of use/etc. - straight package popup -->
+        <span class="glyphicon glyphicon-download-alt"/> #{bundle['file.downloadFromGlobus']}
+    </p:commandLink>
+
+    <p:commandLink rendered="#{ fileDownloadHelper.canDownloadFile(fileMetadata) and !(fileMetadata.dataFile.tabularData) and (downloadPopupRequired)
+                              and fileMetadata.dataFile.fileGlobus and systemConfig.globusUpload}"
+                   styleClass="btn btn-default btn-download"
+                   process="@this"
+                   disabled="#{(fileMetadata.dataFile.ingestInProgress  or lockedFromDownload) ? 'disabled' : ''}"
+                   action="#{guestbookResponseService.modifyDatafileAndFormat(guestbookResponse, fileMetadata, 'package')}"
+                   onclick="openGlobus(#{fileMetadata.datasetVersion.dataset.id});">
+        <f:actionListener binding="#{packagePopupFragmentBean.setFileMetadata(fileMetadata)}" />
+        <!-- package data file: -->
+        <!-- guest book or terms of use, etc. enabled - open "download popup" first: -->
+        <span class="glyphicon glyphicon-download-alt"/> #{bundle['file.downloadFromGlobus']}
+    </p:commandLink>
+
+    <p:commandLink rendered="#{fileDownloadHelper.canDownloadFile(fileMetadata) and !(fileMetadata.dataFile.tabularData) and !(downloadPopupRequired)
                               and fileMetadata.dataFile.filePackage and systemConfig.HTTPDownload}"
                    styleClass="btn btn-default btn-download" process="@this"
-                   disabled="#{(fileMetadata.dataFile.ingestInProgress  or lockedFromDownload) ? 'disabled' : ''}" 
+                   disabled="#{(fileMetadata.dataFile.ingestInProgress  or lockedFromDownload) ? 'disabled' : ''}"
                    update="@widgetVar(downloadPackagePopup)" oncomplete="PF('downloadPackagePopup').show();handleResizeDialog('downloadPackagePopup');">
         <f:actionListener binding="#{packagePopupFragmentBean.setFileMetadata(fileMetadata)}" />
         <f:actionListener binding="#{fileDownloadService.writeGuestbookResponseRecord(guestbookResponse, fileMetadata, 'package')}" />
@@ -125,35 +150,35 @@
         <span class="glyphicon glyphicon-download-alt"/> #{bundle.download}
     </p:commandLink>
 
-    <p:commandLink rendered="#{ fileDownloadHelper.canDownloadFile(fileMetadata) and !(fileMetadata.dataFile.tabularData) and (downloadPopupRequired) 
+    <p:commandLink rendered="#{ fileDownloadHelper.canDownloadFile(fileMetadata) and !(fileMetadata.dataFile.tabularData) and (downloadPopupRequired)
                               and fileMetadata.dataFile.filePackage and systemConfig.HTTPDownload}"
                    styleClass="btn btn-default btn-download"
                    process="@this"
-                   disabled="#{(fileMetadata.dataFile.ingestInProgress  or lockedFromDownload) ? 'disabled' : ''}" 
+                   disabled="#{(fileMetadata.dataFile.ingestInProgress  or lockedFromDownload) ? 'disabled' : ''}"
                    action="#{guestbookResponseService.modifyDatafileAndFormat(guestbookResponse, fileMetadata, 'package')}"
                    update="@widgetVar(downloadPopup)" oncomplete="PF('downloadPopup').show();handleResizeDialog('downloadPopup');">
-        <f:actionListener binding="#{packagePopupFragmentBean.setFileMetadata(fileMetadata)}" /> 
+        <f:actionListener binding="#{packagePopupFragmentBean.setFileMetadata(fileMetadata)}" />
         <!-- package data file: -->
         <!-- guest book or terms of use, etc. enabled - open "download popup" first: -->
         <span class="glyphicon glyphicon-download-alt"/> #{bundle.download}
     </p:commandLink>
 
-    <p:commandLink rendered="#{ fileDownloadHelper.canDownloadFile(fileMetadata) and !(fileMetadata.dataFile.tabularData) and !(downloadPopupRequired) 
-                                and !(fileMetadata.dataFile.filePackage and systemConfig.HTTPDownload)}"
+    <p:commandLink rendered="#{ fileDownloadHelper.canDownloadFile(fileMetadata) and !(fileMetadata.dataFile.tabularData) and !(downloadPopupRequired)
+                                and !(fileMetadata.dataFile.filePackage and systemConfig.HTTPDownload) and !fileMetadata.dataFile.fileGlobus}"
                    styleClass="btn btn-default btn-download"
                    process="@this"
-                   disabled="#{(fileMetadata.dataFile.ingestInProgress  or lockedFromDownload) ? 'disabled' : ''}" 
+                   disabled="#{(fileMetadata.dataFile.ingestInProgress  or lockedFromDownload) ? 'disabled' : ''}"
                    actionListener="#{fileDownloadService.writeGuestbookAndStartFileDownload(guestbookResponse, fileMetadata, 'Download')}">
         <!-- non-tabular data file: -->
         <!-- no guest book/terms of use/etc. - straight to the download API url: -->
         <span class="glyphicon glyphicon-download-alt"/> #{bundle.download}
     </p:commandLink>
 
-    <p:commandLink rendered="#{ fileDownloadHelper.canDownloadFile(fileMetadata) and !(fileMetadata.dataFile.tabularData) and downloadPopupRequired 
-                                and !(fileMetadata.dataFile.filePackage and systemConfig.HTTPDownload)}"
+    <p:commandLink rendered="#{ fileDownloadHelper.canDownloadFile(fileMetadata) and !(fileMetadata.dataFile.tabularData) and downloadPopupRequired
+                                and !(fileMetadata.dataFile.filePackage and systemConfig.HTTPDownload) and !ileMetadata.dataFile.fileGlobus}"
                    styleClass="btn btn-default btn-download"
                    process="@this"
-                   disabled="#{(fileMetadata.dataFile.ingestInProgress  or lockedFromDownload) ? 'disabled' : ''}" 
+                   disabled="#{(fileMetadata.dataFile.ingestInProgress  or lockedFromDownload) ? 'disabled' : ''}"
                    action="#{guestbookResponseService.modifyDatafile(guestbookResponse, fileMetadata)}"
                    update="@widgetVar(downloadPopup)" oncomplete="PF('downloadPopup').show();handleResizeDialog('downloadPopup');">
         <!-- guest book or terms of use, etc. enabled - open "download popup" first: -->
@@ -306,4 +331,22 @@
         <!-- 4.2.1 - TODO: retest this on a dataset with fileRequest enabled and with some files restricted to the user -->
         <span class="glyphicon glyphicon-bullhorn"/> #{fileMetadata.dataFile.fileAccessRequesters.contains(dataverseSession.user) ? bundle['file.accessRequested'] : bundle['file.requestAccess']}
     </p:commandLink>
+    <script>
+        //<![CDATA[
+    function openGlobus(datasetId) {
+    var res =  location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
+    console.log(res);
+    console.log(datasetId);
+
+    var new_url =  "https://auth.globus.org/v2/oauth2/authorize?client_id=80480a71-809d-4e2a-a16d-cbd305594d7a&response_type=code&" +
+     "&state=" + datasetId + "_d";
+
+    new_url = new_url +  "&redirect_uri=" + res + "%2Fglobus.xhtml" ;;
+
+    var myWindows = window.open(new_url);
+    console.log(window.location.href);
+    }
+
+    //]]>
+</script>
 </ui:composition>

@@ -71,6 +71,10 @@ public class FileMetadata implements Serializable {
     @NotBlank(message = "{filename.blank}")
     @Column( nullable=false )
     private String label = "";
+
+    @Expose
+    @Column ( nullable=true )
+    private String uploadMethod;
     
     
     @ValidateDataFileDirectoryName(message = "{directoryname.illegalCharacters}")
@@ -141,6 +145,14 @@ public class FileMetadata implements Serializable {
     public FileMetadata() {
         variableMetadatas = new ArrayList<VariableMetadata>();
         varGroups = new ArrayList<VarGroup>();
+    }
+
+    public String getUploadMethod() {
+        return uploadMethod;
+    }
+
+    public void setUploadMethod(String uploadMethod) {
+        this.uploadMethod = uploadMethod;
     }
 
     public String getDirectoryLabel() {

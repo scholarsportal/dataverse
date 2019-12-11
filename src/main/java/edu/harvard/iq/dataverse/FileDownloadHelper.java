@@ -7,6 +7,7 @@ package edu.harvard.iq.dataverse;
 
 import edu.harvard.iq.dataverse.authorization.Permission;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
+import edu.harvard.iq.dataverse.datavariable.DataVariable;
 import edu.harvard.iq.dataverse.externaltools.ExternalTool;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import static edu.harvard.iq.dataverse.util.JsfHelper.JH;
@@ -24,6 +25,10 @@ import javax.faces.event.AjaxBehaviorEvent;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+
+import edu.harvard.iq.dataverse.util.SystemConfig;
 import org.primefaces.context.RequestContext;
 
 /**
@@ -37,6 +42,8 @@ import org.primefaces.context.RequestContext;
 public class FileDownloadHelper implements java.io.Serializable {
      
     private static final Logger logger = Logger.getLogger(FileDownloadHelper.class.getCanonicalName());
+
+
     @Inject
     DataverseSession session;
         
@@ -392,8 +399,10 @@ public class FileDownloadHelper implements java.io.Serializable {
        
         if ((fileMetadata.getId() == null) || (fileMetadata.getDataFile().getId() == null)){
             return false;
-        } 
-        
+        }
+
+
+
         Long fid = fileMetadata.getId();
         //logger.info("calling candownloadfile on filemetadata "+fid);
         // Note that `isRestricted` at the FileMetadata level is for expressing intent by version. Enforcement is done with `isRestricted` at the DataFile level.
@@ -417,6 +426,7 @@ public class FileDownloadHelper implements java.io.Serializable {
        }
 
         if (!isRestrictedFile){
+
             // Yes, save answer and return true
             this.fileDownloadPermissionMap.put(fid, true);
             return true;
@@ -529,6 +539,15 @@ public class FileDownloadHelper implements java.io.Serializable {
 
     public void setSession(DataverseSession session) {
         this.session = session;
+    }
+
+    public boolean isUploadGlobus(Long id) {
+        FileMetadata fm = datafileService.findFileMetadata(id);
+        if (fm != null && fm.getUploadMethod().equals(SystemConfig.FileUploadMethods.GLOBUS.toString())) {
+            return true;
+        } else {
+            return false;
+        }
     }
     
 }

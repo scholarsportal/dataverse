@@ -104,7 +104,7 @@ public class EditDatafilesPage implements java.io.Serializable {
 
         EDIT, UPLOAD, CREATE, SINGLE, SINGLE_REPLACE
     };
-
+    
     @EJB
     DatasetServiceBean datasetService;
     @EJB
@@ -143,16 +143,16 @@ public class EditDatafilesPage implements java.io.Serializable {
     private final DateFormat displayDateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM);
 
     private Dataset dataset = new Dataset();
-
+    
     private FileReplacePageHelper fileReplacePageHelper;
 
 
-    private String selectedFileIdsString = null;
-    private FileEditMode mode = FileEditMode.EDIT;
-    private List<Long> selectedFileIdsList = new ArrayList<>();
+    private String selectedFileIdsString = null; 
+    private FileEditMode mode = FileEditMode.EDIT; 
+    private List<Long> selectedFileIdsList = new ArrayList<>(); 
     private List<FileMetadata> fileMetadatas = new ArrayList<>();;
 
-
+    
     private Long ownerId;
     private Long versionId;
     private List<DataFile> newFiles = new ArrayList<>();
@@ -161,24 +161,24 @@ public class EditDatafilesPage implements java.io.Serializable {
     private DatasetVersion clone;
     private String dropBoxSelection = "";
     private String displayCitation;
-    private boolean datasetUpdateRequired = false;
-    private boolean tabularDataTagsUpdated = false;
-
+    private boolean datasetUpdateRequired = false; 
+    private boolean tabularDataTagsUpdated = false; 
+    
     private String persistentId;
-
+    
     private String versionString = "";
-
-
-    private boolean saveEnabled = false;
+            
+    
+    private boolean saveEnabled = false; 
 
     // Used to store results of permissions checks
     private final Map<String, Boolean> datasetPermissionMap = new HashMap<>(); // { Permission human_name : Boolean }
 
     private Long maxFileUploadSizeInBytes = null;
-    private Integer multipleUploadFilesLimit = null;
-
+    private Integer multipleUploadFilesLimit = null; 
+    
     private final int NUMBER_OF_SCROLL_ROWS = 25;
-
+    
     private DataFile singleFile = null;
 
     public DataFile getSingleFile() {
@@ -188,11 +188,11 @@ public class EditDatafilesPage implements java.io.Serializable {
     public void setSingleFile(DataFile singleFile) {
         this.singleFile = singleFile;
     }
-
+    
     public String getSelectedFileIds() {
         return selectedFileIdsString;
     }
-
+    
     public DataFile getFileToReplace(){
         if (!this.isFileReplaceOperation()){
             return null;
@@ -202,21 +202,21 @@ public class EditDatafilesPage implements java.io.Serializable {
         }
         return this.fileReplacePageHelper.getFileToReplace();
     }
-
+    
     public void setSelectedFileIds(String selectedFileIds) {
         selectedFileIdsString = selectedFileIds;
     }
-
+    
     public FileEditMode getMode() {
         return mode;
     }
-
+    
     public void setMode(FileEditMode mode) {
         this.mode = mode;
     }
-
+    
     public List<FileMetadata> getFileMetadatas() {
-
+        
         // -------------------------------------
         // Handle a Replace operation
         //  - The List<FileMetadata> comes from a different source
@@ -228,9 +228,9 @@ public class EditDatafilesPage implements java.io.Serializable {
             } else {
                 logger.fine("Replace: replacement file not yet uploaded.");
                 return null;
-            }
+            }            
         }
-
+        
         if (fileMetadatas != null) {
             logger.fine("Returning a list of "+fileMetadatas.size()+" file metadatas.");
         } else {
@@ -244,10 +244,10 @@ public class EditDatafilesPage implements java.io.Serializable {
         //if (uploadInProgress) {
         //    return null; 
         //}
-
+        
         return fileMetadatas;
     }
-
+  
     public void setFileMetadatas(List<FileMetadata> fileMetadatas) {
         this.fileMetadatas = fileMetadatas;
     }
@@ -273,25 +273,25 @@ public class EditDatafilesPage implements java.io.Serializable {
           of the p:dataTable component only applies when "liveScroll=true" is being
           used). 
     */
-
+    
     public boolean isScrollable() {
         return !(fileMetadatas == null || fileMetadatas.size() <= NUMBER_OF_SCROLL_ROWS + 1);
     }
-
+    
     public String getScrollHeightPercentage() {
-        int perc;
+        int perc; 
         if (fileMetadatas == null || fileMetadatas.size() < NUMBER_OF_SCROLL_ROWS) {
             perc = 100;
         } else {
             perc = NUMBER_OF_SCROLL_ROWS * 100 / fileMetadatas.size();
         }
-
+        
         if (perc == 0) {
             perc = 1;
         } else if (perc > 100) {
             perc = 100;
         }
-
+        
         logger.fine("scroll height percentage: "+perc);
         return perc + "%";
     }
@@ -303,16 +303,16 @@ public class EditDatafilesPage implements java.io.Serializable {
     
         This may be "null", signifying unlimited download size.
     */
-
+    
     public Long getMaxFileUploadSizeInBytes() {
         return this.maxFileUploadSizeInBytes;
     }
-
+    
     public boolean isUnlimitedUploadFileSize() {
-
+        
         return this.maxFileUploadSizeInBytes == null;
     }
-
+    
     /*
         The number of files the GUI user is allowed to upload in one batch, 
         via drag-and-drop, or through the file select dialog. Now configurable 
@@ -323,35 +323,35 @@ public class EditDatafilesPage implements java.io.Serializable {
     }
     /**
      * Check Dataset related permissions
-     *
+     * 
      * @param permissionToCheck
-     * @return
+     * @return 
      */
     public boolean doesSessionUserHaveDataSetPermission(Permission permissionToCheck){
         if (permissionToCheck == null){
             return false;
         }
-
+               
         String permName = permissionToCheck.getHumanName();
-
+       
         // Has this check already been done? 
         // 
         if (this.datasetPermissionMap.containsKey(permName)){
             // Yes, return previous answer
             return this.datasetPermissionMap.get(permName);
         }
-
+        
         // Check the permission
         //
         boolean hasPermission = this.permissionService.userOn(this.session.getUser(), this.dataset).has(permissionToCheck);
 
         // Save the permission
         this.datasetPermissionMap.put(permName, hasPermission);
-
+        
         // return true/false
         return hasPermission;
     }
-
+    
     public void reset() {
         // ?
     }
@@ -359,7 +359,7 @@ public class EditDatafilesPage implements java.io.Serializable {
     public String getGlobalId() {
         return persistentId;
     }
-
+        
     public String getPersistentId() {
         return persistentId;
     }
@@ -430,48 +430,48 @@ public class EditDatafilesPage implements java.io.Serializable {
             logger.fine("Request to initialize Edit Files page with null token (aborting).");
             return null;
         }
-
+        
         if (!modeToken.equals("CREATE")) {
             logger.fine("Request to initialize Edit Files page with token " + modeToken + " (aborting).");
-            return null;
+            return null; 
         }
-
+        
         logger.fine("Initializing Edit Files page in CREATE mode;");
-
+        
         if (version == null) {
             return permissionsWrapper.notFound();
         }
-
+        
         this.maxFileUploadSizeInBytes = systemConfig.getMaxFileUploadSize();
         this.multipleUploadFilesLimit = systemConfig.getMultipleUploadFilesLimit();
-
-        workingVersion = version;
+        
+        workingVersion = version; 
         dataset = version.getDataset();
         mode = FileEditMode.CREATE;
         newFiles = newFilesList;
         uploadedFiles = new ArrayList<>();
         selectedFiles = selectedFileMetadatasList;
-
+        
         logger.fine("done");
-
+        
         saveEnabled = true;
-        return null;
+        return null; 
     }
-
+    
 
     public String init() {
-
+        
         newFiles = new ArrayList<>();
-        uploadedFiles = new ArrayList<>();
-
+        uploadedFiles = new ArrayList<>(); 
+        
         this.maxFileUploadSizeInBytes = systemConfig.getMaxFileUploadSize();
         this.multipleUploadFilesLimit = systemConfig.getMultipleUploadFilesLimit();
-
+        
         if (dataset.getId() != null){
             // Set Working Version and Dataset by Datasaet Id and Version
             //retrieveDatasetVersionResponse = datasetVersionService.retrieveDatasetVersionById(dataset.getId(), null);
             dataset = datasetService.find(dataset.getId());
-            // Is the Dataset harvested? (because we don't allow editing of harvested
+            // Is the Dataset harvested? (because we don't allow editing of harvested 
             // files!)
             if (dataset == null || dataset.isHarvested()) {
                 return permissionsWrapper.notFound();
@@ -481,16 +481,16 @@ public class EditDatafilesPage implements java.io.Serializable {
             // that the dataset id is mandatory... But 404 will do for now.
             return permissionsWrapper.notFound();
         }
-
+                
         workingVersion = dataset.getEditVersion();
         clone = workingVersion.cloneDatasetVersion();
         if (workingVersion == null || !workingVersion.isDraft()) {
             // Sorry, we couldn't find/obtain a draft version for this dataset!
             return permissionsWrapper.notFound();
         }
-
-        // Check if they have permission to modify this dataset:
-
+        
+        // Check if they have permission to modify this dataset: 
+        
         if (!permissionService.on(dataset).has(Permission.EditDataset)) {
             return permissionsWrapper.notAuthorized();
         }
@@ -501,24 +501,24 @@ public class EditDatafilesPage implements java.io.Serializable {
         if (mode == FileEditMode.SINGLE_REPLACE){
             /*
             http://localhost:8080/editdatafiles.xhtml?mode=SINGLE_REPLACE&datasetId=26&fid=726
-            */
+            */        
             DataFile fileToReplace = loadFileToReplace();
             if (fileToReplace == null){
                 return permissionsWrapper.notFound();
             }
-
+            
             //DataverseRequest dvRequest2 = createDataverseRequest(authUser);
             AddReplaceFileHelper addReplaceFileHelper = new AddReplaceFileHelper(dvRequestService.getDataverseRequest(),
-                    ingestService,
-                    datasetService,
-                    datafileService,
-                    permissionService,
-                    commandEngine,
-                    systemConfig);
-
+                                                ingestService,
+                                                datasetService,
+                                                datafileService,
+                                                permissionService,
+                                                commandEngine,
+                                                systemConfig);
+                        
             fileReplacePageHelper = new FileReplacePageHelper(addReplaceFileHelper,
-                    dataset,
-                    fileToReplace);
+                                                dataset, 
+                                                fileToReplace);
 
             populateFileMetadatas();
             singleFile = getFileToReplace();
