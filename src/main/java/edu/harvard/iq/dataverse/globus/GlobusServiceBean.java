@@ -196,9 +196,11 @@ public class GlobusServiceBean implements java.io.Serializable{
         PrimeFaces.current().executeScript(httpString);
     }
 
-    private void goGlobusDownload(String directory) {
+    public void goGlobusDownload(String datasetId) {
 
-        String httpString = "window.location.replace('" + "https://app.globus.org/file-manager?origin_id=5102894b-f28f-47f9-bc9a-d8e1b4e9e62c&origin_path=" + directory + "'" +")";
+        String directory = getDirectory(datasetId);
+        String globusEndpoint = settingsSvc.getValueForKey(SettingsServiceBean.Key.GlobusEndpoint, "");
+        String httpString = "window.location.replace('" + "https://app.globus.org/file-manager?origin_id=" + globusEndpoint + "&origin_path=" + directory + "'" +")";
         PrimeFaces.current().executeScript(httpString);
     }
 
