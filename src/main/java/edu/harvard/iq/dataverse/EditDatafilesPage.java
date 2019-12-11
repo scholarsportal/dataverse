@@ -1449,8 +1449,11 @@ public class EditDatafilesPage implements java.io.Serializable {
         logger.info("GLOBUS ASYNC CALL ");
         // If the script has been successfully downloaded, lock the dataset:
 
-        Thread.sleep(500);
-
+        try {
+            Thread.sleep(15000);
+        } catch (Exception ex) {
+            logger.warning("Failed to sleep for 15 seconds.");
+        }
 
         String lockInfoMessage = "Globus upload in progress";
         DatasetLock lock = datasetService.addDatasetLock(dataset.getId(), DatasetLock.Reason.GlobusUpload, session.getUser() != null ? ((AuthenticatedUser)session.getUser()).getId() : null, lockInfoMessage);
@@ -1460,11 +1463,11 @@ public class EditDatafilesPage implements java.io.Serializable {
             logger.log(Level.WARNING, "Failed to lock the dataset (dataset id={0})", dataset.getId());
         }
 
-        //Thread.sleep(20000);
+
 
         datasetService.globusAsyncjob(dataset.getId());
 
-
+//, "globusUserId", (AuthenticatedUser) session.getUser()
         logger.fine("Redirecting to the dataset page, from the edit/upload page.");
         return returnToDraftVersion();
     }
