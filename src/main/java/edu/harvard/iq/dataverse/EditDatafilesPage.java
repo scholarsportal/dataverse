@@ -1462,7 +1462,7 @@ public class EditDatafilesPage implements java.io.Serializable {
 
         //Thread.sleep(20000);
 
-        datasetService.globusAsyncjob(dataset.getId(), "globusUserId", (AuthenticatedUser) session.getUser());
+        datasetService.globusAsyncjob(dataset.getId());
 
 
         logger.fine("Redirecting to the dataset page, from the edit/upload page.");
