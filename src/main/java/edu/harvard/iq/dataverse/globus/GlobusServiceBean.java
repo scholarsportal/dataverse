@@ -56,15 +56,6 @@ public class GlobusServiceBean implements java.io.Serializable{
     private String code;
     private String userTransferToken;
     private String state;
-    private String method;
-
-    public String getMethod() {
-        return method;
-    }
-
-    public void setMethod(String method) {
-        this.method = method;
-    }
 
     public String getState() {
         return state;
@@ -100,11 +91,9 @@ public class GlobusServiceBean implements java.io.Serializable{
             JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("dataset.message.GlobusError"));
             return;
         }
-        String datasetId = state.substring(0, state.indexOf("_"));
+        String datasetId = state;
         logger.info("DatasetId = " + datasetId);
 
-        method = state.substring(state.indexOf("_") +1);
-        logger.info("Method " + method);
         String directory = getDirectory(datasetId);
         if (directory == null) {
             logger.severe("Cannot find directory");
@@ -117,75 +106,72 @@ public class GlobusServiceBean implements java.io.Serializable{
         logger.info(origRequest.getServerName());
 
         if (code != null ) {
-            if (method.equals("u")) {
-                try {
-                    AccessToken accessTokenUser = getAccessToken(origRequest, basicGlobusToken);
-                    if (accessTokenUser == null) {
-                        logger.severe("Cannot get access user token for code " + code);
-                        JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("dataset.message.GlobusError"));
-                        return;
-                    } else {
-                        setUserTransferToken(accessTokenUser.getOtherTokens().get(0).getAccessToken());
-                    }
 
-                    UserInfo usr = getUserInfo(accessTokenUser);
-                    if (usr == null) {
-                        logger.severe("Cannot get user info for " + accessTokenUser.getAccessToken());
-                        JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("dataset.message.GlobusError"));
-                        return;
-                    }
-                    logger.info(accessTokenUser.getAccessToken());
-                    logger.info(usr.getEmail());
-                    AccessToken clientTokenUser = getClientToken(basicGlobusToken);
-                    if (clientTokenUser == null) {
-                        logger.severe("Cannot get client token ");
-                        JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("dataset.message.GlobusError"));
-                        return;
-                    }
-                    logger.info(clientTokenUser.getAccessToken());
-
-                    int status = createDirectory(clientTokenUser, directory, globusEndpoint);
-                    if (status == 202) {
-                        int perStatus = givePermission("identity", usr.getSub(), "rw", clientTokenUser, directory, globusEndpoint);
-                        if (perStatus != 201) {
-                            logger.severe("Cannot get permissions ");
-                            JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("dataset.message.GlobusError"));
-                            return;
-                        }
-                    } else if (status == 502) { //directory already exists
-                        int perStatus = givePermission("identity", usr.getSub(), "rw", clientTokenUser, directory, globusEndpoint);
-                        if (perStatus == 409) {
-                            logger.info("permissions already exist");
-                        } else if (perStatus != 201) {
-                            logger.severe("Cannot get permissions ");
-                            JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("dataset.message.GlobusError"));
-                            return;
-                        }
-                    } else {
-                        logger.severe("Cannot create directory, status code " + status);
-                        JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("dataset.message.GlobusError"));
-                        return;
-                    }
-
-                    goGlobusUpload(directory);
-
-                } catch (MalformedURLException ex) {
-                    logger.severe(ex.getMessage());
-                    logger.severe(ex.getCause().toString());
+            try {
+                AccessToken accessTokenUser = getAccessToken(origRequest, basicGlobusToken);
+                if (accessTokenUser == null) {
+                    logger.severe("Cannot get access user token for code " + code);
                     JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("dataset.message.GlobusError"));
-                } catch (UnsupportedEncodingException ex) {
-                    logger.severe(ex.getMessage());
-                    logger.severe(ex.getCause().toString());
-                    JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("dataset.message.GlobusError"));
-                } catch (IOException ex) {
-                    logger.severe(ex.getMessage());
-                    logger.severe(ex.getCause().toString());
-                    JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("dataset.message.GlobusError"));
+                    return;
+                } else {
+                    setUserTransferToken(accessTokenUser.getOtherTokens().get(0).getAccessToken());
                 }
-            } else if (method.equals("d")) {
-                goGlobusDownload(directory);
 
+                UserInfo usr = getUserInfo(accessTokenUser);
+                if (usr == null) {
+                    logger.severe("Cannot get user info for " + accessTokenUser.getAccessToken());
+                    JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("dataset.message.GlobusError"));
+                    return;
+                }
+                logger.info(accessTokenUser.getAccessToken());
+                logger.info(usr.getEmail());
+                AccessToken clientTokenUser = getClientToken(basicGlobusToken);
+                if (clientTokenUser == null) {
+                    logger.severe("Cannot get client token ");
+                    JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("dataset.message.GlobusError"));
+                    return;
+                }
+                logger.info(clientTokenUser.getAccessToken());
+
+                int status = createDirectory(clientTokenUser, directory, globusEndpoint);
+                if (status == 202) {
+                    int perStatus = givePermission("identity", usr.getSub(), "rw", clientTokenUser, directory, globusEndpoint);
+                    if (perStatus != 201) {
+                        logger.severe("Cannot get permissions ");
+                        JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("dataset.message.GlobusError"));
+                        return;
+                    }
+                } else if (status == 502) { //directory already exists
+                    int perStatus = givePermission("identity", usr.getSub(), "rw", clientTokenUser, directory, globusEndpoint);
+                    if (perStatus == 409) {
+                        logger.info("permissions already exist");
+                    } else if (perStatus != 201) {
+                        logger.severe("Cannot get permissions ");
+                        JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("dataset.message.GlobusError"));
+                        return;
+                    }
+                } else {
+                    logger.severe("Cannot create directory, status code " + status);
+                    JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("dataset.message.GlobusError"));
+                    return;
+                }
+
+                goGlobusUpload(directory);
+
+            } catch (MalformedURLException ex) {
+                logger.severe(ex.getMessage());
+                logger.severe(ex.getCause().toString());
+                JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("dataset.message.GlobusError"));
+            } catch (UnsupportedEncodingException ex) {
+                logger.severe(ex.getMessage());
+                logger.severe(ex.getCause().toString());
+                JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("dataset.message.GlobusError"));
+            } catch (IOException ex) {
+                logger.severe(ex.getMessage());
+                logger.severe(ex.getCause().toString());
+                JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("dataset.message.GlobusError"));
             }
+
         }
 
     }
