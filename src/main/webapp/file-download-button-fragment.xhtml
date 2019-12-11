@@ -164,7 +164,7 @@
     </p:commandLink>
 
     <p:commandLink rendered="#{ fileDownloadHelper.canDownloadFile(fileMetadata) and !(fileMetadata.dataFile.tabularData) and !(downloadPopupRequired)
-                                and !(fileMetadata.dataFile.filePackage and systemConfig.HTTPDownload)}"
+                                and !(fileMetadata.dataFile.filePackage and systemConfig.HTTPDownload) and !fileMetadata.dataFile.fileGlobus}"
                    styleClass="btn btn-default btn-download"
                    process="@this"
                    disabled="#{(fileMetadata.dataFile.ingestInProgress  or lockedFromDownload) ? 'disabled' : ''}"
@@ -175,7 +175,7 @@
     </p:commandLink>
 
     <p:commandLink rendered="#{ fileDownloadHelper.canDownloadFile(fileMetadata) and !(fileMetadata.dataFile.tabularData) and downloadPopupRequired
-                                and !(fileMetadata.dataFile.filePackage and systemConfig.HTTPDownload)}"
+                                and !(fileMetadata.dataFile.filePackage and systemConfig.HTTPDownload) and !ileMetadata.dataFile.fileGlobus}"
                    styleClass="btn btn-default btn-download"
                    process="@this"
                    disabled="#{(fileMetadata.dataFile.ingestInProgress  or lockedFromDownload) ? 'disabled' : ''}"
