@@ -541,13 +541,5 @@ public class FileDownloadHelper implements java.io.Serializable {
         this.session = session;
     }
 
-    public boolean isUploadGlobus(Long id) {
-        FileMetadata fm = datafileService.findFileMetadata(id);
-        if (fm != null && fm.getUploadMethod().equals(SystemConfig.FileUploadMethods.GLOBUS.toString())) {
-            return true;
-        } else {
-            return false;
-        }
-    }
     
 }
