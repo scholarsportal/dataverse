@@ -1100,13 +1100,9 @@ public class DatasetServiceBean implements java.io.Serializable {
                     if ((checksumMapOld.get(checksumVal) != null)) {
                         logger.info("======= filename ==== " + filePath + " == file already exists ");
                     } else if (!filePath.contains("cached")) {
-
-                            DataFile dataFile = new DataFile(DataFileServiceBean.MIME_TYPE_GLOBUS_FILE);
-                            dataFile.setChecksumType(DataFile.ChecksumType.SHA1);
-                            dataFile.setChecksumValue(checksumVal);
                         logger.info("======= filename ==== " + filePath + " == new file   ");
                         try {
-                            DataFile datafile = new DataFile(DataFileServiceBean.MIME_TYPE_PACKAGE_FILE);  //MIME_TYPE_GLOBUS
+                            DataFile datafile = new DataFile(DataFileServiceBean.MIME_TYPE_GLOBUS_FILE);  //MIME_TYPE_GLOBUS
                             datafile.setModificationTime(new Timestamp(new Date().getTime()));
                             datafile.setCreateDate(new Timestamp(new Date().getTime()));
                             datafile.setPermissionModificationTime(new Timestamp(new Date().getTime()));
