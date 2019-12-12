@@ -130,8 +130,7 @@
                    styleClass="btn btn-default btn-download"
                    process="@this"
                    disabled="#{(fileMetadata.dataFile.ingestInProgress  or lockedFromDownload) ? 'disabled' : ''}"
-                   action="#{guestbookResponseService.modifyDatafileAndFormat(guestbookResponse, fileMetadata, 'package')}"
-                   onclick="openGlobus(#{fileMetadata.datasetVersion.dataset.id});">
+                   action="#{guestbookResponseService.modifyDatafileAndFormat(guestbookResponse, fileMetadata, 'package'); fileDownloadHelper.goGlobusDownload(fileMetadata.datasetVersion.dataset.id)}">
         <f:actionListener binding="#{packagePopupFragmentBean.setFileMetadata(fileMetadata)}" />
         <!-- package data file: -->
         <!-- guest book or terms of use, etc. enabled - open "download popup" first: -->
@@ -331,26 +330,4 @@
         <!-- 4.2.1 - TODO: retest this on a dataset with fileRequest enabled and with some files restricted to the user -->
         <span class="glyphicon glyphicon-bullhorn"/> #{fileMetadata.dataFile.fileAccessRequesters.contains(dataverseSession.user) ? bundle['file.accessRequested'] : bundle['file.requestAccess']}
     </p:commandLink>
-    <script>
-        //<![CDATA[
-    function openGlobus(datasetId) {
-    var res =  location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
-    console.log(res);
-    console.log(datasetId);
-
-    //var scope = encodeURI("openid+email+profile+urn:globus:auth:scope:transfer.api.globus.org:all", "UTF-8");
-    var new_url = "https://app.globus.org/file-manager?destination_id=5102894b-f28f-47f9-bc9a-d8e1b4e9e62c"
-    //var new_url =  "https://auth.globus.org/v2/oauth2/authorize?client_id=80480a71-809d-4e2a-a16d-cbd305594d7a&response_type=code&" +
-    //    "scope=" + scope
-
-        //+ "&state=" + datasetId + "_d";
-
-    //new_url = new_url +  "&redirect_uri=" + res + "%2Fglobus.xhtml" ;;
-
-    var myWindows = window.open(new_url);
-    console.log(window.location.href);
-    }
-
-    //]]>
-</script>
 </ui:composition>
