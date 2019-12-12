@@ -42,9 +42,6 @@ import static edu.harvard.iq.dataverse.util.JsfHelper.JH;
 @Named("GlobusServiceBean")
 public class GlobusServiceBean implements java.io.Serializable{
 
-    @PersistenceContext(unitName = "VDCNet-ejbPU")
-    private EntityManager em;
-
     @EJB
     protected DatasetServiceBean datasetSvc;
 
