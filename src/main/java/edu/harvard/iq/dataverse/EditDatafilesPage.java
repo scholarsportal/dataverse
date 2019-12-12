@@ -2937,7 +2937,7 @@ public class EditDatafilesPage implements java.io.Serializable {
 
     public String getClientId() {
         logger.info(settingsSvc.getValueForKey(SettingsServiceBean.Key.GlobusClientId));
-        return settingsSvc.getValueForKey(SettingsServiceBean.Key.GlobusClientId);
+        return "'" + settingsSvc.getValueForKey(SettingsServiceBean.Key.GlobusClientId) + "'";
     }
 
 }
