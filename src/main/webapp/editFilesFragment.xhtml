@@ -291,7 +291,8 @@
                                 </ui:fragment>
                                 <ui:fragment rendered="#{!createDataset}">
                                     <p:commandButton id="dropBoxUserButtonG" disabled="#{!(datasetPage || EditDatafilesPage.showFileUploadComponent())}" value="#{bundle['file.fromGlobus']}"
-                                                     action="#{EditDatafilesPage.goGlobus}"/>
+                                                     onclick="openGlobus(#{EditDatafilesPage.dataset.id});" icon="dropin-btn-status" />
+                                                    <!-- action="#{EditDatafilesPage.goGlobus}"/> -->
                                 </ui:fragment>
                             </div>
                         </div>
