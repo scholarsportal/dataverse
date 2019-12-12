@@ -2935,25 +2935,8 @@ public class EditDatafilesPage implements java.io.Serializable {
         }       
     }
 
-    public void goGlobus() throws UnsupportedEncodingException {
-
-        String globusClientId = settingsSvc.getValueForKey(SettingsServiceBean.Key.GlobusClientId, "");
-
-        HttpServletRequest origRequest = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-
-        String redirectUri = "https://" + origRequest.getServerName();
-
-        String scope = URLEncoder.encode("openid+email+profile", "UTF-8");
-
-        String url =  "https://auth.globus.org/v2/oauth2/authorize?client_id=" + globusClientId + "&response_type=code&" +
-                "scope=" + scope + "&state=" + dataset.getId();
-
-        url = url +  "&redirect_uri=" + redirectUri + "%2Fglobus.xhtml" ;
-
-        logger.info(url);
-
-        String httpString = "window.open('" + url + "')";
-        PrimeFaces.current().executeScript(httpString);
+    public String getClientId() {
+        return settingsSvc.getValueForKey(SettingsServiceBean.Key.GlobusClientId);
     }
 
 }
