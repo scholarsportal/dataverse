@@ -2943,7 +2943,7 @@ public class EditDatafilesPage implements java.io.Serializable {
 
         String redirectUri = "https://" + origRequest.getServerName();
 
-        String scope = URLEncoder.encode("openid+email+profile+urn:globus:auth:scope:transfer.api.globus.org:all", "UTF-8");
+        String scope = URLEncoder.encode("openid+email+profile", "UTF-8");
 
         String url =  "https://auth.globus.org/v2/oauth2/authorize?client_id=" + globusClientId + "&response_type=code&" +
                 "scope=" + scope + "&state=" + dataset.getId();
