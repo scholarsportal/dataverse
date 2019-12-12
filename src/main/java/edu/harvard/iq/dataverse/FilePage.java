@@ -111,9 +111,6 @@ public class FilePage implements java.io.Serializable {
     @Inject
     MakeDataCountLoggingServiceBean mdcLogService;
 
-    @Inject
-    GlobusServiceBean globusServiceBean;
-
     public WorldMapPermissionHelper getWorldMapPermissionHelper() {
         return worldMapPermissionHelper;
     }
