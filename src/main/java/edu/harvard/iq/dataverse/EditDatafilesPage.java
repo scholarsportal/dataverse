@@ -32,12 +32,10 @@ import edu.harvard.iq.dataverse.util.SystemConfig;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.EjbUtil;
 import static edu.harvard.iq.dataverse.util.JsfHelper.JH;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
+
+import java.io.*;
 import java.net.MalformedURLException;
+import java.net.URLEncoder;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -58,6 +56,8 @@ import javax.faces.event.ActionEvent;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+
+import org.primefaces.PrimeFaces;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
 import javax.json.Json;
@@ -80,6 +80,7 @@ import javax.faces.event.FacesEvent;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.validator.ValidatorException;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -104,6 +105,9 @@ public class EditDatafilesPage implements java.io.Serializable {
 
         EDIT, UPLOAD, CREATE, SINGLE, SINGLE_REPLACE
     };
+
+    @EJB
+    protected SettingsServiceBean settingsSvc;
     
     @EJB
     DatasetServiceBean datasetService;
@@ -1489,7 +1493,7 @@ public class EditDatafilesPage implements java.io.Serializable {
     }
 
     private String returnToFileLandingPageAfterReplace(DataFile newFile) {
-        
+
         if (newFile == null){
             throw new NullPointerException("newFile cannot be null!");
         }
@@ -2929,5 +2933,27 @@ public class EditDatafilesPage implements java.io.Serializable {
                 }
             }
         }       
-    }    
+    }
+
+    public void goGlobus() throws UnsupportedEncodingException {
+
+        String globusClientId = settingsSvc.getValueForKey(SettingsServiceBean.Key.GlobusClientId, "");
+
+        HttpServletRequest origRequest = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+
+        String redirectUri = "https://" + origRequest.getServerName();
+
+        String scope = URLEncoder.encode("openid+email+profile+urn:globus:auth:scope:transfer.api.globus.org:all", "UTF-8");
+
+        String url =  "https://auth.globus.org/v2/oauth2/authorize?client_id=" + globusClientId + "&response_type=code&" +
+                "scope=" + scope + "&state=" + dataset.getId();
+
+        url = url +  "&redirect_uri=" + redirectUri + "%2Fglobus.xhtml" ;
+
+        logger.info(url);
+
+        String httpString = "window.open('" + url + "')";
+        PrimeFaces.current().executeScript(httpString);
+    }
+
 }

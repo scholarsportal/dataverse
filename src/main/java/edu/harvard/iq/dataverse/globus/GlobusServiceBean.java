@@ -153,7 +153,7 @@ public class GlobusServiceBean implements java.io.Serializable{
                     return;
                 }
 
-                goGlobusUpload(directory);
+                goGlobusUpload(directory, globusEndpoint);
 
             } catch (MalformedURLException ex) {
                 logger.severe(ex.getMessage());
@@ -173,9 +173,9 @@ public class GlobusServiceBean implements java.io.Serializable{
 
     }
 
-    private void goGlobusUpload(String directory) {
+    private void goGlobusUpload(String directory, String globusEndpoint ) {
 
-        String httpString = "window.location.replace('" + "https://app.globus.org/file-manager?destination_id=5102894b-f28f-47f9-bc9a-d8e1b4e9e62c&destination_path=" + directory + "'" +")";
+        String httpString = "window.location.replace('" + "https://app.globus.org/file-manager?destination_id=" + globusEndpoint + "&destination_path=" + directory + "'" +")";
         PrimeFaces.current().executeScript(httpString);
     }
 
