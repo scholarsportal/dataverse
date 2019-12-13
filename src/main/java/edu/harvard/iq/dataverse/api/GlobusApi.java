@@ -18,6 +18,7 @@ import edu.harvard.iq.dataverse.util.FileUtil;
 
 
 import javax.ejb.EJB;
+import javax.ejb.Stateless;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
@@ -28,6 +29,8 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+@Stateless
+@Path("globus")
 public class GlobusApi extends AbstractApiBean {
     private static final Logger logger = Logger.getLogger(Access.class.getCanonicalName());
 
@@ -45,15 +48,9 @@ public class GlobusApi extends AbstractApiBean {
 
     @POST
     @Path("{datasetId}")
-    public Response globustest(@PathParam("datasetId") String datasetId) {
-        logger.info("Started " + datasetId);
-        return ok("Nothing to update");
-    }
-
-    @POST
-    @Path("{datasetId}")
     public Response globus(@PathParam("datasetId") String datasetId, @QueryParam("token") String userTransferToken)  {
 
+        logger.info("Started " + datasetId);
         Dataset dataset = null;
         try {
             dataset = findDatasetOrDie(datasetId);
