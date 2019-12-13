@@ -256,61 +256,64 @@ public class GlobusServiceBean implements java.io.Serializable{
 
     }
 
-    public String getTaskList(String userTransferToken, String identifierForFileStorage, String timeWhenAsyncStarted) throws MalformedURLException  {
+    public String getTaskList(String basicGlobusToken, String identifierForFileStorage, String timeWhenAsyncStarted) throws MalformedURLException  {
         try
         {
-        URL url = new URL("https://transfer.api.globusonline.org/v0.10/task_list");
+            String globusEndpoint = settingsSvc.getValueForKey(SettingsServiceBean.Key.GlobusEndpoint, "");
+            AccessToken clientTokenUser = getClientToken(basicGlobusToken);
 
-        //AccessToken accessTokenUser
-        //accessTokenUser.getOtherTokens().get(0).getAccessToken()
-        MakeRequestResponse result = makeRequest(url, "Bearer", userTransferToken,"GET",  null);
-        //logger.info("==TEST ==" + result.toString());
+            URL url = new URL("https://transfer.api.globusonline.org/v0.10/endpoint_manager/task_list?filter_endpoint="+globusEndpoint+"&filter_status=SUCCEEDED&filter_completion_time="+timeWhenAsyncStarted);
 
-
-
-        //2019-12-01 18:34:37+00:00
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-        Calendar cal1 = Calendar.getInstance();
-        cal1.setTime(sdf.parse(timeWhenAsyncStarted));
-
-        Calendar cal2 = Calendar.getInstance();
-
-        Tasklist tasklist = null;
-        //2019-12-01 18:34:37+00:00
-
-        if (result.status == 200) {
-            tasklist = parseJson(result.jsonResponse, Tasklist.class, false);
-            for (int i = 0; i< tasklist.getDATA().size(); i++) {
-                Task task = tasklist.getDATA().get(i);
-                Date tastTime = sdf.parse(task.getRequest_time());
-                cal2.setTime(tastTime);
+            //AccessToken accessTokenUser
+            //accessTokenUser.getOtherTokens().get(0).getAccessToken()
+            MakeRequestResponse result = makeRequest(url, "Bearer", clientTokenUser.getOtherTokens().get(0).getAccessToken(),"GET",  null);
+            //logger.info("==TEST ==" + result.toString());
 
 
-                if ( task.getStatus().equals("SUCCEEDED") && task.getType().equals("TRANSFER" ) &&
-                        task.getDestination_endpoint_display_name().equals("Dataverse GCS test collection") && cal1.before(cal2))  {
 
-                    // get /task/<task_id>/successful_transfers
-                    // verify datasetid in "destination_path": "/~/test_godata_copy/file1.txt",
-                    // go to aws and get files and write to database tables
+            //2019-12-01 18:34:37+00:00
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            //SimpleDateFormat task_sdf = new SimpleDateFormat("yyyy-MM-ddTHH:mm:ss");
 
-                    logger.info("====== timeWhenAsyncStarted = " + timeWhenAsyncStarted + "    ====== task.getRequest_time().toString() ====== " + task.getRequest_time());
+            Calendar cal1 = Calendar.getInstance();
+            cal1.setTime(sdf.parse(timeWhenAsyncStarted));
 
-                    boolean success = getSuccessfulTransfers(userTransferToken, task.getTask_id() , identifierForFileStorage) ;
+            Calendar cal2 = Calendar.getInstance();
 
-                    if(success)
+            Tasklist tasklist = null;
+            //2019-12-01 18:34:37+00:00
+
+            if (result.status == 200) {
+                tasklist = parseJson(result.jsonResponse, Tasklist.class, false);
+                for (int i = 0; i< tasklist.getDATA().size(); i++) {
+                    Task task = tasklist.getDATA().get(i);
+                    Date tastTime = sdf.parse(task.getRequest_time().replace("T" , " "));
+                    cal2.setTime(tastTime);
+
+
+                    if ( cal1.before(cal2))  {
+
+                        // get /task/<task_id>/successful_transfers
+                        // verify datasetid in "destination_path": "/~/test_godata_copy/file1.txt",
+                        // go to aws and get files and write to database tables
+
+                        logger.info("====== timeWhenAsyncStarted = " + timeWhenAsyncStarted + "    ====== task.getRequest_time().toString() ====== " + task.getRequest_time());
+
+                        boolean success = getSuccessfulTransfers(clientTokenUser, task.getTask_id() , identifierForFileStorage) ;
+
+                        if(success)
+                        {
+                            logger.info("SUCCESS ====== " + timeWhenAsyncStarted + " timeWhenAsyncStarted is before tastTime  =  TASK time =  " + task.getTask_id());
+                            return task.getTask_id();
+                        }
+                    }
+                    else
                     {
-                        logger.info("SUCCESS ====== " + timeWhenAsyncStarted + " timeWhenAsyncStarted is before tastTime  =  TASK time =  " + task.getTask_id());
-                        return task.getTask_id();
+                        //logger.info("====== " + timeWhenAsyncStarted + " timeWhenAsyncStarted is after tastTime =  TASK time = " + task.getTask_id());
+                        //return task.getTask_id();
                     }
                 }
-                else
-                {
-                    //logger.info("====== " + timeWhenAsyncStarted + " timeWhenAsyncStarted is after tastTime =  TASK time = " + task.getTask_id());
-                    //return task.getTask_id();
-                }
             }
-        }
         } catch (MalformedURLException ex) {
             logger.severe(ex.getMessage());
             logger.severe(ex.getCause().toString());
@@ -320,11 +323,11 @@ public class GlobusServiceBean implements java.io.Serializable{
         return null;
     }
 
-    public boolean getSuccessfulTransfers(String userTransferToken, String taskId, String identifierForFileStorage) throws MalformedURLException {
+    public boolean getSuccessfulTransfers(AccessToken clientTokenUser, String taskId, String identifierForFileStorage) throws MalformedURLException {
 
-        URL url = new URL("https://transfer.api.globusonline.org/v0.10/task/"+taskId+"/successful_transfers");
+        URL url = new URL("https://transfer.api.globusonline.org/v0.10/endpoint_manager/task/"+taskId+"/successful_transfers");
 
-        MakeRequestResponse result = makeRequest(url, "Bearer",userTransferToken,
+        MakeRequestResponse result = makeRequest(url, "Bearer",clientTokenUser.getOtherTokens().get(0).getAccessToken(),
                 "GET",  null);
 
         Transferlist transferlist = null;
@@ -343,6 +346,7 @@ public class GlobusServiceBean implements java.io.Serializable{
         }
         return false;
     }
+
 
 
     public AccessToken getClientToken(String basicGlobusToken) throws MalformedURLException {

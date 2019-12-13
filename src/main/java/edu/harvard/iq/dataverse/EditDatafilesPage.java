@@ -1457,7 +1457,7 @@ public class EditDatafilesPage implements java.io.Serializable {
         // If the script has been successfully downloaded, lock the dataset:
 
         try {
-            Thread.sleep(15000);
+            //Thread.sleep(15000);
         } catch (Exception ex) {
             logger.warning("Failed to sleep for 15 seconds.");
         }
