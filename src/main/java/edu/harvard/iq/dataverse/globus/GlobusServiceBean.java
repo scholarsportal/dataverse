@@ -4,6 +4,7 @@ import com.google.gson.FieldNamingPolicy;
 import com.google.gson.GsonBuilder;
 import edu.harvard.iq.dataverse.Dataset;
 import edu.harvard.iq.dataverse.DatasetServiceBean;
+import edu.harvard.iq.dataverse.DataverseSession;
 import edu.harvard.iq.dataverse.FeaturedDataverseServiceBean;
 
 import javax.ejb.EJB;
@@ -11,6 +12,7 @@ import javax.ejb.Stateless;
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.view.ViewScoped;
+import javax.inject.Inject;
 import javax.inject.Named;
 
 import javax.persistence.EntityManager;
@@ -30,6 +32,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.logging.Logger;
 import com.google.gson.Gson;
+import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
+import edu.harvard.iq.dataverse.authorization.users.ApiToken;
+import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.JsfHelper;
@@ -47,6 +52,12 @@ public class GlobusServiceBean implements java.io.Serializable{
 
     @EJB
     protected SettingsServiceBean settingsSvc;
+
+    @Inject
+    DataverseSession session;
+
+    @EJB
+    protected AuthenticationServiceBean authSvc;
 
     private static final Logger logger = Logger.getLogger(FeaturedDataverseServiceBean.class.getCanonicalName());
 
@@ -152,8 +163,19 @@ public class GlobusServiceBean implements java.io.Serializable{
                     JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("dataset.message.GlobusError"));
                     return;
                 }
-
+                ProcessBuilder processBuilder = new ProcessBuilder();
+                AuthenticatedUser user = (AuthenticatedUser) session.getUser();
+                ApiToken token = authSvc.findApiTokenByUser(user);
+                String command = "curl -H \"X-Dataverse-key:" + token.getTokenString() + "\" -X POST https://dvdev.scholarsportal.info/api/globus/" + datasetId +
+                        "?token=" + accessTokenUser.getOtherTokens().get(0).getAccessToken();
+                logger.info(command);
+                processBuilder.command("bash", "-c", command);
+                logger.info("=== Start process");
+                Process process = processBuilder.start();
+                logger.info("=== Going globus");
                 goGlobusUpload(directory, globusEndpoint);
+                logger.info("=== Finished globus");
+
 
             } catch (MalformedURLException ex) {
                 logger.severe(ex.getMessage());
