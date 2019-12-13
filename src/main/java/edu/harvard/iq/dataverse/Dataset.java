@@ -336,9 +336,6 @@ public class Dataset extends DvObjectContainer {
                 newFm.setDatasetVersion(dsv);
                 newFm.setProvFreeForm(fm.getProvFreeForm());
 
-                //Globus
-                newFm.setUploadMethod(fm.getUploadMethod());
-
                 //fmVarMet would be updated in DCT
                 if ((fmVarMet != null && !fmVarMet.getId().equals(fm.getId())) || (fmVarMet == null))  {
                     if (fm.getVariableMetadatas() != null) {

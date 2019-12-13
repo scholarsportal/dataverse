@@ -117,24 +117,11 @@
                               and fileMetadata.dataFile.fileGlobus and systemConfig.globusUpload}"
                    styleClass="btn btn-default btn-download" process="@this"
                    disabled="#{(fileMetadata.dataFile.ingestInProgress  or lockedFromDownload) ? 'disabled' : ''}"
-                   onclick="openGlobus(#{fileMetadata.datasetVersion.dataset.id});">
+                   action="#{fileDownloadHelper.goGlobusDownload(fileMetadata.datasetVersion.dataset.id)}">
         <f:actionListener binding="#{packagePopupFragmentBean.setFileMetadata(fileMetadata)}" />
         <f:actionListener binding="#{fileDownloadService.writeGuestbookResponseRecord(guestbookResponse, fileMetadata, 'package')}" />
         <!-- package data file: -->
         <!-- no guest book/terms of use/etc. - straight package popup -->
-        <span class="glyphicon glyphicon-download-alt"/> #{bundle['file.downloadFromGlobus']}
-    </p:commandLink>
-
-    <p:commandLink rendered="#{ fileDownloadHelper.canDownloadFile(fileMetadata) and !(fileMetadata.dataFile.tabularData) and (downloadPopupRequired)
-                              and fileMetadata.dataFile.fileGlobus and systemConfig.globusUpload}"
-                   styleClass="btn btn-default btn-download"
-                   process="@this"
-                   disabled="#{(fileMetadata.dataFile.ingestInProgress  or lockedFromDownload) ? 'disabled' : ''}"
-                   action="#{guestbookResponseService.modifyDatafileAndFormat(guestbookResponse, fileMetadata, 'package')}"
-                   onclick="openGlobus(#{fileMetadata.datasetVersion.dataset.id});">
-        <f:actionListener binding="#{packagePopupFragmentBean.setFileMetadata(fileMetadata)}" />
-        <!-- package data file: -->
-        <!-- guest book or terms of use, etc. enabled - open "download popup" first: -->
         <span class="glyphicon glyphicon-download-alt"/> #{bundle['file.downloadFromGlobus']}
     </p:commandLink>
 
@@ -331,22 +318,4 @@
         <!-- 4.2.1 - TODO: retest this on a dataset with fileRequest enabled and with some files restricted to the user -->
         <span class="glyphicon glyphicon-bullhorn"/> #{fileMetadata.dataFile.fileAccessRequesters.contains(dataverseSession.user) ? bundle['file.accessRequested'] : bundle['file.requestAccess']}
     </p:commandLink>
-    <script>
-        //<![CDATA[
-    function openGlobus(datasetId) {
-    var res =  location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
-    console.log(res);
-    console.log(datasetId);
-
-    var new_url =  "https://auth.globus.org/v2/oauth2/authorize?client_id=80480a71-809d-4e2a-a16d-cbd305594d7a&response_type=code&" +
-     "&state=" + datasetId + "_d";
-
-    new_url = new_url +  "&redirect_uri=" + res + "%2Fglobus.xhtml" ;;
-
-    var myWindows = window.open(new_url);
-    console.log(window.location.href);
-    }
-
-    //]]>
-</script>
 </ui:composition>

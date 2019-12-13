@@ -426,7 +426,11 @@ public class SettingsServiceBean {
         /**
          * GlobusEndpoint is Glopus endpoint for Globus application
          */
-        GlobusEndpoint;
+        GlobusEndpoint,
+        /**Client id for Globus application
+         *
+         */
+        GlobusClientId;
 
         @Override
         public String toString() {

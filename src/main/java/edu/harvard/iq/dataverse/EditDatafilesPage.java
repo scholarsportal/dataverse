@@ -37,6 +37,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
+
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -58,6 +59,8 @@ import javax.faces.event.ActionEvent;
 import javax.faces.view.ViewScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
+
+import org.primefaces.PrimeFaces;
 import org.primefaces.event.FileUploadEvent;
 import org.primefaces.model.UploadedFile;
 import javax.json.Json;
@@ -80,6 +83,7 @@ import javax.faces.event.FacesEvent;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.validator.ValidatorException;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
@@ -104,7 +108,10 @@ public class EditDatafilesPage implements java.io.Serializable {
 
         EDIT, UPLOAD, CREATE, SINGLE, SINGLE_REPLACE
     };
-    
+
+    @EJB
+    protected SettingsServiceBean settingsSvc;
+
     @EJB
     DatasetServiceBean datasetService;
     @EJB
@@ -2935,7 +2942,13 @@ public class EditDatafilesPage implements java.io.Serializable {
                     fileMetadatas.add(fmd);
                 }
             }
-        }
+        }       
     }
+
+    public String getClientId() {
+        logger.info(settingsSvc.getValueForKey(SettingsServiceBean.Key.GlobusClientId));
+        return "'" + settingsSvc.getValueForKey(SettingsServiceBean.Key.GlobusClientId) + "'";
+    }
+
 }
 

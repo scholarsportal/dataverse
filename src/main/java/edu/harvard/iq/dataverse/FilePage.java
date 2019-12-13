@@ -23,6 +23,7 @@ import edu.harvard.iq.dataverse.export.ExportService;
 import edu.harvard.iq.dataverse.export.spi.Exporter;
 import edu.harvard.iq.dataverse.externaltools.ExternalTool;
 import edu.harvard.iq.dataverse.externaltools.ExternalToolServiceBean;
+import edu.harvard.iq.dataverse.globus.GlobusServiceBean;
 import edu.harvard.iq.dataverse.makedatacount.MakeDataCountLoggingServiceBean;
 import edu.harvard.iq.dataverse.makedatacount.MakeDataCountLoggingServiceBean.MakeDataCountEntry;
 import edu.harvard.iq.dataverse.makedatacount.MakeDataCountUtil;

@@ -9,6 +9,7 @@ import edu.harvard.iq.dataverse.authorization.Permission;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.datavariable.DataVariable;
 import edu.harvard.iq.dataverse.externaltools.ExternalTool;
+import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import static edu.harvard.iq.dataverse.util.JsfHelper.JH;
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import edu.harvard.iq.dataverse.util.SystemConfig;
+import org.primefaces.PrimeFaces;
 import org.primefaces.context.RequestContext;
 
 /**
@@ -43,6 +45,11 @@ public class FileDownloadHelper implements java.io.Serializable {
      
     private static final Logger logger = Logger.getLogger(FileDownloadHelper.class.getCanonicalName());
 
+    @EJB
+    protected SettingsServiceBean settingsSvc;
+
+    @EJB
+    protected DatasetServiceBean datasetSvc;
 
     @Inject
     DataverseSession session;
@@ -541,13 +548,38 @@ public class FileDownloadHelper implements java.io.Serializable {
         this.session = session;
     }
 
-    public boolean isUploadGlobus(Long id) {
-        FileMetadata fm = datafileService.findFileMetadata(id);
-        if (fm != null && fm.getUploadMethod().equals(SystemConfig.FileUploadMethods.GLOBUS.toString())) {
-            return true;
-        } else {
-            return false;
-        }
+    public void goGlobusDownload(String datasetId) {
+
+        String directory = getDirectory(datasetId);
+        String globusEndpoint = settingsSvc.getValueForKey(SettingsServiceBean.Key.GlobusEndpoint, "");
+        String httpString = "window.location.replace('" + "https://app.globus.org/file-manager?origin_id=" + globusEndpoint + "&origin_path=" + directory + "'" +")";
+        PrimeFaces.current().executeScript(httpString);
     }
+
+    String getDirectory(String datasetId) {
+        Dataset dataset = null;
+        String directory = null;
+        try {
+            dataset = datasetSvc.find(Long.parseLong(datasetId));
+            if (dataset == null) {
+                logger.severe("Dataset not found " + datasetId);
+                return null;
+            }
+            String storeId = dataset.getStorageIdentifier();
+            storeId.substring(storeId.indexOf("//") + 1);
+            directory = storeId.substring(storeId.indexOf("//") + 1);
+            logger.info(storeId);
+            logger.info(directory);
+            logger.info("Storage identifier:" + dataset.getIdentifierForFileStorage());
+            return directory;
+
+        } catch (NumberFormatException nfe) {
+            logger.severe(nfe.getMessage());
+
+            return null;
+        }
+
+    }
+
     
 }
