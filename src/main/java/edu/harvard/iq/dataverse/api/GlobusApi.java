@@ -45,6 +45,13 @@ public class GlobusApi extends AbstractApiBean {
 
     @POST
     @Path("{datasetId}")
+    public Response globustest(@PathParam("datasetId") String datasetId) {
+        logger.info("Started " + datasetId);
+        return ok("Nothing to update");
+    }
+
+    @POST
+    @Path("{datasetId}")
     public Response globus(@PathParam("datasetId") String datasetId, @QueryParam("token") String userTransferToken)  {
 
         Dataset dataset = null;
@@ -253,7 +260,7 @@ public class GlobusApi extends AbstractApiBean {
 
                 //Thread.sleep(10000);
                 logger.info(" ======= DONE GLOBUS ASYNC CALL ");
-                return ok("Nothing to update");
+                return ok("Finished task_list");
             }
 
         }  catch (Exception e) {
