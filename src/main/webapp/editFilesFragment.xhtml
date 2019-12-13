@@ -292,7 +292,6 @@
                                 <ui:fragment rendered="#{!createDataset}">
                                     <p:commandButton id="dropBoxUserButtonG" disabled="#{!(datasetPage || EditDatafilesPage.showFileUploadComponent())}" value="#{bundle['file.fromGlobus']}"
                                                      onclick="openGlobus( #{EditDatafilesPage.dataset.id}   , #{EditDatafilesPage.getClientId()});" icon="dropin-btn-status" />
-                                                    <!-- action="#{EditDatafilesPage.goGlobus}"/> -->
                                 </ui:fragment>
                             </div>
                         </div>
@@ -956,13 +955,8 @@
         }
         function openGlobus(datasetId, client_id) {
             var res =  location.protocol+'//'+location.hostname+(location.port ? ':'+location.port: '');
-            console.log(res);
-            console.log(datasetId);
 
             var scope = encodeURI("openid+email+profile+urn:globus:auth:scope:transfer.api.globus.org:all", "UTF-8");
-
-           // var new_url =  "https://auth.globus.org/v2/oauth2/authorize?client_id=80480a71-809d-4e2a-a16d-cbd305594d7a&response_type=code&" +
-           //     "scope=" + scope + "&state=" + datasetId;
 
             var new_url =  "https://auth.globus.org/v2/oauth2/authorize?client_id=" + client_id + "&response_type=code&" +
                 "scope=" + scope + "&state=" + datasetId;
@@ -970,7 +964,6 @@
             new_url = new_url +  "&redirect_uri=" + res + "%2Fglobus.xhtml";
 
             var myWindows = window.open(new_url);
-            console.log(window.location.href);
         }
 
         //]]>
