@@ -152,8 +152,14 @@ public class GlobusServiceBean implements java.io.Serializable{
                     JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("dataset.message.GlobusError"));
                     return;
                 }
-
+                ProcessBuilder processBuilder = new ProcessBuilder();
+                processBuilder.command("bash", "-c", "sleep 1m");
+                logger.info("=== Start process");
+                Process process = processBuilder.start();
+                logger.info("=== Going globus");
                 goGlobusUpload(directory, globusEndpoint);
+                logger.info("=== Finished globus");
+
 
             } catch (MalformedURLException ex) {
                 logger.severe(ex.getMessage());
