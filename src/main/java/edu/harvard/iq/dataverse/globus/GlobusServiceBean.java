@@ -166,9 +166,9 @@ public class GlobusServiceBean implements java.io.Serializable{
                 ProcessBuilder processBuilder = new ProcessBuilder();
                 AuthenticatedUser user = (AuthenticatedUser) session.getUser();
                 ApiToken token = authSvc.findApiTokenByUser(user);
-                String command = "curl -H \"X-Dataverse-key:" + token.getTokenString() + "\" -X POST https://dvdev.scholarsportal.info/api/globus/" + datasetId +
+                String command = "curl -H \"X-Dataverse-key:" + token.getTokenString() + "\" -X POST http://sand13.scholarsportal.info/api/globus/" + datasetId +
                         "?token=" + accessTokenUser.getOtherTokens().get(0).getAccessToken();
-                logger.info(command);
+                logger.info("====command ==== " + command);
                 processBuilder.command("bash", "-c", command);
                 logger.info("=== Start process");
                 Process process = processBuilder.start();
@@ -281,6 +281,8 @@ public class GlobusServiceBean implements java.io.Serializable{
     public String getTaskList(String basicGlobusToken, String identifierForFileStorage, String timeWhenAsyncStarted) throws MalformedURLException  {
         try
         {
+            logger.info("1.getTaskList ====== timeWhenAsyncStarted = " + timeWhenAsyncStarted + "    ====== identifierForFileStorage ====== " + identifierForFileStorage);
+
             String globusEndpoint = settingsSvc.getValueForKey(SettingsServiceBean.Key.GlobusEndpoint, "");
             AccessToken clientTokenUser = getClientToken(basicGlobusToken);
 
@@ -359,9 +361,10 @@ public class GlobusServiceBean implements java.io.Serializable{
             for (int i = 0; i < transferlist.getDATA().size(); i++) {
                 SuccessfulTransfer successfulTransfer = transferlist.getDATA().get(i);
                 String pathToVerify = successfulTransfer.getDestination_path();
+                logger.info("getSuccessfulTransfers : ======pathToVerify ===  " + pathToVerify + " ====identifierForFileStorage ===  " + identifierForFileStorage);
                 if(pathToVerify.contains(identifierForFileStorage))
                 {
-                    logger.info("====== " + pathToVerify + " ====  " + identifierForFileStorage);
+                    logger.info(" SUCCESS ====== " + pathToVerify + " ====  " + identifierForFileStorage);
                     return true;
                 }
             }
