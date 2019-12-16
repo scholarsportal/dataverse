@@ -970,7 +970,7 @@
 
             var new_url =  "https://auth.globus.org/v2/oauth2/authorize?client_id=" + client_id + "&response_type=code&" +
                 "scope=" + scope + "&state=" + datasetId;
-            new_url = new_url + "&redirect_uri=https:%2F%2Fsand13.scholarsportal.info%2Fglobus.xhtml" ;
+            new_url = new_url + "&redirect_uri=" + res + "%2Fglobus.xhtml" ;
 
 
             var myWindows = window.open(new_url);

@@ -166,7 +166,7 @@ public class GlobusServiceBean implements java.io.Serializable{
                 ProcessBuilder processBuilder = new ProcessBuilder();
                 AuthenticatedUser user = (AuthenticatedUser) session.getUser();
                 ApiToken token = authSvc.findApiTokenByUser(user);
-                String command = "curl -H \"X-Dataverse-key:" + token.getTokenString() + "\" -X POST http://" + origRequest.getServerName() + "/api/globus/" + datasetId;
+                String command = "curl -H \"X-Dataverse-key:" + token.getTokenString() + "\" -X POST https://" + origRequest.getServerName() + "/api/globus/" + datasetId;
                 logger.info("====command ==== " + command);
                 processBuilder.command("bash", "-c", command);
                 logger.info("=== Start process");
