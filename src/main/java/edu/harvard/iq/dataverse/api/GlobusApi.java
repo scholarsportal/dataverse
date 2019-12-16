@@ -55,7 +55,7 @@ public class GlobusApi extends AbstractApiBean {
 
     @POST
     @Path("{datasetId}")
-    public Response globus(@PathParam("datasetId") String datasetId, @QueryParam("token") String userTransferToken) {
+    public Response globus(@PathParam("datasetId") String datasetId ) {
 
         logger.info("Async:======Start Async Tasklist == dataset id :"+ datasetId  );
         Dataset dataset = null;
