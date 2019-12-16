@@ -119,7 +119,7 @@
                    disabled="#{(fileMetadata.dataFile.ingestInProgress  or lockedFromDownload) ? 'disabled' : ''}"
                    action="#{fileDownloadHelper.goGlobusDownload(fileMetadata.datasetVersion.dataset.id)}">
         <f:actionListener binding="#{packagePopupFragmentBean.setFileMetadata(fileMetadata)}" />
-        <f:actionListener binding="#{fileDownloadService.writeGuestbookResponseRecord(guestbookResponse, fileMetadata, 'package')}" />
+        <f:actionListener binding="#{fileDownloadService.writeGuestbookResponseRecord(guestbookResponse, fileMetadata, 'Download')}" />
         <!-- package data file: -->
         <!-- no guest book/terms of use/etc. - straight package popup -->
         <span class="glyphicon glyphicon-download-alt"/> #{bundle['file.downloadFromGlobus']}
