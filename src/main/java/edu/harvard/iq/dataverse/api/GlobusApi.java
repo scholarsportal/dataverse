@@ -57,7 +57,7 @@ public class GlobusApi extends AbstractApiBean {
     @Path("{datasetId}")
     public Response globus(@PathParam("datasetId") String datasetId, @QueryParam("token") String userTransferToken) {
 
-        logger.info("Started " + datasetId);
+        logger.info("Async:======Start Async Tasklist == dataset id :"+ datasetId  );
         Dataset dataset = null;
         try {
             dataset = findDatasetOrDie(datasetId);
@@ -72,7 +72,7 @@ public class GlobusApi extends AbstractApiBean {
         }
 
         try {
-            logger.info("======Start Tasklist "  );
+
 
             /*
             String lockInfoMessage = "Globus upload in progress";
@@ -82,7 +82,7 @@ public class GlobusApi extends AbstractApiBean {
             } else {
                 logger.log(Level.WARNING, "Failed to lock the dataset (dataset id={0})", dataset.getId());
             }
-*/
+            */
 
             List<FileMetadata> fileMetadatas = new ArrayList<>();
 
@@ -111,24 +111,22 @@ public class GlobusApi extends AbstractApiBean {
                     cal2.setTime(sdf.parse(currentDateTime));
 
                     if (cal2.after(cal1)) {
-                        logger.info("======Time exceeded " + endDateTime + " ====== " + currentDateTime);
-                        logger.info("======second condition ==== ");
+                        logger.info("Async:======Time exceeded " + endDateTime + " ====== " + currentDateTime + " ====  datasetId :" + datasetId);
                         break;
                     } else if (task_id != null) {
                         break;
                     }
 
                 } catch (Exception ex) {
-                    //logger.info("======third condition ==== "  );
                     ex.printStackTrace();
                     logger.info(ex.getMessage());
-                    return error(Response.Status.INTERNAL_SERVER_ERROR, "Failed to do task_list" );
+                    return error(Response.Status.INTERNAL_SERVER_ERROR, "Failed to get task id" );
                 }
 
             } while (task_id == null);
 
 
-            logger.info("======End Tasklist " + task_id );
+            logger.info("Async:======Found matching task id " + task_id + " ====  datasetId :" + datasetId);
 
 
             DatasetVersion workingVersion = dataset.getEditVersion();
@@ -140,7 +138,7 @@ public class GlobusApi extends AbstractApiBean {
 
             String directory = dataset.getAuthorityForFileStorage() + "/" + dataset.getIdentifierForFileStorage();
 
-            System.out.println("======= directory ==== " + directory);
+            System.out.println("Async:======= directory ==== " + directory+ " ====  datasetId :" + datasetId);
             Map<String, Integer> checksumMapOld = new HashMap<>();
 
             Iterator<FileMetadata> fmIt = workingVersion.getFileMetadatas().iterator();
@@ -148,19 +146,12 @@ public class GlobusApi extends AbstractApiBean {
             while (fmIt.hasNext()) {
                 FileMetadata fm = fmIt.next();
                 if (fm.getDataFile() != null && fm.getDataFile().getId() != null) {
-                    logger.log(Level.INFO, "====fm.getDataFile().getDisplayName() ======", fm.getDataFile().getDisplayName());
                     String chksum = fm.getDataFile().getChecksumValue();
                     if (chksum != null) {
                         checksumMapOld.put(chksum, 1);
                     }
                 }
             }
-
-            //todo: step 1
-            //fileutil.java
-            // private static DataFile createSingleDataFile(DatasetVersion version, File tempFile, String fileName, String contentType,
-            // DataFile.ChecksumType checksumType, boolean addToDataset) {
-
 
             List<DataFile> dFileList = new ArrayList<>();
             for (S3ObjectSummary s3ObjectSummary : datasetSIO.listAuxObjects("")) {
@@ -175,24 +166,16 @@ public class GlobusApi extends AbstractApiBean {
                     String checksumVal = s3ObjectSummary.getETag();
 
                     if ((checksumMapOld.get(checksumVal) != null)) {
-                        logger.info("======= filename ==== " + filePath + " == file already exists ");
+                        logger.info("Async: ====  datasetId :" + datasetId + "======= filename ==== " + filePath + " == file already exists ");
                     } else if (!filePath.contains("cached")) {
 
-                        logger.info("======= filename ==== " + filePath + " == new file   ");
+                        logger.info("Async: ====  datasetId :" + datasetId + "======= filename ==== " + filePath + " == new file   ");
                         try {
-                            // Note: A single uploaded file may produce multiple datafiles -
-                            // for example, multiple files can be extracted from an uncompressed
-                            // zip file.
-                            //dFileList = FileUtil.createDataFilesGlobus(workingVersion, uFile.getInputstream(), uFile.getFileName(), uFile.getContentType(), systemConfig);
-
-
-                            logger.info(" == in single createDataFiles  1");
 
                             DataFile datafile = new DataFile(DataFileServiceBean.MIME_TYPE_GLOBUS_FILE);  //MIME_TYPE_GLOBUS
                             datafile.setModificationTime(new Timestamp(new Date().getTime()));
                             datafile.setCreateDate(new Timestamp(new Date().getTime()));
                             datafile.setPermissionModificationTime(new Timestamp(new Date().getTime()));
-
 
                             FileMetadata fmd = new FileMetadata();
 
@@ -205,14 +188,14 @@ public class GlobusApi extends AbstractApiBean {
                             datafile.getFileMetadatas().add(fmd);
 
                             FileUtil.generateS3PackageStorageIdentifier(datafile);
-                            logger.info("======= filename ==== " + filePath + " == added to datafile, filemetadata   ");
+                            logger.info("Async: ====  datasetId :" + datasetId + "======= filename ==== " + filePath + " == added to datafile, filemetadata   ");
 
                             try {
                                 // We persist "SHA1" rather than "SHA-1".
                                 datafile.setChecksumType(DataFile.ChecksumType.SHA1);
                                 datafile.setChecksumValue(checksumVal);
                             } catch (Exception cksumEx) {
-                                logger.info("======Could not calculate  checksumType signature for the new file ");
+                                logger.info("Async: ====  datasetId :" + datasetId + "======Could not calculate  checksumType signature for the new file ");
                             }
 
                             datafile.setFilesize(totalSize);
@@ -220,7 +203,7 @@ public class GlobusApi extends AbstractApiBean {
                             dFileList.add(datafile);
 
                         } catch (Exception ioex) {
-                            logger.info("======Failed to process and/or save the file " + ioex.getMessage());
+                            logger.info("Async: ====  datasetId :" + datasetId + "======Failed to process and/or save the file " + ioex.getMessage());
                             return error(Response.Status.INTERNAL_SERVER_ERROR, "Failed to do task_list" );
 
                         }
@@ -242,13 +225,7 @@ public class GlobusApi extends AbstractApiBean {
 
 */
 
-            // Try to save the NEW files permanently:
-            //List<DataFile> filesAdded = ingestService.saveAndAddGlobusFilesToDataset(workingVersion, dFileList);
-
-
             List<DataFile> filesAdded = new ArrayList<>();
-
-            logger.info(" == saveAndAddFilesToDataset function started  dFileList.size() == " + dFileList.size());
 
             if (dFileList != null && dFileList.size() > 0) {
 
@@ -257,7 +234,6 @@ public class GlobusApi extends AbstractApiBean {
                 for (DataFile dataFile : dFileList) {
 
                     if (dataFile.getOwner() == null) {
-                        logger.info(" == set owner for data file == ");
                         dataFile.setOwner(dataset);
 
                         workingVersion.getFileMetadatas().add(dataFile.getFileMetadata());
@@ -270,78 +246,44 @@ public class GlobusApi extends AbstractApiBean {
 
                 }
 
-                logger.info(" ===== Done! Finished saving new files in permanent storage and adding them to the dataset.");
+                logger.info("Async: ====  datasetId :" + datasetId + " ===== Done! Finished saving new files to the dataset.");
             }
 
-
-            // reset the working list of fileMetadatas, as to only include the ones
-            // that have been added to the version successfully:
             fileMetadatas.clear();
             for (DataFile addedFile : filesAdded) {
-                logger.info(" ==== check datafile id===== " + addedFile.getId());
                 fileMetadatas.add(addedFile.getFileMetadata());
             }
             filesAdded = null;
 
-
-            logger.info(" 2==== dataset.getVersions().size()  === " + dataset.getVersions().size());
-            logger.info(" 2==== dataset.getLatestVersion().getVersionState() ===== " + dataset.getLatestVersion().getVersionState());
-            logger.info(" 2==== workingVersion.getId()  ===== " + workingVersion.getId());
-            logger.info(" 2==== workingVersion.isDraft() ===== " + workingVersion.isDraft());
-
             if (workingVersion.isDraft()) {
 
-                logger.info(" ==== inside draft version ");
+                logger.info("Async: ====  datasetId :" + datasetId + " ==== inside draft version ");
 
                 Timestamp updateTime = new Timestamp(new Date().getTime());
 
                 workingVersion.setLastUpdateTime(updateTime);
                 dataset.setModificationTime(updateTime);
 
-                StringBuilder saveError = new StringBuilder();
 
                 for (FileMetadata fileMetadata : fileMetadatas) {
-                    logger.info(" ==== inside filemetadatas size " + fileMetadatas.size());
 
                     if (fileMetadata.getDataFile().getCreateDate() == null) {
-                        logger.info("==== inside filemetadata loop in draft version ");
-                        fileMetadata.getDataFile().setCreateDate(updateTime);
+                         fileMetadata.getDataFile().setCreateDate(updateTime);
                         fileMetadata.getDataFile().setCreator((AuthenticatedUser) apiTokenUser);
                     }
                     fileMetadata.getDataFile().setModificationTime(updateTime);
-                    try {
-                        // DataFile savedDatafile = datafileService.save(fileMetadata.getDataFile());
-                        //fileMetadata = datafileService.mergeFileMetadata(fileMetadata);
-                        logger.fine("===Successfully saved DataFile " + fileMetadata.getLabel() + " in the database.");
-                    } catch (EJBException ex) {
-                        saveError.append(ex).append(" ");
-                        saveError.append(ex.getMessage()).append(" ");
-                        Throwable cause = ex;
-                        while (cause.getCause() != null) {
-                            cause = cause.getCause();
-                            saveError.append(cause).append(" ");
-                            saveError.append(cause.getMessage()).append(" ");
-                        }
-                    }
                 }
 
-                String saveErrorString = saveError.toString();
-                if (saveErrorString != null && !saveErrorString.isEmpty()) {
-                    logger.log(Level.INFO, "===Couldn''t save dataset: {0}", saveErrorString);
-                    //populateDatasetUpdateFailureMessage();
-
-                }
 
             } else {
-                logger.info(" ==== inside released version ");
+                logger.info("Async: ====  datasetId :" + datasetId + " ==== inside released version ");
 
                 for (int i = 0; i < workingVersion.getFileMetadatas().size(); i++) {
                     for (FileMetadata fileMetadata : fileMetadatas) {
                         if (fileMetadata.getDataFile().getStorageIdentifier() != null) {
 
                             if (fileMetadata.getDataFile().getStorageIdentifier().equals(workingVersion.getFileMetadatas().get(i).getDataFile().getStorageIdentifier())) {
-                                logger.info(" ===== inside filemetadata loop in released version ");
-                                workingVersion.getFileMetadatas().set(i, fileMetadata);
+                                 workingVersion.getFileMetadatas().set(i, fileMetadata);
                             }
                         }
                     }
@@ -353,31 +295,24 @@ public class GlobusApi extends AbstractApiBean {
 
             try {
                 Command<Dataset> cmd;
-                logger.info(" ======= UpdateDatasetVersionCommand START in globus function ");
+                logger.info("Async: ====  datasetId :" + datasetId + " ======= UpdateDatasetVersionCommand START in globus function ");
                 cmd = new UpdateDatasetVersionCommand(dataset,new DataverseRequest(apiTokenUser, (HttpServletRequest) null));
                 ((UpdateDatasetVersionCommand) cmd).setValidateLenient(true);
                 //new DataverseRequest(authenticatedUser, (HttpServletRequest) null)
                 //dvRequestService.getDataverseRequest()
-                logger.info(" ======= UpdateDatasetVersionCommand END in globus function ");
                 commandEngine.submit(cmd);
-                logger.info(" ======= commandEngine.submit END in globus function ");
-            } catch (CommandException ex) {
-                logger.log(Level.WARNING, "======CommandException updating DatasetVersion from batch job: " + ex.getMessage());
+             } catch (CommandException ex) {
+                logger.log(Level.WARNING, "Async: ====  datasetId :" + datasetId + "======CommandException updating DatasetVersion from batch job: " + ex.getMessage());
                 return error(Response.Status.INTERNAL_SERVER_ERROR, "Failed to do task_list" );
             }
 
-            //workingVersion = dataset.getEditVersion();
-            //logger.info("========working version id: "+workingVersion.getId());
+            logger.info("Async: ====  datasetId :" + datasetId + " ======= GLOBUS ASYNC CALL COMPLETED SUCCESSFULLY ");
 
-
-            //Thread.sleep(10000);
-            logger.info(" ======= DONE GLOBUS ASYNC CALL ");
-
-            return ok("Finished task_list");
+            return ok("Async: ====  datasetId :" + datasetId + ": Finished task_list");
         }  catch(Exception e) {
             String message = e.getMessage();
 
-            logger.info(" ======= DONE GLOBUS ASYNC CALL Exception ============== " + message);
+            logger.info("Async: ====  datasetId :" + datasetId + " ======= GLOBUS ASYNC CALL Exception ============== " + message);
             e.printStackTrace();
             return error(Response.Status.INTERNAL_SERVER_ERROR, "Failed to do task_list" );
             //return error(Response.Status.INTERNAL_SERVER_ERROR, "Uploaded files have passed checksum validation but something went wrong while attempting to move the files into Dataverse. Message was '" + message + "'.");
