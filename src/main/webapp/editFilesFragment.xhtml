@@ -290,6 +290,12 @@
                                     </ui:fragment>
                                 </ui:fragment>
                                 <ui:fragment rendered="#{!createDataset}">
+
+                                    <p class="help-block">
+
+                                        <b>BEFORE YOU START:</b>  You will need to set up a free account with <a href="https://www.globus.org/">Globus</a> and
+                                        have <a href="https://www.globus.org/globus-connect">Globus Connect Personal</a> running on your computer to transfer files to and from the service.</p>
+
                                     <p:commandButton id="dropBoxUserButtonG" disabled="#{!(datasetPage || EditDatafilesPage.showFileUploadComponent())}" value="#{bundle['file.fromGlobus']}"
                                                      onclick="openGlobus( #{EditDatafilesPage.dataset.id}   , #{EditDatafilesPage.getClientId()});" icon="dropin-btn-status"
                                                       />
