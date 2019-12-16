@@ -552,7 +552,7 @@ public class FileDownloadHelper implements java.io.Serializable {
 
         String directory = getDirectory(datasetId);
         String globusEndpoint = settingsSvc.getValueForKey(SettingsServiceBean.Key.GlobusEndpoint, "");
-        String httpString = "window.location.replace('" + "https://app.globus.org/file-manager?origin_id=" + globusEndpoint + "&origin_path=" + directory + "'" +")";
+        String httpString = "window.open('" + "https://app.globus.org/file-manager?origin_id=" + globusEndpoint + "&origin_path=" + directory + "'" +", '_blank')";
         PrimeFaces.current().executeScript(httpString);
     }
 
