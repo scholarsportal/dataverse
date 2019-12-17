@@ -306,11 +306,8 @@
 
                                     </p>
 
-                                    <div jsf:rendered="#{EditDatafilesPage.dataset.latestVersion.draft}" >
-                                        Click here to view draft version: <a href="/dataset.xhtml?persistentId=#{EditDatafilesPage.dataset.globalId}&amp;version=DRAFT&amp;faces-redirect=true" title="#{EditDatafilesPage.dataset.displayName}">#{EditDatafilesPage.dataset.displayName}</a> .
-                                    </div>
-                                    <div jsf:rendered="#{EditDatafilesPage.workingVersion.dataset.released}" >
-                                        Click here to view latest released dataset page: <a href="/dataset.xhtml?persistentId=#{EditDatafilesPage.dataset.globalId}&amp;faces-redirect=true" title="#{EditDatafilesPage.dataset.displayName}">#{EditDatafilesPage.dataset.displayName}</a> .
+                                    <div>
+                                        Click here to view the dataset page: <a href="/dataset.xhtml?persistentId=#{EditDatafilesPage.dataset.globalId}&amp;faces-redirect=true" title="#{EditDatafilesPage.dataset.displayName}">#{EditDatafilesPage.dataset.displayName}</a> .
                                     </div>
                                 </ui:fragment>
                             </div>
@@ -980,7 +977,7 @@
 
             var new_url =  "https://auth.globus.org/v2/oauth2/authorize?client_id=" + client_id + "&response_type=code&" +
                 "scope=" + scope + "&state=" + datasetId;
-            new_url = new_url + "&redirect_uri=https:%2F%2Fsand13.scholarsportal.info%2Fglobus.xhtml" ;
+            new_url = new_url + "&redirect_uri=" + res + "%2Fglobus.xhtml" ;
 
 
             var myWindows = window.open(new_url);
