@@ -309,8 +309,8 @@
                                     <div jsf:rendered="#{EditDatafilesPage.dataset.latestVersion.draft}" >
                                         Click here to view draft version: <a href="/dataset.xhtml?persistentId=#{EditDatafilesPage.dataset.globalId}&amp;version=DRAFT&amp;faces-redirect=true" title="#{EditDatafilesPage.dataset.displayName}">#{EditDatafilesPage.dataset.displayName}</a> .
                                     </div>
-                                    <div jsf:rendered="#{!EditDatafilesPage.dataset.latestVersion.draft}" >
-                                        Click here to view dataset page: <a href="/dataset.xhtml?persistentId=#{EditDatafilesPage.dataset.globalId}&amp;faces-redirect=true" title="#{EditDatafilesPage.dataset.displayName}">#{EditDatafilesPage.dataset.displayName}</a> .
+                                    <div jsf:rendered="#{EditDatafilesPage.workingVersion.dataset.released}" >
+                                        Click here to view latest released dataset page: <a href="/dataset.xhtml?persistentId=#{EditDatafilesPage.dataset.globalId}&amp;faces-redirect=true" title="#{EditDatafilesPage.dataset.displayName}">#{EditDatafilesPage.dataset.displayName}</a> .
                                     </div>
                                 </ui:fragment>
                             </div>
