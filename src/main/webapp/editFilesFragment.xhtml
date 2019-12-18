@@ -301,7 +301,14 @@
                                         />
 
                                         <br/>
-                                        Once the files are uploaded successfully, please allow several minutes (depending on the size of your dataset) where the data file checksums are verified; once this is completed, the Dataverse UI will be updated.
+                                        <br/>
+                                        Once Globus transfer has finished, you will get an email notification. Please come back here and press the following button:
+                                        <br/>
+                                        <p:commandButton id="globusFinishedButton" disabled="#{!(datasetPage || EditDatafilesPage.showFileUploadComponent())}" value="#{bundle['file.finishGlobus']}"
+                                                         action="#{EditDatafilesPage.startTaskList()}"
+                                        />
+
+                                        <br/>
                                         <br/>
 
                                     </p>
@@ -982,7 +989,6 @@
 
             var myWindows = window.open(new_url);
         }
-
         //]]>
     </script>
 </ui:composition>

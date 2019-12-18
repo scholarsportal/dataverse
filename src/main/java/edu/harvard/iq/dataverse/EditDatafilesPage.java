@@ -1,5 +1,7 @@
 package edu.harvard.iq.dataverse;
 
+import edu.harvard.iq.dataverse.api.GlobusApi;
+import edu.harvard.iq.dataverse.globus.GlobusServiceBean;
 import edu.harvard.iq.dataverse.provenance.ProvPopupFragmentBean;
 import edu.harvard.iq.dataverse.api.AbstractApiBean;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
@@ -89,6 +91,8 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
+import javax.ws.rs.PathParam;
+
 import org.apache.commons.lang.StringUtils;
 import org.primefaces.context.RequestContext;
 
@@ -108,6 +112,9 @@ public class EditDatafilesPage implements java.io.Serializable {
 
         EDIT, UPLOAD, CREATE, SINGLE, SINGLE_REPLACE
     };
+
+    @EJB
+    GlobusServiceBean globusServiceBean;
 
     @EJB
     protected SettingsServiceBean settingsSvc;
@@ -2948,6 +2955,24 @@ public class EditDatafilesPage implements java.io.Serializable {
     public String getClientId() {
         logger.info(settingsSvc.getValueForKey(SettingsServiceBean.Key.GlobusClientId));
         return "'" + settingsSvc.getValueForKey(SettingsServiceBean.Key.GlobusClientId) + "'";
+    }
+
+    public void startTaskList() {
+
+        AuthenticatedUser user = (AuthenticatedUser) session.getUser();
+        globusServiceBean.globusFinishTransfer(dataset,  user);
+        HttpServletRequest origRequest = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+        String httpString = "window.location.replace('" + "https://" + origRequest.getServerName() + "/dataset.xhtml?persistentId=" + dataset.getGlobalId();
+        Dataset ds = datasetService.find(dataset.getId());
+        if (ds.getLatestVersion().isWorkingCopy()) {
+            httpString = httpString + "&version=DRAFT" + "'" + ")";
+        }
+        else {
+            httpString = httpString + "'" +")";
+        }
+
+        logger.info(httpString);
+        PrimeFaces.current().executeScript(httpString);
     }
 
 }

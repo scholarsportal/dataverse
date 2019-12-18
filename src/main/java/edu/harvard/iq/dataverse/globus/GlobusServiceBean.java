@@ -1,11 +1,9 @@
 package edu.harvard.iq.dataverse.globus;
 
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.google.gson.FieldNamingPolicy;
 import com.google.gson.GsonBuilder;
-import edu.harvard.iq.dataverse.Dataset;
-import edu.harvard.iq.dataverse.DatasetServiceBean;
-import edu.harvard.iq.dataverse.DataverseSession;
-import edu.harvard.iq.dataverse.FeaturedDataverseServiceBean;
+import edu.harvard.iq.dataverse.*;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -26,17 +24,26 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 
+import java.sql.Timestamp;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
+import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import com.google.gson.Gson;
+import edu.harvard.iq.dataverse.api.AbstractApiBean;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.users.ApiToken;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
+import edu.harvard.iq.dataverse.dataaccess.DataAccess;
+import edu.harvard.iq.dataverse.dataaccess.StorageIO;
+import edu.harvard.iq.dataverse.engine.command.Command;
+import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
+import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
+import edu.harvard.iq.dataverse.engine.command.impl.UpdateDatasetVersionCommand;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.BundleUtil;
+import edu.harvard.iq.dataverse.util.FileUtil;
 import edu.harvard.iq.dataverse.util.JsfHelper;
 import org.primefaces.PrimeFaces;
 
@@ -58,6 +65,9 @@ public class GlobusServiceBean implements java.io.Serializable{
 
     @EJB
     protected AuthenticationServiceBean authSvc;
+
+    @EJB
+    EjbDataverseEngine commandEngine;
 
     private static final Logger logger = Logger.getLogger(FeaturedDataverseServiceBean.class.getCanonicalName());
 
@@ -163,15 +173,15 @@ public class GlobusServiceBean implements java.io.Serializable{
                     JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("dataset.message.GlobusError"));
                     return;
                 }
-                ProcessBuilder processBuilder = new ProcessBuilder();
-                AuthenticatedUser user = (AuthenticatedUser) session.getUser();
-                ApiToken token = authSvc.findApiTokenByUser(user);
-                String command = "curl -H \"X-Dataverse-key:" + token.getTokenString() + "\" -X POST https://" + origRequest.getServerName() + "/api/globus/" + datasetId;
-                logger.info("====command ==== " + command);
-                processBuilder.command("bash", "-c", command);
-                logger.info("=== Start process");
-                Process process = processBuilder.start();
-                logger.info("=== Going globus");
+               // ProcessBuilder processBuilder = new ProcessBuilder();
+               // AuthenticatedUser user = (AuthenticatedUser) session.getUser();
+               // ApiToken token = authSvc.findApiTokenByUser(user);
+               // String command = "curl -H \"X-Dataverse-key:" + token.getTokenString() + "\" -X POST https://" + origRequest.getServerName() + "/api/globus/" + datasetId;
+               // logger.info("====command ==== " + command);
+               // processBuilder.command("bash", "-c", command);
+               // logger.info("=== Start process");
+               // Process process = processBuilder.start();
+               // logger.info("=== Going globus");
                 goGlobusUpload(directory, globusEndpoint);
                 logger.info("=== Finished globus");
 
@@ -583,6 +593,200 @@ public class GlobusServiceBean implements java.io.Serializable{
         }else {
             logger.severe("Cannot find directory in globus, status " + status );
             return false;
+        }
+
+        return true;
+    }
+
+    public boolean globusFinishTransfer(Dataset dataset,  AuthenticatedUser user) {
+
+        logger.info("=====Tasklist == dataset id :" + dataset.getId());
+
+        try {
+
+            List<FileMetadata> fileMetadatas = new ArrayList<>();
+
+            StorageIO<Dataset> datasetSIO = DataAccess.getStorageIO(dataset);
+
+            DatasetVersion workingVersion = dataset.getEditVersion();
+
+            if (workingVersion.getCreateTime() != null) {
+                workingVersion.setCreateTime(new Timestamp(new Date().getTime()));
+            }
+
+
+            String directory = dataset.getAuthorityForFileStorage() + "/" + dataset.getIdentifierForFileStorage();
+
+            System.out.println("======= directory ==== " + directory + " ====  datasetId :" + dataset.getId());
+            Map<String, Integer> checksumMapOld = new HashMap<>();
+
+            Iterator<FileMetadata> fmIt = workingVersion.getFileMetadatas().iterator();
+
+            while (fmIt.hasNext()) {
+                FileMetadata fm = fmIt.next();
+                if (fm.getDataFile() != null && fm.getDataFile().getId() != null) {
+                    String chksum = fm.getDataFile().getChecksumValue();
+                    if (chksum != null) {
+                        checksumMapOld.put(chksum, 1);
+                    }
+                }
+            }
+
+            List<DataFile> dFileList = new ArrayList<>();
+            boolean update = false;
+            for (S3ObjectSummary s3ObjectSummary : datasetSIO.listAuxObjects("")) {
+
+                String s3ObjectKey = s3ObjectSummary.getKey();
+
+                String t = s3ObjectKey.replace(directory, "");
+
+                if (t.indexOf(".") > 0) {
+                    long totalSize = s3ObjectSummary.getSize();
+                    String filePath = s3ObjectKey;
+                    String checksumVal = s3ObjectSummary.getETag();
+
+                    if ((checksumMapOld.get(checksumVal) != null)) {
+                        logger.info("datasetId :" + dataset.getId() + "======= filename ==== " + filePath + " == file already exists ");
+                    } else if (filePath.contains("cached") || filePath.contains(".thumb") || filePath.contains(".orig")) {
+                        logger.info(filePath + " is ignored");
+                    } else {
+                        update = true;
+                        logger.info("datasetId :" + dataset.getId() + "======= filename ==== " + filePath + " == new file   ");
+                        try {
+
+                            DataFile datafile = new DataFile(DataFileServiceBean.MIME_TYPE_GLOBUS_FILE);  //MIME_TYPE_GLOBUS
+                            datafile.setModificationTime(new Timestamp(new Date().getTime()));
+                            datafile.setCreateDate(new Timestamp(new Date().getTime()));
+                            datafile.setPermissionModificationTime(new Timestamp(new Date().getTime()));
+
+                            FileMetadata fmd = new FileMetadata();
+
+                            String fileName = filePath.split("/")[filePath.split("/").length - 1];
+                            fmd.setLabel(fileName);
+                            fmd.setDirectoryLabel(filePath.replace(directory, "").replace(File.separator + fileName, ""));
+
+                            fmd.setDataFile(datafile);
+
+                            datafile.getFileMetadatas().add(fmd);
+
+                            FileUtil.generateS3PackageStorageIdentifier(datafile);
+                            logger.info("====  datasetId :" + dataset.getId() + "======= filename ==== " + filePath + " == added to datafile, filemetadata   ");
+
+                            try {
+                                // We persist "SHA1" rather than "SHA-1".
+                                datafile.setChecksumType(DataFile.ChecksumType.SHA1);
+                                datafile.setChecksumValue(checksumVal);
+                            } catch (Exception cksumEx) {
+                                logger.info("====  datasetId :" + dataset.getId() + "======Could not calculate  checksumType signature for the new file ");
+                            }
+
+                            datafile.setFilesize(totalSize);
+
+                            dFileList.add(datafile);
+
+                        } catch (Exception ioex) {
+                            logger.info("datasetId :" + dataset.getId() + "======Failed to process and/or save the file " + ioex.getMessage());
+                            return false;
+
+                        }
+                    }
+                }
+            }
+            if (update) {
+
+                List<DataFile> filesAdded = new ArrayList<>();
+
+                if (dFileList != null && dFileList.size() > 0) {
+
+                    // Dataset dataset = version.getDataset();
+
+                    for (DataFile dataFile : dFileList) {
+
+                        if (dataFile.getOwner() == null) {
+                            dataFile.setOwner(dataset);
+
+                            workingVersion.getFileMetadatas().add(dataFile.getFileMetadata());
+                            dataFile.getFileMetadata().setDatasetVersion(workingVersion);
+                            dataset.getFiles().add(dataFile);
+
+                        }
+
+                        filesAdded.add(dataFile);
+
+                    }
+
+                    logger.info("====  datasetId :" + dataset.getId() + " ===== Done! Finished saving new files to the dataset.");
+                }
+
+                fileMetadatas.clear();
+                for (DataFile addedFile : filesAdded) {
+                    fileMetadatas.add(addedFile.getFileMetadata());
+                }
+                filesAdded = null;
+
+                if (workingVersion.isDraft()) {
+
+                    logger.info("Async: ====  datasetId :" + dataset.getId() + " ==== inside draft version ");
+
+                    Timestamp updateTime = new Timestamp(new Date().getTime());
+
+                    workingVersion.setLastUpdateTime(updateTime);
+                    dataset.setModificationTime(updateTime);
+
+
+                    for (FileMetadata fileMetadata : fileMetadatas) {
+
+                        if (fileMetadata.getDataFile().getCreateDate() == null) {
+                            fileMetadata.getDataFile().setCreateDate(updateTime);
+                            fileMetadata.getDataFile().setCreator((AuthenticatedUser) user);
+                        }
+                        fileMetadata.getDataFile().setModificationTime(updateTime);
+                    }
+
+
+                } else {
+                    logger.info("datasetId :" + dataset.getId() + " ==== inside released version ");
+
+                    for (int i = 0; i < workingVersion.getFileMetadatas().size(); i++) {
+                        for (FileMetadata fileMetadata : fileMetadatas) {
+                            if (fileMetadata.getDataFile().getStorageIdentifier() != null) {
+
+                                if (fileMetadata.getDataFile().getStorageIdentifier().equals(workingVersion.getFileMetadatas().get(i).getDataFile().getStorageIdentifier())) {
+                                    workingVersion.getFileMetadatas().set(i, fileMetadata);
+                                }
+                            }
+                        }
+                    }
+
+
+                }
+
+
+                try {
+                    Command<Dataset> cmd;
+                    logger.info("Async: ====  datasetId :" + dataset.getId() + " ======= UpdateDatasetVersionCommand START in globus function ");
+                    cmd = new UpdateDatasetVersionCommand(dataset, new DataverseRequest(user, (HttpServletRequest) null));
+                    ((UpdateDatasetVersionCommand) cmd).setValidateLenient(true);
+                    //new DataverseRequest(authenticatedUser, (HttpServletRequest) null)
+                    //dvRequestService.getDataverseRequest()
+                    commandEngine.submit(cmd);
+                } catch (CommandException ex) {
+                    logger.log(Level.WARNING, "====  datasetId :" + dataset.getId() + "======CommandException updating DatasetVersion from batch job: " + ex.getMessage());
+                    return false;
+                }
+
+                logger.info("====  datasetId :" + dataset.getId() + " ======= GLOBUS  CALL COMPLETED SUCCESSFULLY ");
+
+                return true;
+            }
+
+        } catch (Exception e) {
+            String message = e.getMessage();
+
+            logger.info("====  datasetId :" + dataset.getId() + " ======= GLOBUS  CALL Exception ============== " + message);
+            e.printStackTrace();
+            return false;
+            //return error(Response.Status.INTERNAL_SERVER_ERROR, "Uploaded files have passed checksum validation but something went wrong while attempting to move the files into Dataverse. Message was '" + message + "'.");
         }
 
         return true;

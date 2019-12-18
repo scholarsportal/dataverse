@@ -125,6 +125,18 @@
         <span class="glyphicon glyphicon-download-alt"/> #{bundle['file.downloadFromGlobus']}
     </p:commandLink>
 
+    <p:commandLink rendered="#{ fileDownloadHelper.canDownloadFile(fileMetadata) and !(fileMetadata.dataFile.tabularData) and !(downloadPopupRequired)
+                                and fileMetadata.dataFile.fileGlobus and systemConfig.HTTPDownload}"
+                   styleClass="btn btn-default btn-download"
+                   process="@this"
+                   disabled="#{(fileMetadata.dataFile.ingestInProgress  or lockedFromDownload) ? 'disabled' : ''}"
+                   actionListener="#{fileDownloadService.writeGuestbookAndStartFileDownload(guestbookResponse, fileMetadata, 'Download')}">
+        <!-- non-tabular data file: -->
+        <!-- no guest book/terms of use/etc. - straight to the download API url: -->
+        <span class="glyphicon glyphicon-download-alt"/> #{bundle.download}
+    </p:commandLink>
+
+
     <p:commandLink rendered="#{fileDownloadHelper.canDownloadFile(fileMetadata) and !(fileMetadata.dataFile.tabularData) and !(downloadPopupRequired)
                               and fileMetadata.dataFile.filePackage and systemConfig.HTTPDownload}"
                    styleClass="btn btn-default btn-download" process="@this"
