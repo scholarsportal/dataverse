@@ -579,7 +579,7 @@ public class GlobusServiceBean implements java.io.Serializable{
 
         if (status.status == 200) {
 
-            FilesList fl = parseJson(status.jsonResponse, FilesList.class, false);
+           /* FilesList fl = parseJson(status.jsonResponse, FilesList.class, false);
             ArrayList<FileG> files = fl.getDATA();
             if (files != null) {
                 for (FileG file: files) {
@@ -596,9 +596,17 @@ public class GlobusServiceBean implements java.io.Serializable{
                         }
                     }
                 }
-            }
+            }*/
 
-            //int perStatus = givePermission("all_authenticated_users", "", "r", clientTokenUser, directory, globusEndpoint);
+            int perStatus = givePermission("all_authenticated_users", "", "r", clientTokenUser, directory, globusEndpoint);
+            logger.info("givePermission status " + perStatus);
+            if (perStatus == 409) {
+                logger.info("Permissions already exist or limit was reached");
+            } else if (perStatus == 400) {
+                logger.info("No directory in Globus");
+            } else if (perStatus != 201) {
+                return false;
+            }
 
         } else if (status.status == 404) {
             logger.info("There is no globus directory");
