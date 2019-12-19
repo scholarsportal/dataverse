@@ -245,7 +245,7 @@ public class GlobusServiceBean implements java.io.Serializable{
         permissions.setDATA_TYPE("access");
         permissions.setPrincipalType(principalType);
         permissions.setPrincipal(principal);
-        permissions.setPath(directory + "/");
+        permissions.setPath(directory + "/" );
         permissions.setPermissions(perm);
 
         Gson gson = new GsonBuilder().create();
@@ -549,14 +549,14 @@ public class GlobusServiceBean implements java.io.Serializable{
 
     }
 
-    private int findDirectory(String directory, AccessToken clientTokenUser, String globusEndpoint) throws MalformedURLException {
+    private MakeRequestResponse findDirectory(String directory, AccessToken clientTokenUser, String globusEndpoint) throws MalformedURLException {
         URL url = new URL(" https://transfer.api.globusonline.org/v0.10/endpoint/" + globusEndpoint +"/ls?path=" + directory + "/");
 
         MakeRequestResponse result = makeRequest(url, "Bearer",
                 clientTokenUser.getOtherTokens().get(0).getAccessToken(),"GET", null);
         logger.info("find directory status:" + result.status);
 
-        return result.status;
+        return result;
     }
 
     public boolean giveGlobusPublicPermissions(String datasetId) throws UnsupportedEncodingException, MalformedURLException {
@@ -575,20 +575,32 @@ public class GlobusServiceBean implements java.io.Serializable{
         String directory = getDirectory(datasetId);
         logger.info(directory);
 
-        int status = findDirectory(directory, clientTokenUser, globusEndpoint);
+        MakeRequestResponse status = findDirectory(directory, clientTokenUser, globusEndpoint);
 
-        if (status == 200) {
+        if (status.status == 200) {
 
-            int perStatus = givePermission("all_authenticated_users", "", "r", clientTokenUser, directory, globusEndpoint);
-            logger.info("givePermission status " + perStatus);
-            if (perStatus == 409) {
-                logger.info("Permissions already exist or limit was reached");
-            } else if (perStatus == 400) {
-                logger.info("No directory in Globus");
-            } else if (perStatus != 201) {
-                return false;
+            FilesList fl = parseJson(status.jsonResponse, FilesList.class, false);
+            ArrayList<FileG> files = fl.getDATA();
+            if (files != null) {
+                for (FileG file: files) {
+                    if (!file.getName().contains("cached") && !file.getName().contains(".thumb")) {
+                        int perStatus = givePermission("all_authenticated_users", "", "r", clientTokenUser,
+                                directory + "/" + file.getName(), globusEndpoint);
+                        logger.info("givePermission status " + perStatus + " for " + file.getName());
+                        if (perStatus == 409) {
+                            logger.info("Permissions already exist or limit was reached for " + file.getName());
+                        } else if (perStatus == 400) {
+                            logger.info("No file in Globus " + file.getName());
+                        } else if (perStatus != 201) {
+                            logger.info("Cannot get permission for " + file.getName());
+                        }
+                    }
+                }
             }
-        } else if (status == 404) {
+
+            //int perStatus = givePermission("all_authenticated_users", "", "r", clientTokenUser, directory, globusEndpoint);
+
+        } else if (status.status == 404) {
             logger.info("There is no globus directory");
         }else {
             logger.severe("Cannot find directory in globus, status " + status );
@@ -647,7 +659,7 @@ public class GlobusServiceBean implements java.io.Serializable{
 
                     if ((checksumMapOld.get(checksumVal) != null)) {
                         logger.info("datasetId :" + dataset.getId() + "======= filename ==== " + filePath + " == file already exists ");
-                    } else if (filePath.contains("cached") || filePath.contains(".thumb") || filePath.contains(".orig")) {
+                    } else if (filePath.contains("cached") || filePath.contains(".thumb")) {
                         logger.info(filePath + " is ignored");
                     } else {
                         update = true;

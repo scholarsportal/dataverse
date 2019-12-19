@@ -1002,13 +1002,11 @@ public class SystemConfig {
 
     public boolean isHTTPDownload() {
         String downloadMethods = settingsService.getValueForKey(SettingsServiceBean.Key.DownloadMethods);
-        logger.warning("Download Methods:" + downloadMethods);
         return downloadMethods !=null && downloadMethods.toLowerCase().contains(SystemConfig.FileDownloadMethods.NATIVE.toString());
     }
 
     public boolean isGlobusDownload() {
         String downloadMethods = settingsService.getValueForKey(SettingsServiceBean.Key.DownloadMethods);
-        logger.warning("Download Methods:" + downloadMethods);
         return downloadMethods !=null && downloadMethods.toLowerCase().contains(FileDownloadMethods.GLOBUS.toString());
     }
 

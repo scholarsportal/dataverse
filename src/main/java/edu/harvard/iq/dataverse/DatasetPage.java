@@ -2535,6 +2535,7 @@ public class DatasetPage implements java.io.Serializable {
     }
 
     private String releaseDataset(boolean minor) {
+        logger.info("releaseDataset");
         if (session.getUser() instanceof AuthenticatedUser) {
             try {
                 final PublishDatasetResult result = commandEngine.submit(
@@ -2548,16 +2549,17 @@ public class DatasetPage implements java.io.Serializable {
                 
                 if ( result.isCompleted() ) {
 
-
-                    logger.info("Check globus for publishing");
                     if (!globusService.giveGlobusPublicPermissions(dataset.getId().toString()))  {
-                        JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("dataset.message.publishGlobusFailure.details"));
+                            JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("dataset.message.publishGlobusFailure.details"));
                     } else {
-                        JsfHelper.addSuccessMessage(BundleUtil.getStringFromBundle("dataset.message.publishSuccess"));
+                            JsfHelper.addSuccessMessage(BundleUtil.getStringFromBundle("dataset.message.publishSuccess"));
                     }
                 } else {
                     JH.addMessage(FacesMessage.SEVERITY_WARN, BundleUtil.getStringFromBundle("dataset.locked.message"), BundleUtil.getStringFromBundle("dataset.locked.message.details"));
+                    globusService.giveGlobusPublicPermissions(dataset.getId().toString());
                 }
+
+
                 
             } catch (CommandException ex) {
                 JsfHelper.addErrorMessage(ex.getLocalizedMessage());
