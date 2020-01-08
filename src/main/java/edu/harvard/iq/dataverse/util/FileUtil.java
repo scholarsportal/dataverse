@@ -67,6 +67,7 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.activation.MimetypesFileTypeMap;
+import javax.ejb.EJB;
 import javax.ejb.EJBException;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
@@ -79,7 +80,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import static edu.harvard.iq.dataverse.datasetutility.FileSizeChecker.bytesToHumanReadable;
 import org.apache.commons.io.FilenameUtils;
-
 
 /**
  * a 4.0 implementation of the DVN FileUtil;
@@ -1283,6 +1283,17 @@ public class FileUtil implements java.io.Serializable  {
     public static void generateS3PackageStorageIdentifier(DataFile dataFile) {
         String bucketName = System.getProperty("dataverse.files.s3-bucket-name");
         String storageId = S3_IDENTIFIER_PREFIX + "://" + bucketName + ":" + dataFile.getFileMetadata().getLabel();
+        dataFile.setStorageIdentifier(storageId);
+    }
+
+    public static void generateS3PackageStorageIdentifierForGlobus(DataFile dataFile) {
+        String bucketName = System.getProperty("dataverse.files.s3-bucket-name");
+        String storageId = null;
+        if ( dataFile.getFileMetadata().getDirectoryLabel() != null && !dataFile.getFileMetadata().getDirectoryLabel().equals("")) {
+            storageId = S3_IDENTIFIER_PREFIX + "://" + bucketName + ":" + dataFile.getFileMetadata().getDirectoryLabel() + "/" + dataFile.getFileMetadata().getLabel();
+        } else {
+            storageId = S3_IDENTIFIER_PREFIX + "://" + bucketName + ":" + dataFile.getFileMetadata().getLabel();
+        }
         dataFile.setStorageIdentifier(storageId);
     }
     

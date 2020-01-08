@@ -45,6 +45,7 @@ import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.FileUtil;
 import edu.harvard.iq.dataverse.util.JsfHelper;
+import edu.harvard.iq.dataverse.util.SystemConfig;
 import org.primefaces.PrimeFaces;
 
 import static edu.harvard.iq.dataverse.util.JsfHelper.JH;
@@ -396,7 +397,9 @@ public class GlobusServiceBean implements java.io.Serializable{
     }
 
     public AccessToken getAccessToken(HttpServletRequest origRequest, String basicGlobusToken ) throws UnsupportedEncodingException, MalformedURLException {
+
         String redirectURL = "https://" + origRequest.getServerName() + "/globus.xhtml";
+
         redirectURL = URLEncoder.encode(redirectURL, "UTF-8");
 
         URL url = new URL("https://auth.globus.org/v2/oauth2/token?code=" + code + "&redirect_uri=" + redirectURL
@@ -689,7 +692,7 @@ public class GlobusServiceBean implements java.io.Serializable{
 
                             datafile.getFileMetadatas().add(fmd);
 
-                            FileUtil.generateS3PackageStorageIdentifier(datafile);
+                            FileUtil.generateS3PackageStorageIdentifierForGlobus(datafile);
                             logger.info("====  datasetId :" + dataset.getId() + "======= filename ==== " + filePath + " == added to datafile, filemetadata   ");
 
                             try {
