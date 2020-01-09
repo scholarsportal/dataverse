@@ -11,6 +11,8 @@ import edu.harvard.iq.dataverse.datavariable.DataVariable;
 import edu.harvard.iq.dataverse.externaltools.ExternalTool;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.BundleUtil;
+
+import static edu.harvard.iq.dataverse.dataaccess.S3AccessIO.S3_IDENTIFIER_PREFIX;
 import static edu.harvard.iq.dataverse.util.JsfHelper.JH;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -548,10 +550,20 @@ public class FileDownloadHelper implements java.io.Serializable {
         this.session = session;
     }
 
-    public void goGlobusDownload(String datasetId) {
+    public void goGlobusDownload(FileMetadata fileMetadata) {
+
+        String datasetId = fileMetadata.getDatasetVersion().getDataset().getId().toString(); //fileMetadata.datasetVersion.dataset.id
 
         String directory = getDirectory(datasetId);
         String globusEndpoint = settingsSvc.getValueForKey(SettingsServiceBean.Key.GlobusEndpoint, "");
+
+        if ( fileMetadata.getDirectoryLabel() != null && !fileMetadata.getDirectoryLabel().equals("")) {
+            directory = directory + "/" + fileMetadata.getDirectoryLabel() + "/";
+
+        }
+
+        logger.info(directory);
+
         String httpString = "window.open('" + "https://app.globus.org/file-manager?origin_id=" + globusEndpoint + "&origin_path=" + directory + "'" +",'_blank')";
         PrimeFaces.current().executeScript(httpString);
     }
