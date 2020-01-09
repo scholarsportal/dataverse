@@ -2546,17 +2546,22 @@ public class DatasetPage implements java.io.Serializable {
                 // has been published. If a publishing workflow is configured, this may have sent the 
                 // dataset into a workflow limbo, potentially waiting for a third party system to complete 
                 // the process. So it may be premature to show the "success" message at this point. 
-                
+                boolean globus = checkForGlobus();
                 if ( result.isCompleted() ) {
-
-                    if (!globusService.giveGlobusPublicPermissions(dataset.getId().toString()))  {
+                    if (globus) {
+                        if (!globusService.giveGlobusPublicPermissions(dataset.getId().toString())) {
                             JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("dataset.message.publishGlobusFailure.details"));
-                    } else {
+                        } else {
                             JsfHelper.addSuccessMessage(BundleUtil.getStringFromBundle("dataset.message.publishSuccess"));
+                        }
+                    } else {
+                        JsfHelper.addSuccessMessage(BundleUtil.getStringFromBundle("dataset.message.publishSuccess"));
                     }
                 } else {
                     JH.addMessage(FacesMessage.SEVERITY_WARN, BundleUtil.getStringFromBundle("dataset.locked.message"), BundleUtil.getStringFromBundle("dataset.locked.message.details"));
-                    globusService.giveGlobusPublicPermissions(dataset.getId().toString());
+                    if (globus) {
+                        globusService.giveGlobusPublicPermissions(dataset.getId().toString());
+                    }
                 }
 
 
@@ -2576,6 +2581,16 @@ public class DatasetPage implements java.io.Serializable {
             JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("dataset.message.only.authenticatedUsers"));
         }
         return returnToDatasetOnly();
+    }
+
+    private boolean checkForGlobus() {
+        List<FileMetadata> fml = dataset.getLatestVersion().getFileMetadatas();
+        for (FileMetadata fm : fml) {
+            if (fm.getDataFile().isFileGlobus()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Deprecated
