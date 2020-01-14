@@ -1028,6 +1028,12 @@ function IdPSelectUI() {
         } else {
             lang = navigator.language || navigator.userLanguage || paramsSupplied.defaultLanguage;
         }
+
+        var idpselectId = document.getElementById('idpselectId');
+        if (idpselectId.getAttribute('lang')) {
+            lang = idpselectId.getAttribute('lang');
+        }
+
         if (lang.indexOf('-') > 0) {
             majorLang = lang.substring(0, lang.indexOf('-'));
         }
@@ -1293,7 +1299,6 @@ function IdPSelectUI() {
             getLocalizedMessage('Failed to load idpIgnoreList.');
             return false;
         }
-        return false;
     };
 
     /**

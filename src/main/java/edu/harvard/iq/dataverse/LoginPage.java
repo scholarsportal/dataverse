@@ -75,8 +75,8 @@ public class LoginPage implements java.io.Serializable {
     }
     
     public enum EditMode {LOGIN, SUCCESS, FAILED};
-    
-    @Inject DataverseSession session;    
+
+    @Inject DataverseSession session;
     
     @EJB
     DataverseServiceBean dataverseService;
@@ -327,4 +327,7 @@ public class LoginPage implements java.io.Serializable {
         }
     }
 
+    public DataverseSession getSession() {
+        return session;
+    }
 }
