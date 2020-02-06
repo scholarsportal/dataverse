@@ -155,7 +155,7 @@ public class GlobusServiceBean implements java.io.Serializable{
                 int status = createDirectory(clientTokenUser, directory, globusEndpoint);
                 if (status == 202) {
                     int perStatus = givePermission("identity", usr.getSub(), "rw", clientTokenUser, directory, globusEndpoint);
-                    if (perStatus != 201) {
+                    if (perStatus != 201 && perStatus != 200) {
                         logger.severe("Cannot get permissions ");
                         JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("dataset.message.GlobusError"));
                         return;
@@ -164,7 +164,7 @@ public class GlobusServiceBean implements java.io.Serializable{
                     int perStatus = givePermission("identity", usr.getSub(), "rw", clientTokenUser, directory, globusEndpoint);
                     if (perStatus == 409) {
                         logger.info("permissions already exist");
-                    } else if (perStatus != 201) {
+                    } else if (perStatus != 201 && perStatus != 200) {
                         logger.severe("Cannot get permissions ");
                         JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("dataset.message.GlobusError"));
                         return;
@@ -219,28 +219,63 @@ public class GlobusServiceBean implements java.io.Serializable{
         PrimeFaces.current().executeScript(httpString);
     }
 
-    String  checkPermisions(String idnt, AccessToken clientTokenUser, String directory) throws MalformedURLException {
-        URL url = new URL("https://transfer.api.globusonline.org/v0.10/endpoint/5102894b-f28f-47f9-bc9a-d8e1b4e9e62c/access_list");
+    ArrayList<String>  checkPermisions( AccessToken clientTokenUser, String directory, String globusEndpoint, String principalType, String principal) throws MalformedURLException {
+        URL url = new URL("https://transfer.api.globusonline.org/v0.10/endpoint/" + globusEndpoint + "/access_list");
         MakeRequestResponse result = makeRequest(url, "Bearer",
                 clientTokenUser.getOtherTokens().get(0).getAccessToken(),"GET",  null);
-
+        ArrayList<String> ids = new ArrayList<String>();
         if (result.status == 200) {
             AccessList al = parseJson(result.jsonResponse, AccessList.class, false);
+
             for (int i = 0; i< al.getDATA().size(); i++) {
                 Permissions pr = al.getDATA().get(i);
-                if (pr.getPath().equals(directory + "/") || pr.getPath().equals(directory )) {
-                    return pr.getId();
+                if ((pr.getPath().equals(directory + "/") || pr.getPath().equals(directory )) && pr.getPrincipalType().equals(principalType) &&
+                        ((principal == null) || (principal != null && pr.getPrincipal().equals(principal))) ) {
+                    ids.add(pr.getId());
                 } else {
                     continue;
                 }
             }
         }
 
-        return null;
+        return ids;
+    }
+
+    public void updatePermision(AccessToken clientTokenUser, String directory, String principalType, String perm) throws MalformedURLException {
+        if (directory != null && !directory.equals("")) {
+            directory = "/" + directory + "/";
+        }
+        logger.info("Start updating permissions." + " Directory is " + directory);
+        String globusEndpoint = settingsSvc.getValueForKey(SettingsServiceBean.Key.GlobusEndpoint, "");
+        ArrayList<String> rules = checkPermisions( clientTokenUser, directory, globusEndpoint, principalType, null);
+        logger.info("Size of rules " + rules.size());
+        int count = 0;
+        while (count < rules.size()) {
+            logger.info("Start removing rules " + rules.get(count) );
+            Permissions permissions = new Permissions();
+            permissions.setDATA_TYPE("access");
+            permissions.setPermissions(perm);
+            permissions.setPath(directory);
+
+            Gson gson = new GsonBuilder().create();
+            URL url = new URL("https://transfer.api.globusonline.org/v0.10/endpoint/" + globusEndpoint + "/access/" + rules.get(count));
+            logger.info("https://transfer.api.globusonline.org/v0.10/endpoint/" + globusEndpoint + "/access/" + rules.get(count));
+            MakeRequestResponse result = makeRequest(url, "Bearer",
+                    clientTokenUser.getOtherTokens().get(0).getAccessToken(),"PUT",  gson.toJson(permissions));
+            if (result.status != 200) {
+                logger.warning("Cannot update access rule " + rules.get(count));
+            } else {
+                logger.info("Access rule " + rules.get(count) + " was updated");
+            }
+            count++;
+        }
     }
 
     public int givePermission(String principalType, String principal, String perm, AccessToken clientTokenUser, String directory, String globusEndpoint) throws MalformedURLException {
-        URL url = new URL("https://transfer.api.globusonline.org/v0.10/endpoint/"+ globusEndpoint + "/access");
+
+        ArrayList rules = checkPermisions( clientTokenUser, directory, globusEndpoint, principalType, principal);
+
+
 
         Permissions permissions = new Permissions();
         permissions.setDATA_TYPE("access");
@@ -250,15 +285,32 @@ public class GlobusServiceBean implements java.io.Serializable{
         permissions.setPermissions(perm);
 
         Gson gson = new GsonBuilder().create();
+        MakeRequestResponse result = null;
+        if (rules.size() == 0) {
+            logger.info("Start creating the rule");
+            URL url = new URL("https://transfer.api.globusonline.org/v0.10/endpoint/"+ globusEndpoint + "/access");
+            result = makeRequest(url, "Bearer",
+                    clientTokenUser.getOtherTokens().get(0).getAccessToken(), "POST", gson.toJson(permissions));
 
+            if (result.status == 400) {
+                logger.severe("Path " + permissions.getPath() + " is not valid");
+            } else if (result.status == 409) {
+                logger.warning("ACL already exists or Endpoint ACL already has the maximum number of access rules");
+            }
 
-        MakeRequestResponse result = makeRequest(url, "Bearer",
-                clientTokenUser.getOtherTokens().get(0).getAccessToken(),"POST",  gson.toJson(permissions));
+            return result.status;
+        } else {
+            logger.info("Start Updating the rule");
+            URL url = new URL("https://transfer.api.globusonline.org/v0.10/endpoint/"+ globusEndpoint + "/access/" + rules.get(0));
+            result = makeRequest(url, "Bearer",
+                    clientTokenUser.getOtherTokens().get(0).getAccessToken(), "PUT", gson.toJson(permissions));
 
-        if (result.status == 400) {
-            logger.severe("Path " + permissions.getPath() + " is not valid");
-        } else if (result.status == 409) {
-            logger.warning("ACL already exists or Endpoint ACL already has the maximum number of access rules");
+            if (result.status == 400) {
+                logger.severe("Path " + permissions.getPath() + " is not valid");
+            } else if (result.status == 409) {
+                logger.warning("ACL already exists or Endpoint ACL already has the maximum number of access rules");
+            }
+            logger.info("Result status " + result.status);
         }
 
         return result.status;
@@ -397,8 +449,12 @@ public class GlobusServiceBean implements java.io.Serializable{
     }
 
     public AccessToken getAccessToken(HttpServletRequest origRequest, String basicGlobusToken ) throws UnsupportedEncodingException, MalformedURLException {
+        String serverName = origRequest.getServerName();
+        if (serverName.equals("localhost")) {
+            serverName = "utl-192-123.library.utoronto.ca";
+        }
 
-        String redirectURL = "https://" + origRequest.getServerName() + "/globus.xhtml";
+        String redirectURL = "https://" + serverName + "/globus.xhtml";
 
         redirectURL = URLEncoder.encode(redirectURL, "UTF-8");
 
@@ -607,7 +663,8 @@ public class GlobusServiceBean implements java.io.Serializable{
                 logger.info("Permissions already exist or limit was reached");
             } else if (perStatus == 400) {
                 logger.info("No directory in Globus");
-            } else if (perStatus != 201) {
+            } else if (perStatus != 201 && perStatus != 200) {
+                logger.info("Cannot give read permission");
                 return false;
             }
 
@@ -621,9 +678,10 @@ public class GlobusServiceBean implements java.io.Serializable{
         return true;
     }
 
-    public boolean globusFinishTransfer(Dataset dataset,  AuthenticatedUser user) {
+    public boolean globusFinishTransfer(Dataset dataset,  AuthenticatedUser user) throws MalformedURLException {
 
         logger.info("=====Tasklist == dataset id :" + dataset.getId());
+        String directory = null;
 
         try {
 
@@ -638,7 +696,7 @@ public class GlobusServiceBean implements java.io.Serializable{
             }
 
 
-            String directory = dataset.getAuthorityForFileStorage() + "/" + dataset.getIdentifierForFileStorage();
+            directory = dataset.getAuthorityForFileStorage() + "/" + dataset.getIdentifierForFileStorage();
 
             System.out.println("======= directory ==== " + directory + " ====  datasetId :" + dataset.getId());
             Map<String, Integer> checksumMapOld = new HashMap<>();
@@ -800,7 +858,7 @@ public class GlobusServiceBean implements java.io.Serializable{
 
                 logger.info("====  datasetId :" + dataset.getId() + " ======= GLOBUS  CALL COMPLETED SUCCESSFULLY ");
 
-                return true;
+                //return true;
             }
 
         } catch (Exception e) {
@@ -812,6 +870,9 @@ public class GlobusServiceBean implements java.io.Serializable{
             //return error(Response.Status.INTERNAL_SERVER_ERROR, "Uploaded files have passed checksum validation but something went wrong while attempting to move the files into Dataverse. Message was '" + message + "'.");
         }
 
+        String basicGlobusToken = settingsSvc.getValueForKey(SettingsServiceBean.Key.BasicGlobusToken, "");
+        AccessToken clientTokenUser = getClientToken(basicGlobusToken);
+        updatePermision(clientTokenUser, directory, "identity", "r");
         return true;
     }
 
