@@ -678,6 +678,10 @@ public class AuthenticationServiceBean {
         }
         AuthenticatedUser shibUser = lookupUser(shibProviderId, perUserShibIdentifier);
         if (shibUser != null) {
+            long nowInMilliseconds = new Date().getTime();
+            Timestamp emailConfirmed = new Timestamp(nowInMilliseconds);
+            shibUser.setEmailConfirmed(emailConfirmed);
+            em.merge(shibUser);
             return shibUser;
         }
         return null;
