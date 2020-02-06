@@ -2957,12 +2957,15 @@ public class EditDatafilesPage implements java.io.Serializable {
         return "'" + settingsSvc.getValueForKey(SettingsServiceBean.Key.GlobusClientId) + "'";
     }
 
-    public void startTaskList() {
+    public void startTaskList() throws MalformedURLException {
 
         AuthenticatedUser user = (AuthenticatedUser) session.getUser();
         globusServiceBean.globusFinishTransfer(dataset,  user);
         HttpServletRequest origRequest = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-        String httpString = "window.location.replace('" + "https://" + origRequest.getServerName() + "/dataset.xhtml?persistentId=" + dataset.getGlobalId();
+
+        String serverName = origRequest.getServerName();
+
+        String httpString = "window.location.replace('" + "https://" + serverName + "/dataset.xhtml?persistentId=" + dataset.getGlobalId();
         Dataset ds = datasetService.find(dataset.getId());
         if (ds.getLatestVersion().isWorkingCopy()) {
             httpString = httpString + "&version=DRAFT" + "'" + ")";
