@@ -434,7 +434,6 @@ public class AuthenticationServiceBean {
             return typedQuery.getSingleResult();
         } catch (NoResultException | NonUniqueResultException ex) {
             logger.log(Level.INFO, "When looking up API token for {0} caught {1}", new Object[]{au, ex});
-            ex.printStackTrace();
             return null;
         }
     }
