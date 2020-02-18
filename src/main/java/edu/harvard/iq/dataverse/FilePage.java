@@ -214,6 +214,13 @@ public class FilePage implements java.io.Serializable {
                 contentType=DataFileServiceBean.MIME_TYPE_TSV_ALT;
             }
             configureTools = externalToolService.findFileToolsByTypeAndContentType(ExternalTool.Type.CONFIGURE, contentType);
+            for (ExternalTool configureTool : configureTools) {
+                if (configureTool.getDisplayName().equals(BundleUtil.getStringFromDefaultBundleEng("externaltools.dct.displayname"))) {
+                    configureTool.setDisplayNameLang(BundleUtil.getStringFromBundle("externaltools.dct.displayname"));
+                } else {
+                    configureTool.setDisplayNameLang(configureTool.getDisplayName());
+                }
+            }
             exploreTools = externalToolService.findFileToolsByTypeAndContentType(ExternalTool.Type.EXPLORE, contentType);
             Collections.sort(exploreTools, CompareExternalToolName);
             toolsWithPreviews  = addMapLayerAndSortExternalTools();

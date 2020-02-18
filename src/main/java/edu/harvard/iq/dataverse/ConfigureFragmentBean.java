@@ -128,4 +128,15 @@ public class ConfigureFragmentBean implements java.io.Serializable{
         return messageApi;
     }
 
+    public String getDescription() {
+        if (tool != null) {
+            if (tool.getDisplayName().equals(BundleUtil.getStringFromDefaultBundleEng("externaltools.dct.displayname"))) {
+                return (BundleUtil.getStringFromBundle("externaltools.dct.description"));
+            } else {
+                return tool.getDescription();
+            }
+        } else return "";
+    }
+
+
 }
