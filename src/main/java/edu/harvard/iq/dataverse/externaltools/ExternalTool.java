@@ -100,9 +100,6 @@ public class ExternalTool implements Serializable {
         this.worldMapTool = worldMapTool;
     }
 
-    @Transient
-    private String displayNameLang;
-
     /**
      * This default constructor is only here to prevent this error at
      * deployment:
