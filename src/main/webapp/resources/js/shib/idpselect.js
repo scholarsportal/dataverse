@@ -1022,16 +1022,12 @@ function IdPSelectUI() {
         maxIdPCharsAltTxt = paramsSupplied.maxIdPCharsAltTxt;
 
         lang = shibLang || paramsSupplied.defaultLanguage;
-        var idpselectId = document.getElementById('idpselectId');
-        if (idpselectId.getAttribute('lang')) {
-            lang = idpselectId.getAttribute('lang');
-        }
-
         if (lang.indexOf('-') > 0) {
             majorLang = lang.substring(0, lang.indexOf('-'));
         }
 
         defaultLang = paramsSupplied.defaultLanguage;
+
 
         if (paramsSupplied.testGUI) {
             //

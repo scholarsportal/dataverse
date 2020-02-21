@@ -36,6 +36,7 @@ function IdPSelectUIParms() {
     this.setFocusTextBox = true;     // Set to false to supress focus 
     this.testGUI = false;
 
+
     //
     // The following should not be changed without changes to the css.  Consider them as mandatory defaults
     //

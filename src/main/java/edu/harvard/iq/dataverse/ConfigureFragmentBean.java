@@ -94,6 +94,7 @@ public class ConfigureFragmentBean implements java.io.Serializable{
         } else {
             messageApi = "";
         }
+
         
         toolHandler = new ExternalToolHandler(tool, datafileService.find(fileId), apiToken, datafileService.findFileMetadata(fileMetadataId), session.getLocaleCode());
 
@@ -106,7 +107,8 @@ public class ConfigureFragmentBean implements java.io.Serializable{
         User user = session.getUser();
         if (user instanceof AuthenticatedUser) {
             apiToken = authService.findApiTokenByUser((AuthenticatedUser) user);
-            if ((apiToken == null) || (apiToken.getExpireTime().before(new Date()))) {
+            if (apiToken == null) {
+                //No un-expired token
                 apiToken = authService.generateApiTokenForUser(( AuthenticatedUser) user);
                 toolHandler.setApiToken(apiToken);
                 toolHandler.getToolUrlWithQueryParams();
@@ -135,5 +137,6 @@ public class ConfigureFragmentBean implements java.io.Serializable{
             }
         } else return "";
     }
+
 
 }

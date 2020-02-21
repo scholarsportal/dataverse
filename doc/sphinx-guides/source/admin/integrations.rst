@@ -41,6 +41,17 @@ As of this writing only OJS 2.x is supported and instructions for getting starte
 
 If you are interested in OJS 3.x supporting deposit from Dataverse, please leave a comment on https://github.com/pkp/pkp-lib/issues/1822
 
+Embedding Data on Websites
+--------------------------
+
+OpenScholar
++++++++++++
+
+`OpenScholar <https://theopenscholar.com>`_ is oriented toward hosting websites for academic institutions and offers `Dataverse Widgets <https://help.theopenscholar.com/dataverse>`_ that can be added to web pages. See also:
+
+- :ref:`openscholar-dataverse-level` (dataverse level)
+- :ref:`openscholar-dataset-level` (dataset level)
+
 Analysis and Computation
 ------------------------
 
@@ -77,6 +88,13 @@ Whole Tale
 `import data from Dataverse
 <https://wholetale.readthedocs.io/en/stable/users_guide/manage.html>`_ via identifier (e.g., DOI, URI, etc) or through the External Tools integration.  For installation instructions, see the :doc:`external-tools` section or the `Integration <https://wholetale.readthedocs.io/en/stable/users_guide/integration.html#dataverse-external-tools>`_ section of the Whole Tale User Guide.
 
+Binder
+++++++
+
+Researchers can launch Jupyter Notebooks, RStudio, and other computational environments by entering the DOI of a Dataverse dataset on https://mybinder.org
+
+Institutions can self host BinderHub. Dataverse is one of the supported `repository providers <https://binderhub.readthedocs.io/en/latest/developer/repoproviders.html#supported-repoproviders>`_.
+
 Discoverability
 ---------------
 
@@ -90,7 +108,7 @@ Dataverse supports a protocol called OAI-PMH that facilitates harvesting dataset
 SHARE
 +++++
 
-`SHARE <http://www.share-research.org>`_ is building a free, open, data set about research and scholarly activities across their life cycle. It's possible to add and installation of Dataverse as one of the `sources <https://share.osf.io/sources>`_ they include if you contact the SHARE team.
+`SHARE <http://www.share-research.org>`_ is building a free, open, data set about research and scholarly activities across their life cycle. It's possible to add an installation of Dataverse as one of the `sources <https://share.osf.io/sources>`_ they include if you contact the SHARE team.
 
 Research Data Preservation
 --------------------------
