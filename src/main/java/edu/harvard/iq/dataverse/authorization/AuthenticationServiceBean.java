@@ -710,6 +710,10 @@ public class AuthenticationServiceBean {
         }
         AuthenticatedUser shibUser = lookupUser(shibProviderId, perUserShibIdentifier);
         if (shibUser != null) {
+            ConfirmEmailData confirmEmailData = confirmEmailService.findSingleConfirmEmailDataByUser(shibUser);
+            if (confirmEmailData != null) {
+                em.remove(confirmEmailData);
+            }
             long nowInMilliseconds = new Date().getTime();
             Timestamp emailConfirmed = new Timestamp(nowInMilliseconds);
             shibUser.setEmailConfirmed(emailConfirmed);
