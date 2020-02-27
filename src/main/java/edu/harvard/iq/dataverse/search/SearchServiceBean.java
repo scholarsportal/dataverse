@@ -653,7 +653,7 @@ public class SearchServiceBean {
              */
             for (DatasetFieldType datasetField : datasetFields) {
                 String solrFieldNameForDataset = datasetField.getSolrField().getNameFacetable();
-                String friendlyName = datasetField.getDisplayName();
+                String friendlyName = datasetField.getFacetDisplayName();
                 if (solrFieldNameForDataset != null && facetField.getName().endsWith(datasetField.getTmpNullFieldTypeIdentifier())) {
                     // give it the non-friendly name so we remember to update the reference data script for datasets
                     facetCategory.setName(facetField.getName());
