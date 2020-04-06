@@ -218,7 +218,7 @@ public class SendFeedbackDialog implements java.io.Serializable {
         String rootDataverseName = dataverseService.findRootDataverse().getName();
         String installationBrandName = BrandingUtil.getInstallationBrandName(rootDataverseName);
         String supportTeamName = BrandingUtil.getSupportTeamName(systemAddress, rootDataverseName);
-        List<Feedback> feedbacks = FeedbackUtil.gatherFeedback(recipient, dataverseSession, messageSubject + " - " + messageAffiliation, userMessage, systemAddress, userEmail, systemConfig.getDataverseSiteUrl(), installationBrandName, supportTeamName);
+        List<Feedback> feedbacks = FeedbackUtil.gatherFeedback(recipient, dataverseSession, messageAffiliation + " - " + messageSubject  , userMessage, systemAddress, userEmail, systemConfig.getDataverseSiteUrl(), installationBrandName, supportTeamName);
         if (feedbacks.isEmpty()) {
             logger.warning("No feedback has been sent!");
             return null;
