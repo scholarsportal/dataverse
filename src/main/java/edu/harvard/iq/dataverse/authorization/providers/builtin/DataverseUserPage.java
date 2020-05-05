@@ -230,16 +230,6 @@ public class DataverseUserPage implements java.io.Serializable {
             logger.info("Email is not valid: " + userEmail);
             return;
         }
-        AffiliationGroup group = affiliationGroupServiceBean.find(userEmail);
-        if (group == null) {
-            ((UIInput) toValidate).setValid(true);
-            FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_WARN, BundleUtil.getStringFromBundle("user.email.domain.invalid"), null);
-            context.addMessage(toValidate.getClientId(context), message);
-            logger.info("Non-affiliated email domain. " + userEmail);
-        }
-        String affiliation = (group == null) ? "OTHER" : group.getDisplayName();
-        userDisplayInfo.setAffiliation(affiliation);
-
         boolean userEmailFound = false;
         AuthenticatedUser aUser = authenticationService.getAuthenticatedUserByEmail(userEmail);
         if (editMode == EditMode.CREATE) {
@@ -260,6 +250,17 @@ public class DataverseUserPage implements java.io.Serializable {
 
             FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_ERROR, BundleUtil.getStringFromBundle("user.email.taken"), null);
             context.addMessage(toValidate.getClientId(context), message);
+            return;
+        } else {
+            AffiliationGroup group = affiliationGroupServiceBean.find(userEmail);
+            if (group == null) {
+                ((UIInput) toValidate).setValid(true);
+                FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_WARN, BundleUtil.getStringFromBundle("user.email.domain.invalid"), null);
+                context.addMessage(toValidate.getClientId(context), message);
+                logger.info("Non-affiliated email domain. " + userEmail);
+            }
+            String affiliation = (group == null) ? "OTHER" : group.getDisplayName();
+            userDisplayInfo.setAffiliation(affiliation);
         }
     }
 
