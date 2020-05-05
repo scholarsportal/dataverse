@@ -516,6 +516,23 @@ public class DatasetFieldType implements Serializable, Comparable<DatasetFieldTy
         }
     }
 
+    public String getFacetDisplayName() {
+        if (isHasParent() && !parentDatasetFieldType.getTitle().equals(title)) {
+            String language = BundleUtil.getCurrentLocale().getLanguage();
+
+            if(language.equalsIgnoreCase(BundleUtil.getDefaultLocale().getLanguage()) ) {
+                return parentDatasetFieldType.getLocaleTitle()  + " " + getLocaleTitle();
+            }
+            else {
+                return parentDatasetFieldType.getLocaleTitle()  + " > " + getLocaleTitle() ;
+            }
+
+
+        } else {
+            return getLocaleTitle();
+        }
+    }
+
     public SolrField getSolrField() {
         SolrField.SolrType solrType = SolrField.SolrType.TEXT_EN;
         if (fieldType != null) {
