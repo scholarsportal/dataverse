@@ -24,7 +24,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 import java.util.UUID;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.EJBException;
@@ -162,7 +161,6 @@ public class ShibServiceBean {
     }
 
     public String getAffiliation(String shibIdp, DevShibAccountType devShibAccountType) {
-        System.out.println("ShibServiceBean.getAffiliation");
         JsonArray emptyJsonArray = new JsonArray();
         String discoFeedJson = emptyJsonArray.toString();
         String discoFeedUrl;
@@ -177,11 +175,8 @@ public class ShibServiceBean {
         try {
             url = new URL(discoFeedUrl);
         } catch (MalformedURLException ex) {
-            logger.info("URL Object: "+ex.toString());
-            ex.printStackTrace();
+            logger.info(ex.toString());
             return null;
-        } catch (Exception e) {
-            e.printStackTrace();
         }
         if (url == null) {
             logger.info("url object was null after parsing " + discoFeedUrl);
@@ -191,11 +186,8 @@ public class ShibServiceBean {
         try {
             discoFeedRequest = (HttpURLConnection) url.openConnection();
         } catch (IOException ex) {
-            logger.info("URL Connection instance: "+ex.toString());
-            ex.printStackTrace();
+            logger.info(ex.toString());
             return null;
-        } catch (Exception e) {
-            e.printStackTrace();
         }
         if (discoFeedRequest == null) {
             logger.info("disco feed request was null");
@@ -206,8 +198,6 @@ public class ShibServiceBean {
         } catch (IOException ex) {
             logger.info(ex.toString());
             return null;
-        } catch (Exception e) {
-            e.printStackTrace();
         }
         JsonParser jp = new JsonParser();
         JsonElement root = null;
@@ -216,8 +206,6 @@ public class ShibServiceBean {
         } catch (IOException ex) {
             logger.info(ex.toString());
             return null;
-        } catch (Exception e) {
-            e.printStackTrace();
         }
         if (root == null) {
             logger.info("root was null");
@@ -229,7 +217,7 @@ public class ShibServiceBean {
             return null;
         }
         discoFeedJson = rootArray.toString();
-        logger.info("Dump of disco feed:" + discoFeedJson);
+        logger.fine("Dump of disco feed:" + discoFeedJson);
         String affiliation = ShibUtil.getDisplayNameFromDiscoFeed(shibIdp, discoFeedJson);
         if (affiliation != null) {
             return affiliation;
