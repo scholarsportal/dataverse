@@ -176,6 +176,7 @@ public class ShibServiceBean {
             url = new URL(discoFeedUrl);
         } catch (MalformedURLException ex) {
             logger.info(ex.toString());
+            ex.printStackTrace();
             return null;
         }
         if (url == null) {
@@ -217,7 +218,7 @@ public class ShibServiceBean {
             return null;
         }
         discoFeedJson = rootArray.toString();
-        logger.fine("Dump of disco feed:" + discoFeedJson);
+        logger.info("Dump of disco feed:" + discoFeedJson);
         String affiliation = ShibUtil.getDisplayNameFromDiscoFeed(shibIdp, discoFeedJson);
         if (affiliation != null) {
             return affiliation;
