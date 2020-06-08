@@ -176,7 +176,7 @@ public class ShibServiceBean {
         try {
             url = new URL(discoFeedUrl);
         } catch (MalformedURLException ex) {
-            logger.warning("URL Object: "+ex.toString());
+            logger.info("URL Object: "+ex.toString());
             ex.printStackTrace();
             return null;
         }
@@ -188,7 +188,7 @@ public class ShibServiceBean {
         try {
             discoFeedRequest = (HttpURLConnection) url.openConnection();
         } catch (IOException ex) {
-            logger.warning("URL Connection instance: "+ex.toString());
+            logger.info("URL Connection instance: "+ex.toString());
             ex.printStackTrace();
             return null;
         }
