@@ -24,6 +24,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.EJBException;
@@ -175,7 +176,7 @@ public class ShibServiceBean {
         try {
             url = new URL(discoFeedUrl);
         } catch (MalformedURLException ex) {
-            logger.info(ex.toString());
+            logger.warning("URL Object: "+ex.toString());
             ex.printStackTrace();
             return null;
         }
@@ -187,7 +188,8 @@ public class ShibServiceBean {
         try {
             discoFeedRequest = (HttpURLConnection) url.openConnection();
         } catch (IOException ex) {
-            logger.info(ex.toString());
+            logger.warning("URL Connection instance: "+ex.toString());
+            ex.printStackTrace();
             return null;
         }
         if (discoFeedRequest == null) {
