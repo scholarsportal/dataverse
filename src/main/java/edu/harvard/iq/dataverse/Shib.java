@@ -209,7 +209,12 @@ public class Shib implements java.io.Serializable {
         internalUserIdentifer = ShibUtil.generateFriendlyLookingUserIdentifer(usernameAssertion, emailAddress);
         logger.fine("friendly looking identifer (backend will enforce uniqueness):" + internalUserIdentifer);
 
-        String affiliation = shibService.getAffiliation(shibIdp, shibService.getDevShibAccountType());
+        String affiliation = null;
+        try {
+            affiliation = shibService.getAffiliation(shibIdp, shibService.getDevShibAccountType());
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
         if (affiliation != null) {
             affiliationToDisplayAtConfirmation = affiliation;
             friendlyNameForInstitution = affiliation;
