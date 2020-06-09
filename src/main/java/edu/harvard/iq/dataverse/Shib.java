@@ -457,7 +457,7 @@ public class Shib implements java.io.Serializable {
             alias = getRootDataverseAlias();
         }
         if (redirectPage != null) {
-            if (alias != null) {
+            if (!redirectPage.contains("alias") && alias != null) {
                 redirectPage = redirectPage + "?alias="  + alias;
             }
             return redirectPage;
