@@ -209,12 +209,7 @@ public class Shib implements java.io.Serializable {
         internalUserIdentifer = ShibUtil.generateFriendlyLookingUserIdentifer(usernameAssertion, emailAddress);
         logger.fine("friendly looking identifer (backend will enforce uniqueness):" + internalUserIdentifer);
 
-        String affiliation = null;
-        try {
-            affiliation = shibService.getAffiliation(shibIdp, shibService.getDevShibAccountType());
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
+        String affiliation = shibService.getAffiliation(shibIdp, shibService.getDevShibAccountType());
         if (affiliation != null) {
             affiliationToDisplayAtConfirmation = affiliation;
             friendlyNameForInstitution = affiliation;
@@ -457,15 +452,19 @@ public class Shib implements java.io.Serializable {
      * logic per https://github.com/IQSS/dataverse/issues/1551
      */
     public String getPrettyFacesHomePageString(boolean includeFacetDashRedirect, String affiliation) {
-        logger.log(Level.INFO, "{0}, {1}", new Object[]{includeFacetDashRedirect, affiliation});
-        if (redirectPage != null) {
-            return redirectPage;
-        }
-        String plainHomepageString = "/dataverse.xhtml";
         String alias = getAlias(affiliation);
         if (alias == null) {
             alias = getRootDataverseAlias();
         }
+        if (redirectPage != null) {
+            if (alias != null) {
+                redirectPage = redirectPage + "?alias="  + alias;
+            }
+            return redirectPage;
+        }
+        logger.log(Level.INFO, "{0}, {1}, {2}, {3}", new Object[]{redirectPage, includeFacetDashRedirect, affiliation, alias});
+
+        String plainHomepageString = "/dataverse.xhtml";
         if (includeFacetDashRedirect) {
             if (alias != null) {
                 logger.log(Level.INFO, "{0}, {1}, {2}", new Object[]{includeFacetDashRedirect, plainHomepageString, "?alias="  + alias + "&faces-redirect=true"});
