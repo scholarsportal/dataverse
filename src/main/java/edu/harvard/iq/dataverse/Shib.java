@@ -456,13 +456,13 @@ public class Shib implements java.io.Serializable {
         if (alias == null) {
             alias = getRootDataverseAlias();
         }
+        logger.log(Level.INFO, "{0}, {1}, {2}, {3}", new Object[]{redirectPage, includeFacetDashRedirect, affiliation, alias});
         if (redirectPage != null) {
-            if (!redirectPage.contains("alias") && alias != null) {
+            if (redirectPage.contains("dataverse.xhtml") && !redirectPage.contains("alias") && alias != null) {
                 redirectPage = redirectPage + "?alias="  + alias;
             }
             return redirectPage;
         }
-        logger.log(Level.INFO, "{0}, {1}, {2}, {3}", new Object[]{redirectPage, includeFacetDashRedirect, affiliation, alias});
 
         String plainHomepageString = "/dataverse.xhtml";
         if (includeFacetDashRedirect) {
