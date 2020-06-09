@@ -65,9 +65,11 @@ public class AffiliationGroupServiceBean {
         AffiliationGroup group = matchByTopLevelEmailDomain(topLevelDomain);
         if (group != null) {
             String emaildomain = group.getEmaildomain();
-            List<String> domainValues = Arrays.asList(emaildomain.split("\\s*,\\s*"));
-            if (domainValues.contains(topLevelDomain))
-                return group;
+            String[] edomains = emaildomain.split("\\s*,\\s*");
+            for(String d : edomains) {
+                if (d.equalsIgnoreCase(topLevelDomain))
+                    return group;
+            }
         }
         return null;
     }
