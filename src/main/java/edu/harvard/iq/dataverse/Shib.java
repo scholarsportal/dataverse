@@ -452,15 +452,16 @@ public class Shib implements java.io.Serializable {
      * logic per https://github.com/IQSS/dataverse/issues/1551
      */
     public String getPrettyFacesHomePageString(boolean includeFacetDashRedirect, String affiliation) {
+        logger.log(Level.INFO, "{0}, {1}, {2}", new Object[]{redirectPage, includeFacetDashRedirect, affiliation});
         String alias = getAlias(affiliation);
         if (alias == null) {
             alias = getRootDataverseAlias();
         }
-        logger.log(Level.INFO, "{0}, {1}, {2}, {3}", new Object[]{redirectPage, includeFacetDashRedirect, affiliation, alias});
         if (redirectPage != null) {
             if (redirectPage.contains("dataverse.xhtml") && !redirectPage.contains("alias") && alias != null) {
                 redirectPage = redirectPage + "?alias="  + alias;
             }
+            logger.log(Level.INFO, "{0}, {1}, {2}, {3}", new Object[]{redirectPage, includeFacetDashRedirect, affiliation, alias});
             return redirectPage;
         }
 
