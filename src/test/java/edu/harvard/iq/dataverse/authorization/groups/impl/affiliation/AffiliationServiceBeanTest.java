@@ -81,6 +81,9 @@ public class AffiliationServiceBeanTest {
 
         alias = bean.getAlias("Non-existent University");
         assertEquals("", alias);
+
+        alias = bean.getAlias("Queen's University");
+        assertEquals("queens", alias);
     }
 
     @Test
