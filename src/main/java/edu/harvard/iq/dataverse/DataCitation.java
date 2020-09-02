@@ -191,7 +191,7 @@ public class DataCitation {
         citationList.add(year);
         if ((fileTitle != null) && isDirect()) {
             citationList.add(formatString(fileTitle, html, "\""));
-            citationList.add(formatString(title, html, "<i>", "</i>"));
+            citationList.add(formatString(title, html, "<em>", "</em>"));
         } else {
         citationList.add(formatString(title, html, "\""));
         }
@@ -265,12 +265,12 @@ public class DataCitation {
             out.write(title);
             out.write("},\r\n");
         } else {
-            out.write("title = \"{");
+            out.write("title = {{");
             String doubleQ = "\"";
             String doubleTick = "``";
             String doubleAp = "''";
             out.write(title.replaceFirst(doubleQ, doubleTick).replaceFirst(doubleQ, doubleAp));
-            out.write("}\",\r\n");
+            out.write("}},\r\n");
         }
         if(UNF != null){
             out.write("UNF = {");

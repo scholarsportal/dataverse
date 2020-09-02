@@ -53,6 +53,8 @@ Adding a New Dataset
 
 Note: You can add additional metadata once you have completed the initial dataset creation by going to clicking the Edit button and selecting Metadata from the dropdown menu.
 
+.. _supported-html-fields:
+
 Supported HTML Fields
 ---------------------
 
@@ -70,7 +72,6 @@ If there are multiple upload options available, then you must choose which one t
 You can upload files to a dataset while first creating that dataset. You can also upload files after creating a dataset by clicking the "Edit" button at the top of the dataset page and from the dropdown list selecting "Files (Upload)" or clicking the "Upload Files" button above the files table in the Files tab. From either option you will be brought to the Upload Files page for that dataset.
 
 Certain file types in Dataverse are supported by additional functionality, which can include downloading in different formats, previews, file-level metadata preservation, file-level data citation with UNFs, and exploration through data visualization and analysis. See the :ref:`File Handling <file-handling>` section of this page for more information.
-
 
 HTTP Upload
 -----------
@@ -145,10 +146,24 @@ File Handling
 
 Certain file types in Dataverse are supported by additional functionality, which can include downloading in different formats, previews, file-level metadata preservation, file-level data citation; and exploration through data visualization and analysis. See the sections below for information about special functionality for specific file types.
 
+.. _duplicate-files:
+
+Duplicate Files
+===============
+
+Beginning with Dataverse 5.0, the way Dataverse handles duplicate files (filename and checksums) is changing to be more flexible. Specifically:
+
+- Files with the same checksum can be included in a dataset, even if the files are in the same directory.
+- Files with the same filename can be included in a dataset as long as the files are in different directories.
+- If a user uploads a file to a directory where a file already exists with that directory/filename combination, Dataverse will adjust the file path and names by adding "-1" or "-2" as applicable. This change will be visible in the list of files being uploaded. 
+- If the directory or name of an existing or newly uploaded file is edited in such a way that would create a directory/filename combination that already exists, Dataverse will display an error.
+- If a user attempts to replace a file with another file that has the same checksum, an error message will be displayed and the file will not be able to be replaced.
+- If a user attempts to replace a file with a file that has the same checksum as a different file in the dataset, a warning will be displayed.
+
 File Previews
 -------------
 
-Installations of Dataverse can install previewers for common file types uploaded by their research communities. The previews appear on the file page. If a preview tool for a specific file type is available, the preview will be created and will display automatically. File previews are not available for restricted files.
+Installations of Dataverse can install previewers for common file types uploaded by their research communities. The previews appear on the file page. If a preview tool for a specific file type is available, the preview will be created and will display automatically. File previews are not available for restricted files unless they are being accessed using a Private URL. See also :ref:`privateurl`.
 
 Tabular Data Files
 ------------------
@@ -164,6 +179,7 @@ Additional download options available for tabular data (found in the same drop-d
 - Data File Citation (currently in either RIS, EndNote XML, or BibTeX format); 
 - All of the above, as a zipped bundle. 
 
+See also :ref:`restricted-tabular-files`.
 
 Geospatial
 ----------
@@ -217,6 +233,28 @@ There are several advanced options available for certain file types.
 - Image files: .jpg, .png, and .tif files are able to be selected as the default thumbnail for a dataset. The selected thumbnail will appear on the search result card for that dataset.
 - SPSS files: SPSS files can be tagged with the language they were originally coded in. This is found by clicking on Advanced Options and selecting the language from the list provided.
 
+.. _restricted-files:
+
+Restricted Files
+================
+
+When you restrict a file in Dataverse it cannot be downloaded unless permission has been granted.
+
+See also :ref:`terms-of-access` and :ref:`permissions`.
+
+.. _restricted-tabular-files:
+
+Restricted Tabular Files
+------------------------
+
+Restricted tabular files are treated differently than other file types in that the following information is exposed when the files are published:
+
+- The name of columns (variables).
+- The "label" (description) of columns.
+- Summary statistics (max, min, mean, etc.) of columns.
+
+This information can been seen from the file landing page if you click "Export Metada" and then "DDI". Depending on your installation, the information above may also be available from :doc:`/admin/external-tools`.
+
 Edit Files
 ==========
 
@@ -243,7 +281,7 @@ Variable Metadata can be edited directly through an API call (:ref:`API Guide: E
 File Path
 ---------
 
-The File Path metadata field is Dataverse's way of representing a file's location in a folder structure. When a user uploads a .zip file containing a folder structure, Dataverse automatically fills in the File Path information for each file contained in the .zip. If a user downloads the full dataset or a selection of files from it, they will receive a folder structure with each file positioned according to its File Path.
+The File Path metadata field is Dataverse's way of representing a file's location in a folder structure. When a user uploads a .zip file containing a folder structure, Dataverse automatically fills in the File Path information for each file contained in the .zip. If a user downloads the full dataset or a selection of files from it, they will receive a folder structure with each file positioned according to its File Path. Only one file with a given path and name may exist in a dataset. Editing a file to give it the same path and name as another file already existing in the dataset will cause an error.
 
 A file's File Path can be manually added or edited on the Edit Files page. Changing a file's File Path will change its location in the folder structure that is created when a user downloads the full dataset or a selection of files from it.
 
@@ -296,12 +334,16 @@ If you are unable to use the CC0 Public Domain Dedication for your datasets, you
 
 Here is an `example of a Data Usage Agreement <https://dataverse.org/best-practices/sample-dua>`_ for datasets that have de-identified human subject data.
 
+.. _terms-of-access:
+
 Restricted Files + Terms of Access 
 ----------------------------------
 
 If you restrict any files in your dataset, you will be prompted by a pop-up to enter Terms of Access for the data. This can also be edited in the Terms tab or selecting Terms in the "Edit" dropdown button in the dataset. You may also allow users to request access for your restricted files by enabling "Request Access". To add more information about the Terms of Access, we have provided fields like Data Access Place, Availability Status, Contact for Access, etc. If you restrict a file, it will not have a preview shown on the file page.
 
 **Note:** Some Dataverse installations do not allow for file restriction.
+
+See also :ref:`restricted-files`.
 
 Guestbook
 ---------
@@ -435,6 +477,8 @@ Publish Dataset
 ===============
 
 When you publish a dataset (available to an Admin, Curator, or any custom role which has this level of permission assigned), you make it available to the public so that other users can browse or search for it. Once your dataset is ready to go public, go to your dataset page and click on the "Publish" button on the right hand side of the page. A pop-up will appear to confirm that you are ready to actually Publish since once a dataset is made public it can no longer be unpublished. 
+
+Before Dataverse finalizes the publication of the dataset, it will attempt to validate all the physical files in it, to make sure they are present and intact. In an unlikely event that any files fail the validation, you will see an error message informing you that the problem must be fixed by the local Dataverse Admin before the dataset can be published. 
 
 Whenever you edit your dataset, you are able to publish a new version of the dataset. The publish dataset button will reappear whenever you edit the metadata of the dataset or add a file.
 

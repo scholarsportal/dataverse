@@ -14,6 +14,7 @@ import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.exception.CommandException;
 import edu.harvard.iq.dataverse.engine.command.impl.DestroyDatasetCommand;
 import edu.harvard.iq.dataverse.engine.command.impl.FinalizeDatasetPublicationCommand;
+import edu.harvard.iq.dataverse.engine.command.impl.GetDatasetStorageSizeCommand;
 import edu.harvard.iq.dataverse.export.ExportService;
 import edu.harvard.iq.dataverse.harvest.server.OAIRecordServiceBean;
 import edu.harvard.iq.dataverse.search.IndexServiceBean;
@@ -400,7 +401,7 @@ public class DatasetServiceBean implements java.io.Serializable {
         dataset.addLock(lock);
         lock.setStartTime( new Date() );
         em.persist(lock);
-        em.merge(dataset); 
+        //em.merge(dataset); 
         return lock;
     }
     
@@ -459,6 +460,11 @@ public class DatasetServiceBean implements java.io.Serializable {
                         em.remove(lock);
                     });
         }
+    }
+    
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public void updateDatasetLock(DatasetLock datasetLock) {
+        em.merge(datasetLock);
     }
     
     /*
@@ -720,7 +726,7 @@ public class DatasetServiceBean implements java.io.Serializable {
             logger.fine("In setNonDatasetFileAsThumbnail but inputStream is null! Returning null.");
             return null;
         }
-        dataset = DatasetUtil.persistDatasetLogoToStorageAndCreateThumbnail(dataset, inputStream);
+        dataset = DatasetUtil.persistDatasetLogoToStorageAndCreateThumbnails(dataset, inputStream);
         dataset.setThumbnailFile(null);
         return merge(dataset);
     }
@@ -774,21 +780,37 @@ public class DatasetServiceBean implements java.io.Serializable {
         return workflowComment;
     }
     
+    /**
+     * This method used to throw CommandException, which was pretty pointless 
+     * seeing how it's called asynchronously. As of v5.0 any CommanExceptiom 
+     * thrown by the FinalizeDatasetPublicationCommand below will be caught 
+     * and we'll log it as a warning - which is the best we can do at this point.
+     * Any failure notifications to users should be sent from inside the command.
+     */
     @Asynchronous
-    public void callFinalizePublishCommandAsynchronously(Long datasetId, CommandContext ctxt, DataverseRequest request, boolean isPidPrePublished) throws CommandException {
+    @TransactionAttribute(TransactionAttributeType.SUPPORTS)
+    public void callFinalizePublishCommandAsynchronously(Long datasetId, CommandContext ctxt, DataverseRequest request, boolean isPidPrePublished) {
 
         // Since we are calling the next command asynchronously anyway - sleep here 
         // for a few seconds, just in case, to make sure the database update of 
         // the dataset initiated by the PublishDatasetCommand has finished, 
         // to avoid any concurrency/optimistic lock issues. 
+        // Aug. 2020/v5.0: It MAY be working consistently without any 
+        // sleep here, after the call the method has been moved to the onSuccess()
+        // portion of the PublishDatasetCommand. I'm going to leave the 1 second
+        // sleep below, for just in case reasons: -- L.A.
         try {
-            Thread.sleep(15000);
+            Thread.sleep(1000);
         } catch (Exception ex) {
-            logger.warning("Failed to sleep for 15 seconds.");
+            logger.warning("Failed to sleep for a second.");
         }
         logger.fine("Running FinalizeDatasetPublicationCommand, asynchronously");
         Dataset theDataset = find(datasetId);
-        commandEngine.submit(new FinalizeDatasetPublicationCommand(theDataset, request, isPidPrePublished));
+        try {
+            commandEngine.submit(new FinalizeDatasetPublicationCommand(theDataset, request, isPidPrePublished));
+        } catch (CommandException cex) {
+            logger.warning("CommandException caught when executing the asynchronous portion of the Dataset Publication Command.");
+        }
     }
     
     /*
@@ -866,45 +888,67 @@ public class DatasetServiceBean implements java.io.Serializable {
     }
     
     public long findStorageSize(Dataset dataset) throws IOException {
-        return findStorageSize(dataset, false);
+        return findStorageSize(dataset, false, GetDatasetStorageSizeCommand.Mode.STORAGE, null);
     }
     
+    
+    public long findStorageSize(Dataset dataset, boolean countCachedExtras) throws IOException {
+        return findStorageSize(dataset, countCachedExtras, GetDatasetStorageSizeCommand.Mode.STORAGE, null);
+    }
+  
     /**
      * Returns the total byte size of the files in this dataset 
      * 
      * @param dataset
      * @param countCachedExtras boolean indicating if the cached disposable extras should also be counted
+     * @param mode String indicating whether we are getting the result for storage (entire dataset) or download version based
+     * @param version optional param for dataset version
      * @return total size 
      * @throws IOException if it can't access the objects via StorageIO 
      * (in practice, this can only happen when called with countCachedExtras=true; when run in the 
      * default mode, the method doesn't need to access the storage system, as the 
      * sizes of the main files are recorded in the database)
      */
-    public long findStorageSize(Dataset dataset, boolean countCachedExtras) throws IOException {
+    public long findStorageSize(Dataset dataset, boolean countCachedExtras, GetDatasetStorageSizeCommand.Mode mode, DatasetVersion version) throws IOException {
         long total = 0L; 
         
         if (dataset.isHarvested()) {
             return 0L;
         }
+
+        List<DataFile> filesToTally = new ArrayList();
         
-        for (DataFile datafile : dataset.getFiles()) {
-            total += datafile.getFilesize(); 
-            
-            if (!countCachedExtras) {
-                if (datafile.isTabularData()) {
-                    // count the size of the stored original, in addition to the main tab-delimited file:
-                    Long originalFileSize = datafile.getDataTable().getOriginalFileSize();
-                    if (originalFileSize != null) { 
-                        total += originalFileSize;
+        if (version == null || (mode != null &&  mode.equals("storage"))){
+            filesToTally = dataset.getFiles();
+        } else {
+            List <FileMetadata>  fmds = version.getFileMetadatas();
+            for (FileMetadata fmd : fmds){
+                    filesToTally.add(fmd.getDataFile());
+            }           
+        }
+    
+        
+        //CACHED EXTRAS FOR DOWNLOAD?
+        
+        
+        for (DataFile datafile : filesToTally) {
+                total += datafile.getFilesize();
+
+                if (!countCachedExtras) {
+                    if (datafile.isTabularData()) {
+                        // count the size of the stored original, in addition to the main tab-delimited file:
+                        Long originalFileSize = datafile.getDataTable().getOriginalFileSize();
+                        if (originalFileSize != null) {
+                            total += originalFileSize;
+                        }
+                    }
+                } else {
+                    StorageIO<DataFile> storageIO = datafile.getStorageIO();
+                    for (String cachedFileTag : storageIO.listAuxObjects()) {
+                        total += storageIO.getAuxObjectSize(cachedFileTag);
                     }
                 }
-            } else {
-                StorageIO<DataFile> storageIO = datafile.getStorageIO();
-                for (String cachedFileTag : storageIO.listAuxObjects()) {
-                    total += storageIO.getAuxObjectSize(cachedFileTag);
-                }                
             }
-        }
         
         // and finally,
         if (countCachedExtras) {

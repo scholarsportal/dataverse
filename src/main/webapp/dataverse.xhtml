@@ -14,6 +14,7 @@
         <ui:composition template="/dataverse_template.xhtml">
             <ui:param name="pageTitle" value="#{empty DataversePage.dataverse.name ? bundle.new : DataversePage.dataverse.name}"/>
             <ui:param name="dataverse" value="#{DataversePage.dataverse}"/>
+            <ui:param name="editModeDataverse" value="#{DataversePage.editMode}"/>
             <ui:define name="meta_header">
             <meta name="description" content="#{MarkupChecker:stripAllTags(DataversePage.dataverse.description)}"/>
             </ui:define>
@@ -137,6 +138,19 @@
                                         <p:inputText id="identifier" styleClass="form-control" validator="#{DataversePage.validateAlias}" value="#{DataversePage.dataverse.alias}" required="true"/>
                                     </div>
                                     <p:message for="identifier" display="text"/>
+                                </div>
+                            </div>
+                            <div class="col-md-6 form-group" jsf:rendered="#{dataverseSession.user.superuser}">
+                                <h:outputLabel for="dataverseStorage" styleClass="control-label">
+                                    #{bundle.storage} 
+                                    <span class="glyphicon glyphicon-question-sign tooltip-icon"
+                                          data-toggle="tooltip" data-placement="auto right" data-original-title="#{bundle['dataverse.storage.title']}"></span>
+                                </h:outputLabel>
+                                <div class="form-col-container">
+                                            <h:selectOneMenu id="dataverseStorage" styleClass="form-control" value="#{DataversePage.dataverse.storageDriverId}">
+                                              <f:selectItems value="#{DataversePage.getStorageDriverOptions()}" var="driver" itemLabel="#{driver.getKey()}" itemValue="#{driver.getValue()}"/>
+                                            </h:selectOneMenu>
+                                            <p:message for="dataverseStorage" display="text"/>
                                 </div>
                             </div>
                         </div>
@@ -381,10 +395,10 @@
                     <!-- END Edit Mode -->
                     <!-- View Mode / Description Panel -->
                     <ui:fragment rendered="#{empty DataversePage.editMode}">
-                        <div id="actionButtonBlock" class="col-xs-12 button-block" jsf:rendered="#{!widgetWrapper.widgetView}">
+                        <div id="actionButtonBlock" class="col-xs-12 button-block margin-bottom" jsf:rendered="#{!widgetWrapper.widgetView}">
                             <div class="row">
                                 <!-- Metrics for Root Dataverse -->
-                                <div id="metrics-block" class="col-xs-4" jsf:rendered="#{DataversePage.isRootDataverse() and !settingsWrapper.rsyncOnly}">
+                                <div id="metrics-block1" class="col-xs-4" jsf:rendered="#{DataversePage.isRootDataverse() and !settingsWrapper.rsyncOnly}">
                                     <div id="metrics-label" class="col-xs-4 small text-center">
                                         <h:outputLink value="#{systemConfig.metricsUrl}" target="_blank" title="#{bundle['metrics.title.tip']}" rendered="#{systemConfig.metricsUrl != null}">
                                             <span class="glyphicon glyphicon-stats"/> #{bundle['metrics.title']}

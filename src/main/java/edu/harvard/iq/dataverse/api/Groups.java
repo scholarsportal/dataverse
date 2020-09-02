@@ -4,26 +4,46 @@ import edu.harvard.iq.dataverse.authorization.groups.impl.affiliation.Affiliatio
 import edu.harvard.iq.dataverse.authorization.groups.impl.affiliation.AffiliationGroupProvider;
 import edu.harvard.iq.dataverse.authorization.groups.impl.ipaddress.IpGroup;
 import edu.harvard.iq.dataverse.authorization.groups.impl.ipaddress.IpGroupProvider;
+import edu.harvard.iq.dataverse.authorization.groups.impl.maildomain.MailDomainGroup;
+import edu.harvard.iq.dataverse.authorization.groups.impl.maildomain.MailDomainGroupProvider;
 import edu.harvard.iq.dataverse.authorization.groups.impl.shib.ShibGroup;
 import edu.harvard.iq.dataverse.authorization.groups.impl.shib.ShibGroupProvider;
+import edu.harvard.iq.dataverse.util.json.JsonParseException;
 import edu.harvard.iq.dataverse.util.json.JsonParser;
+
 
 import javax.annotation.PostConstruct;
 import javax.ejb.Stateless;
+import javax.interceptor.Interceptors;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.json.JsonString;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
+import static edu.harvard.iq.dataverse.util.json.JsonPrinter.*;
+
+import java.util.Optional;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+import javax.annotation.PostConstruct;
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObject;
+import javax.json.JsonString;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.PathParam;
 
 import static edu.harvard.iq.dataverse.util.json.JsonPrinter.json;
 import static edu.harvard.iq.dataverse.util.json.JsonPrinter.toJsonArray;
 import static org.apache.commons.lang.StringUtils.isNumeric;
+
 
 /**
  *
@@ -36,6 +56,7 @@ public class Groups extends AbstractApiBean {
 
     private IpGroupProvider ipGroupPrv;
     private ShibGroupProvider shibGroupPrv;
+    private MailDomainGroupProvider mailDomainGroupPrv;
     private AffiliationGroupProvider affiliationGroupPrv;
 
     Pattern legalGroupName = Pattern.compile("^[-_a-zA-Z0-9]+$");
@@ -44,6 +65,7 @@ public class Groups extends AbstractApiBean {
     void postConstruct() {
         ipGroupPrv = groupSvc.getIpGroupProvider();
         shibGroupPrv = groupSvc.getShibGroupProvider();
+        mailDomainGroupPrv = groupSvc.getMailDomainGroupProvider();
         affiliationGroupPrv = groupSvc.getAffiliationGroupProvider();
     }
 
@@ -210,6 +232,67 @@ public class Groups extends AbstractApiBean {
         } else {
             return error(Response.Status.BAD_REQUEST, "Could not find Shibboleth group with an id of " + id);
         }
+    }
+
+
+    /**
+     * Creates a new {@link MailDomainGroup}. The name of the group is based on the
+     * {@code alias:} field, but might be changed to ensure uniqueness.
+     * @param dto
+     * @return Response describing the created group or the error that prevented
+     *         that group from being created.
+     */
+    @POST
+    @Path("domain")
+    public Response createMailDomainGroup(JsonObject dto) throws JsonParseException {
+        MailDomainGroup grp = new JsonParser().parseMailDomainGroup(dto);
+        mailDomainGroupPrv.saveOrUpdate(Optional.empty(), grp);
+
+        return created("/groups/domain/" + grp.getPersistedGroupAlias(), json(grp) );
+    }
+
+    /**
+     * Creates or updates the {@link MailDomainGroup} named {@code groupName}.
+     * @param groupAlias Name of the group.
+     * @param dto data of the group.
+     * @return Response describing the created group or the error that prevented
+     *         that group from being created.
+     */
+    @PUT
+    @Path("domain/{groupAlias}")
+    public Response updateMailDomainGroups(@PathParam("groupAlias") String groupAlias, JsonObject dto) throws JsonParseException {
+        if ( groupAlias == null || groupAlias.trim().isEmpty() ) {
+            return badRequest("Group name cannot be empty");
+        }
+        if ( ! legalGroupName.matcher(groupAlias).matches() ) {
+            return badRequest("Group name can contain only letters, digits, and the chars '-' and '_'");
+        }
+
+        MailDomainGroup grp = new JsonParser().parseMailDomainGroup(dto);
+        mailDomainGroupPrv.saveOrUpdate(Optional.of(groupAlias), grp);
+
+        return created("/groups/domain/" + grp.getPersistedGroupAlias(), json(grp) );
+    }
+
+    @GET
+    @Path("domain")
+    public Response listMailDomainGroups() {
+        return ok( mailDomainGroupPrv.findGlobalGroups()
+            .stream().map(g->json(g)).collect(toJsonArray()) );
+    }
+
+    @GET
+    @Path("domain/{groupAlias}")
+    public Response getMailDomainGroup(@PathParam("groupAlias") String groupAlias) {
+        MailDomainGroup grp = mailDomainGroupPrv.get(groupAlias);
+        return (grp == null) ? notFound( "Group " + groupAlias + " not found") : ok(json(grp));
+    }
+
+    @DELETE
+    @Path("domain/{groupAlias}")
+    public Response deleteMailDomainGroup(@PathParam("groupAlias") String groupAlias) {
+        mailDomainGroupPrv.delete(groupAlias);
+        return ok("Group " + groupAlias + " deleted.");
     }
 
     @GET

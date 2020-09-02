@@ -1,7 +1,7 @@
 Apps
 ====
 
-The introduction of Dataverse APIs has fostered the development of a variety of software applications that are listed in the :doc:`/admin/integrations`, :doc:`/admin/external-tools`, and :doc:`/admin/reporting-tools` sections of the Admin Guide.
+The introduction of Dataverse APIs has fostered the development of a variety of software applications that are listed in the :doc:`/admin/integrations`, :doc:`/admin/external-tools`, and :doc:`/admin/reporting-tools-and-queries` sections of the Admin Guide.
 
 The apps below are open source and demonstrate how to use Dataverse APIs. Some of these apps are built on :doc:`/api/client-libraries` that are available for Dataverse APIs in Python, Javascript, R, and Java.
 
@@ -30,7 +30,7 @@ File Previewers
 
 File Previewers are tools that display the content of files - including audio, html, Hypothes.is annotations, images, PDF, text, video - allowing them to be viewed without downloading.
 
-https://github.com/QualitativeDataRepository/dataverse-previewers
+https://github.com/GlobalDataverseCommunityConsortium/dataverse-previewers
 
 TwoRavens
 ~~~~~~~~~

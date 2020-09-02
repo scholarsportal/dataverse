@@ -120,9 +120,11 @@ public class AddReplaceFileHelper{
     private InputStream newFileInputStream;     // step 20
     private String newFileName;                 // step 20
     private String newFileContentType;          // step 20
+    private String newStorageIdentifier;        // step 20
+    private String newCheckSum;        // step 20
+    
     // -- Optional  
     private DataFile fileToReplace;             // step 25
-    
     
     // -----------------------------------
     // Instance variables derived from other input
@@ -150,6 +152,55 @@ public class AddReplaceFileHelper{
     //
     private boolean contentTypeWarningFound;
     private String contentTypeWarningString;
+    
+    private boolean duplicateFileErrorFound;
+
+    private String duplicateFileErrorString;
+
+    private boolean duplicateFileWarningFound;
+    private String duplicateFileWarningString;
+    
+    private String duplicateFileComponentMessage;
+
+    public String getDuplicateFileComponentMessage() {
+        return duplicateFileComponentMessage;
+    }
+
+    public void setDuplicateFileComponentMessage(String duplicateFileComponentMessage) {
+        this.duplicateFileComponentMessage = duplicateFileComponentMessage;
+    }
+    
+    public boolean isDuplicateFileErrorFound() {
+        return duplicateFileErrorFound;
+    }
+
+    public void setDuplicateFileErrorFound(boolean duplicateFileErrorFound) {
+        this.duplicateFileErrorFound = duplicateFileErrorFound;
+    }
+
+    public String getDuplicateFileErrorString() {
+        return duplicateFileErrorString;
+    }
+
+    public void setDuplicateFileErrorString(String duplicateFileErrorString) {
+        this.duplicateFileErrorString = duplicateFileErrorString;
+    }
+    
+    public boolean isDuplicateFileWarningFound() {
+        return duplicateFileWarningFound;
+    }
+
+    public void setDuplicateFileWarningFound(boolean duplicateFileWarningFound) {
+        this.duplicateFileWarningFound = duplicateFileWarningFound;
+    }
+
+    public String getDuplicateFileWarningString() {
+        return duplicateFileWarningString;
+    }
+
+    public void setDuplicateFileWarningString(String duplicateFileWarningString) {
+        this.duplicateFileWarningString = duplicateFileWarningString;
+    }
     
     public void resetFileHelper(){
         
@@ -258,6 +309,7 @@ public class AddReplaceFileHelper{
     public boolean runAddFileByDataset(Dataset chosenDataset, 
             String newFileName, 
             String newFileContentType, 
+            String newStorageIdentifier,
             InputStream newFileInputStream,
             OptionalFileParams optionalFileParams){
         
@@ -272,7 +324,7 @@ public class AddReplaceFileHelper{
         }
         
         //return this.runAddFile(this.dataset, newFileName, newFileContentType, newFileInputStream, optionalFileParams);
-        return this.runAddReplaceFile(dataset, newFileName, newFileContentType, newFileInputStream, optionalFileParams);
+        return this.runAddReplaceFile(dataset, newFileName, newFileContentType, newStorageIdentifier, newFileInputStream, optionalFileParams);
 
     }
     
@@ -342,9 +394,7 @@ public class AddReplaceFileHelper{
     }
     
 
-
-    
-    public boolean runReplaceFile(Long oldFileId,
+	public boolean runReplaceFile(Long oldFileId,
                             String newFileName, 
                             String newFileContentType, 
                             InputStream newFileInputStream,
@@ -366,7 +416,6 @@ public class AddReplaceFileHelper{
         if (!this.step_005_loadFileToReplaceById(oldFileId)){
             return false;
         }
-
         return this.runAddReplaceFile(fileToReplace.getOwner(), newFileName, newFileContentType, newFileInputStream, optionalFileParams);
     }
     
@@ -386,25 +435,31 @@ public class AddReplaceFileHelper{
      * 
      * The UI will call Phase 1 on initial upload and 
      *   then run Phase 2 if the user chooses to save the changes.
+     * @param newStorageIdentifier 
      * 
      * 
      * @return 
      */
-    private boolean runAddReplaceFile(Dataset dataset,  
+    private boolean runAddReplaceFile(Dataset owner, String newFileName, String newFileContentType,
+			InputStream newFileInputStream, OptionalFileParams optionalFileParams) {
+		return runAddReplaceFile(owner,newFileName, newFileContentType, null, newFileInputStream, optionalFileParams);
+	}
+    
+    private boolean runAddReplaceFile(Dataset owner,  
             String newFileName, String newFileContentType, 
-            InputStream newFileInputStream,
+            String newStorageIdentifier, InputStream newFileInputStream,
             OptionalFileParams optionalFileParams){
         
         // Run "Phase 1" - Initial ingest of file + error check
         // But don't save the dataset version yet
         //
-        boolean phase1Success = runAddReplacePhase1(dataset,  
+        boolean phase1Success = runAddReplacePhase1(owner,  
                                         newFileName,  
                                         newFileContentType,  
+                                        newStorageIdentifier,
                                         newFileInputStream,
                                         optionalFileParams
                                         );
-        
         if (!phase1Success){
             return false;
         }
@@ -429,6 +484,7 @@ public class AddReplaceFileHelper{
             String newFileName, 
             String newFileContentType,
             InputStream newFileInputStream,
+            String fullStorageId,
             OptionalFileParams optionalFileParams){
         
         
@@ -449,7 +505,8 @@ public class AddReplaceFileHelper{
 
         return this.runAddReplacePhase1(fileToReplace.getOwner(), 
                 newFileName, 
-                newFileContentType, 
+                newFileContentType,
+                fullStorageId,
                 newFileInputStream, 
                 optionalFileParams);
 
@@ -462,13 +519,14 @@ public class AddReplaceFileHelper{
      * 
      * Phase 1 (here): Add/replace the file and make sure there are no errors
      *          But don't update the Dataset (yet)
+     * @param newStorageIdentifier 
      * 
      * @return 
      */
-    private boolean runAddReplacePhase1(Dataset dataset,  
+    private boolean runAddReplacePhase1(Dataset owner,  
             String newFileName, 
             String newFileContentType,
-            InputStream newFileInputStream,
+            String newStorageIdentifier, InputStream newFileInputStream,
             OptionalFileParams optionalFileParams){
         
         if (this.hasError()){
@@ -476,7 +534,7 @@ public class AddReplaceFileHelper{
         }
 
         msgt("step_001_loadDataset");
-        if (!this.step_001_loadDataset(dataset)){
+        if (!this.step_001_loadDataset(owner)){
             return false;
         }
         
@@ -487,11 +545,16 @@ public class AddReplaceFileHelper{
         }
 
         msgt("step_020_loadNewFile");
-        if (!this.step_020_loadNewFile(newFileName, newFileContentType, newFileInputStream)){
+        if (!this.step_020_loadNewFile(newFileName, newFileContentType, newStorageIdentifier, newFileInputStream)){
             return false;
             
         }
-        
+        if(optionalFileParams != null) {
+        	if(optionalFileParams.hasCheckSum()) {
+        		newCheckSum = optionalFileParams.getCheckSum();
+        	}
+        }
+
         msgt("step_030_createNewFilesViaIngest");
         if (!this.step_030_createNewFilesViaIngest()){
             return false;
@@ -747,6 +810,17 @@ public class AddReplaceFileHelper{
         
     }
     
+    private void addErrorWarning(String errMsg){
+        if (errMsg == null){
+            throw new NullPointerException("errMsg cannot be null");
+        }
+ 
+        logger.severe(errMsg);
+        this.setDuplicateFileWarning(errMsg);
+        this.errorMessages.add(errMsg);
+        
+    }
+    
     
     private void addErrorSevere(String errMsg){
         
@@ -914,7 +988,7 @@ public class AddReplaceFileHelper{
     }
     
     
-    private boolean step_020_loadNewFile(String fileName, String fileContentType, InputStream fileInputStream){
+    private boolean step_020_loadNewFile(String fileName, String fileContentType, String storageIdentifier, InputStream fileInputStream){
         
         if (this.hasError()){
             return false;
@@ -932,18 +1006,23 @@ public class AddReplaceFileHelper{
             
         }
         
-        if (fileInputStream == null){
-            this.addErrorSevere(getBundleErr("file_upload_failed"));
-            return false;
-        }
-       
+		if (fileInputStream == null) {
+			if (storageIdentifier == null) {
+				this.addErrorSevere(getBundleErr("file_upload_failed"));
+				return false;
+			} 
+		} 
+		
         newFileName = fileName;
         newFileContentType = fileContentType;
+        
+        //One of these will be null
+    	newStorageIdentifier = storageIdentifier;
         newFileInputStream = fileInputStream;
         
         return true;
     }
-    
+
     
     /**
      * Optional: old file to replace
@@ -967,7 +1046,7 @@ public class AddReplaceFileHelper{
         // Does the file exist?
         //
         DataFile existingFile = fileService.find(dataFileId);
-
+        
         if (existingFile == null){           
             this.addError(BundleUtil.getStringFromBundle("file.addreplace.error.existing_file_to_replace_not_found_by_id", Collections.singletonList(dataFileId.toString())));
             return false;
@@ -1050,6 +1129,8 @@ public class AddReplaceFileHelper{
                     this.newFileInputStream,
                     this.newFileName,
                     this.newFileContentType,
+                    this.newStorageIdentifier,
+                    this.newCheckSum,
                     this.systemConfig);
 
         } catch (IOException ex) {
@@ -1113,6 +1194,8 @@ public class AddReplaceFileHelper{
      * @return 
      */
     private boolean step_040_auto_checkForDuplicates(){
+        this.duplicateFileErrorString = "";
+        this.duplicateFileErrorFound = false;
         
         msgt("step_040_auto_checkForDuplicates");
         if (this.hasError()){
@@ -1158,20 +1241,24 @@ public class AddReplaceFileHelper{
             
             // -----------------------------------------------------------
             // (2) Check for duplicates
+            // Only a warning now
             // -----------------------------------------------------------     
             if (isFileReplaceOperation() && Objects.equals(df.getChecksumValue(), fileToReplace.getChecksumValue())){
-                this.addErrorSevere(getBundleErr("replace.new_file_same_as_replacement"));                                
+                this.addError(getBundleErr("replace.new_file_same_as_replacement"));                
+                this.duplicateFileErrorFound = true;
+                this.duplicateFileErrorString = getBundleErr("replace.new_file_same_as_replacement");
                 break;
-            } else if (DuplicateFileChecker.isDuplicateOriginalWay(workingVersion, df.getFileMetadata())){
+            } 
+            
+            if (DuplicateFileChecker.isDuplicateOriginalWay(workingVersion, df.getFileMetadata())){
                 String dupeName = df.getFileMetadata().getLabel();
-                //removeUnSavedFilesFromWorkingVersion();
-                //removeLinkedFileFromDataset(dataset, df);
-                //abandonOperationRemoveAllNewFilesFromDataset();
-                this.addErrorSevere(getBundleErr("duplicate_file") + " " + dupeName);   
-                //return false;
-            } else {
-                finalFileList.add(df);
-            }
+                this.duplicateFileWarningFound = true;
+                this.duplicateFileWarningString = BundleUtil.getStringFromBundle("file.addreplace.warning.duplicate_file", 
+                                Arrays.asList(dupeName));
+                this.addErrorWarning(this.duplicateFileWarningString); 
+
+            }             
+            finalFileList.add(df);
         }
         
         if (this.hasError()){
@@ -1890,6 +1977,16 @@ public class AddReplaceFileHelper{
             throw new NullPointerException("Don't call this method without checking 'hasContentTypeWarning()'");
         }
         return contentTypeWarningString;
+    }
+    
+    private String duplicateFileWarning;
+
+    public String getDuplicateFileWarning() {
+        return duplicateFileWarning;
+    }
+
+    public void setDuplicateFileWarning(String duplicateFileWarning) {
+        this.duplicateFileWarning = duplicateFileWarning;
     }
     
 } // end class

@@ -67,6 +67,8 @@ Remote Authentication
 
 Too many passwords? You can set up your Dataverse account to use log in credentials from one of the following remote authentication providers. This way, you can log in using your existing credentials from another service.
 
+.. _institutional-log-in:
+
 Institutional Log In
 ~~~~~~~~~~~~~~~~~~~~
 
@@ -156,10 +158,10 @@ Notifications appear in the notifications tab on your account page and are also 
 
 You will receive a notification when:
 
-- You've created your account
-- You've created a dataverse or added a dataset
-- Another Dataverse user has requested access to a restricted file in one of your datasets
-- A file in one of your datasets has finished the ingest process
+- You've created your account.
+- You've created a dataverse or added a dataset.
+- Another Dataverse user has requested access to restricted files in a dataset that you published. (If you submitted your dataset for review and it was published by a curator, the curators of the dataverse that contains your dataset will get a notification about requests to access your restricted files.)
+- A file in one of your datasets has finished the ingest process.
 
 Notifications will only be emailed one time even if you haven't read the notification on the Dataverse site.
 
@@ -171,7 +173,7 @@ What APIs Are and Why They Are Useful
 
 API stands for "Application Programming Interface" and Dataverse APIs allow you to take advantage of integrations with other software that may have been set up by admins of your installation of Dataverse. See the :doc:`/admin/external-tools` and :doc:`/admin/integrations` sections of the Admin Guide for examples of software that is commonly integrated with Dataverse.
 
-Additionally, if you are willing to write a little code (or find someone to write it for you), APIs provide a way to automate parts of your workflow. See the  :doc:`/api/getting-started` section of the API Guide for details.
+Additionally, if you are willing to write a little code (or find someone to write it for you), APIs provide a way to automate parts of your workflow. See the :doc:`/api/getting-started` section of the API Guide for details.
 
 How Your API Token Is Like a Password
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

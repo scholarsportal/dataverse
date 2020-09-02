@@ -18,6 +18,8 @@ import edu.harvard.iq.dataverse.ingest.IngestRequest;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.FileUtil;
 import edu.harvard.iq.dataverse.util.ShapefileHandler;
+import edu.harvard.iq.dataverse.util.StringUtil;
+import edu.harvard.iq.dataverse.worldmapauth.WorldMapToken;
 import java.io.IOException;
 import java.util.List;
 import java.util.ArrayList;
@@ -46,6 +48,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.Pattern;
 import org.hibernate.validator.constraints.NotBlank;
 
@@ -212,6 +215,13 @@ public class DataFile extends DvObject implements Comparable {
         this.guestbookResponses = guestbookResponses;
     }
     
+    // The WorldMap LayerMetadata and AuthToken are here to facilitate a
+    // clean cascade delete when the DataFile is deleted:
+    @OneToOne(mappedBy="dataFile", orphanRemoval = true, cascade={CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST})
+    private MapLayerMetadata mapLayerMetadata;    
+    @OneToMany(mappedBy="dataFile", orphanRemoval = true, cascade={CascadeType.REMOVE, CascadeType.MERGE, CascadeType.PERSIST})
+    private List<WorldMapToken> worldMapTokens;
+    
     private char ingestStatus = INGEST_STATUS_NONE; 
     
     @OneToOne(mappedBy = "thumbnailFile")
@@ -227,8 +237,55 @@ public class DataFile extends DvObject implements Comparable {
         this.fileMetadatas = new ArrayList<>();
         initFileReplaceAttributes();
     }
+
+    /*
+    Used in manage file permissions UI 
+    to easily display those files that have been deleted in the current draft 
+    or previous version which may have roles assigned or pending requests for access
+    */
+   
+    @Transient
+    private boolean deleted;
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
+    
+    /*
+    For use during file upload so that the user may delete 
+    files that have already been uploaded to the current dataset version
+    */
+    
+    @Transient
+    private boolean markedAsDuplicate;
+
+    public boolean isMarkedAsDuplicate() {
+        return markedAsDuplicate;
+    }
+
+    public void setMarkedAsDuplicate(boolean markedAsDuplicate) {
+        this.markedAsDuplicate = markedAsDuplicate;
+    }
+    
+    @Transient
+    private String duplicateFilename;
+
+    public String getDuplicateFilename() {
+        return duplicateFilename;
+    }
+
+    public void setDuplicateFilename(String duplicateFilename) {
+        this.duplicateFilename = duplicateFilename;
+    }
     
     
+    
+    
+       
     /**
      * All constructors should use this method
      * to initialize this file replace attributes
@@ -380,6 +437,30 @@ public class DataFile extends DvObject implements Comparable {
             }
         }
         return null;
+    }
+    
+    public String getOriginalFileName() {
+        if (isTabularData()) {
+            DataTable dataTable = getDataTable();
+            if (dataTable != null) {
+                return dataTable.getOriginalFileName() != null ? dataTable.getOriginalFileName()
+                        : getDerivedOriginalFileName();
+            }
+        }
+        return null;
+    }
+
+    
+    private String getDerivedOriginalFileName() {
+        FileMetadata fm = getFileMetadata();
+        String filename = fm.getLabel();
+        String originalExtension = FileUtil.generateOriginalExtension(getOriginalFileFormat());
+        String extensionToRemove = StringUtil.substringIncludingLast(filename, ".");
+        if (StringUtil.nonEmpty(extensionToRemove)) {
+            return filename.replaceAll(extensionToRemove + "$", originalExtension);
+        } else{
+            return filename + originalExtension ;
+        }        
     }
 
     @Override
@@ -749,6 +830,10 @@ public class DataFile extends DvObject implements Comparable {
     @Override
     public String getDisplayName() {
        return getLatestFileMetadata().getLabel(); 
+    }
+    
+    public String getDirectoryLabel() {
+       return getLatestFileMetadata().getDirectoryLabel();
     }
     
     @Override 

@@ -96,15 +96,8 @@ public abstract class AbstractCreateDatasetCommand extends AbstractDatasetComman
             theDataset.setAuthority(ctxt.settings().getValueForKey(SettingsServiceBean.Key.Authority, nonNullDefaultIfKeyNotFound));
         }
         if (theDataset.getStorageIdentifier() == null) {
-            try {
-                DataAccess.createNewStorageIO(theDataset, "placeholder");
-            } catch (IOException ioex) {
-                // if setting the storage identifier through createNewStorageIO fails, dataset creation
-                // does not have to fail. we just set the storage id to a default -SF
-                String storageDriver = (System.getProperty("dataverse.files.storage-driver-id") != null) ? System.getProperty("dataverse.files.storage-driver-id") : "file";
-                theDataset.setStorageIdentifier(storageDriver  + "://" + theDataset.getGlobalId().asString());
-                logger.log(Level.INFO, "Failed to create StorageIO. StorageIdentifier set to default. Not fatal.({0})", ioex.getMessage());
-            }
+        	String driverId = theDataset.getDataverseContext().getEffectiveStorageDriverId();
+        	theDataset.setStorageIdentifier(driverId  + "://" + theDataset.getAuthorityForFileStorage() + "/" + theDataset.getIdentifierForFileStorage());
         }
         if (theDataset.getIdentifier()==null) {
             theDataset.setIdentifier(ctxt.datasets().generateDatasetIdentifier(theDataset, idServiceBean));
@@ -130,6 +123,7 @@ public abstract class AbstractCreateDatasetCommand extends AbstractDatasetComman
         // Now we need the acutal dataset id, so we can start indexing.
         ctxt.em().flush();
         
+        // TODO: this needs to be moved in to an onSuccess method; not adding to this PR as its out of scope
         // TODO: switch to asynchronous version when JPA sync works
         // ctxt.index().asyncIndexDataset(theDataset.getId(), true); 
         try{
@@ -139,9 +133,7 @@ public abstract class AbstractCreateDatasetCommand extends AbstractDatasetComman
             failureLogText += "\r\n" + e.getLocalizedMessage();
             LoggingUtil.writeOnSuccessFailureLog(null, failureLogText, theDataset);
         }
-         
-        ctxt.solrIndex().indexPermissionsOnSelfAndChildren(theDataset.getId());
-        
+                 
         return theDataset;
     }
 

@@ -32,6 +32,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import edu.harvard.iq.dataverse.util.BundleUtil;
+import edu.harvard.iq.dataverse.util.StringUtil;
 
 /**
  *
@@ -73,7 +74,7 @@ import edu.harvard.iq.dataverse.util.BundleUtil;
         name = "Dataset.generateIdentifierAsSequentialNumber",
         procedureName = "generateIdentifierAsSequentialNumber",
         parameters = {
-            @StoredProcedureParameter(mode = ParameterMode.OUT, type = Integer.class, name = "identifier")
+            @StoredProcedureParameter(mode = ParameterMode.OUT, type = Integer.class)
         }
 )
 @Entity
@@ -335,6 +336,7 @@ public class Dataset extends DvObjectContainer {
                 newFm.setDataFile(fm.getDataFile());
                 newFm.setDatasetVersion(dsv);
                 newFm.setProvFreeForm(fm.getProvFreeForm());
+                newFm.setInPriorVersion(true);
 
                 //fmVarMet would be updated in DCT
                 if ((fmVarMet != null && !fmVarMet.getId().equals(fm.getId())) || (fmVarMet == null))  {
@@ -423,6 +425,15 @@ public class Dataset extends DvObjectContainer {
         }
         return null;
     }
+    
+    public DatasetVersion getVersionFromId(Long datasetVersionId) {
+        for (DatasetVersion version : this.getVersions()) {
+            if (datasetVersionId == version.getId().longValue()) {
+                return version;
+            }
+        }
+        return null;
+    }
 
     public List<DataFileCategory> getCategories() {
         return dataFileCategories;
@@ -504,6 +515,11 @@ public class Dataset extends DvObjectContainer {
         }
     }
 
+    /* Only used with packageFiles after the implementation of multi-store in #6488
+     * DO NOT USE THIS METHOD FOR ANY OTHER PURPOSES - it's @Deprecated for a reason.
+     * 
+     */
+    @Deprecated 
     public Path getFileSystemDirectory() {
         Path studyDir = null;
 
@@ -748,7 +764,32 @@ public class Dataset extends DvObjectContainer {
                     }
                 }
                 return this.getHarvestedFrom().getArchiveUrl();
+            } else if (HarvestingClient.HARVEST_STYLE_DEFAULT.equals(this.getHarvestedFrom().getHarvestStyle())) {
+                // This is a generic OAI archive. 
+                // The metadata we harvested for this dataset is most likely a 
+                // simple DC record that does not contain a URL pointing back at 
+                // the specific location on the source archive. But, it probably
+                // has a global identifier, a DOI or a Handle - so we should be 
+                // able to redirect to the proper global resolver. 
+                // But since this is a harvested dataset, we will assume that 
+                // there is a possibility tha this object does NOT have all the 
+                // valid persistent identifier components.
+                
+                if (StringUtil.nonEmpty(this.getProtocol()) 
+                        && StringUtil.nonEmpty(this.getAuthority())
+                        && StringUtil.nonEmpty(this.getIdentifier())) {
+                    return this.getPersistentURL();    
+                }
+                
+                // All we can do is redirect them to the top-level URL we have 
+                // on file for this remote archive:
+                return this.getHarvestedFrom().getArchiveUrl();
             } else {
+                // This is really not supposed to happen - this is a harvested
+                // dataset for which we don't have ANY information on the nature
+                // of the archive we got it from. So all we can do is redirect 
+                // the user to the top-level URL we have on file for this remote 
+                // archive:
                 return this.getHarvestedFrom().getArchiveUrl();
             }
         }
@@ -805,8 +846,8 @@ public class Dataset extends DvObjectContainer {
         return equals(other) || equals(other.getOwner());
     }
 
-    public DatasetThumbnail getDatasetThumbnail() {
-        return DatasetUtil.getThumbnail(this);
+    public DatasetThumbnail getDatasetThumbnail(int size) {
+        return DatasetUtil.getThumbnail(this, size);
     }
     
     /** 
@@ -817,8 +858,8 @@ public class Dataset extends DvObjectContainer {
      * @param datasetVersion
      * @return A thumbnail of the dataset (may be {@code null}).
      */
-    public DatasetThumbnail getDatasetThumbnail(DatasetVersion datasetVersion) {
-        return DatasetUtil.getThumbnail(this, datasetVersion);
+    public DatasetThumbnail getDatasetThumbnail(DatasetVersion datasetVersion, int size) {
+        return DatasetUtil.getThumbnail(this, datasetVersion, size);
     }
 
 }

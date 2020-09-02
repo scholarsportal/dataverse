@@ -66,11 +66,7 @@ public class OaiHandler implements Serializable {
         this.metadataPrefix = harvestingClient.getMetadataPrefix();
         
         if (!StringUtils.isEmpty(harvestingClient.getHarvestingSet())) {
-            try {
-                this.setName = URLEncoder.encode(harvestingClient.getHarvestingSet(), "UTF-8");
-            } catch (UnsupportedEncodingException uee) {
-                throw new OaiHandlerException("Harvesting set: unsupported (non-UTF8) encoding");
-            }
+            this.setName = harvestingClient.getHarvestingSet();
         }
         
         this.fromDate = harvestingClient.getLastNonEmptyHarvestTime();
@@ -82,6 +78,7 @@ public class OaiHandler implements Serializable {
     private String metadataPrefix; // = harvestingClient.getMetadataPrefix();
     private String setName; 
     private Date   fromDate;
+    private Boolean setListTruncated = false;
     
     private ServiceProvider serviceProvider; 
     
@@ -123,6 +120,9 @@ public class OaiHandler implements Serializable {
         this.harvestingClient = harvestingClient; 
     }
     
+    public boolean isSetListTruncated() {
+        return setListTruncated;
+    }
     
     private ServiceProvider getServiceProvider() throws OaiHandlerException {
         if (serviceProvider == null) {
@@ -141,11 +141,13 @@ public class OaiHandler implements Serializable {
         return serviceProvider;
     }
     
-    public List<String> runListSets() throws OaiHandlerException {
+    public ArrayList<String> runListSets() throws OaiHandlerException {
     
         ServiceProvider sp = getServiceProvider(); 
         
         Iterator<Set> setIter;
+        
+        long startMilSec = new Date().getTime();
         
         try {
             setIter = sp.listSets();
@@ -155,9 +157,12 @@ public class OaiHandler implements Serializable {
             throw new OaiHandlerException("No valid response received from the OAI server.");
         }
         
-        List<String> sets = new ArrayList<>();
+        ArrayList<String> sets = new ArrayList<>();
 
+        int count = 0;
+        
         while ( setIter.hasNext()) {
+            count++;
             Set set = setIter.next();
             String setSpec = set.getSpec();
             /*
@@ -166,6 +171,15 @@ public class OaiHandler implements Serializable {
                 
             }
             */
+            
+            if (count >= 100) {
+                // Have we been waiting more than 30 seconds?
+                if (new Date().getTime() - startMilSec > 30000) {
+                    setListTruncated = true;
+                    break; 
+                }
+            }
+                         
             if (!StringUtils.isEmpty(setSpec)) {
                 sets.add(setSpec);
             }

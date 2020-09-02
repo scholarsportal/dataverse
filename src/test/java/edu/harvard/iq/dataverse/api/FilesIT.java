@@ -26,6 +26,7 @@ import static javax.ws.rs.core.Response.Status.METHOD_NOT_ALLOWED;
 import static javax.ws.rs.core.Response.Status.NOT_FOUND;
 import static javax.ws.rs.core.Response.Status.NO_CONTENT;
 import static javax.ws.rs.core.Response.Status.OK;
+import static javax.ws.rs.core.Response.Status.UNAUTHORIZED;
 import static junit.framework.Assert.assertEquals;
 import org.hamcrest.CoreMatchers;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -115,20 +116,17 @@ public class FilesIT {
         //addResponse.prettyPrint();
         msgt("Here it is: " + addResponse.prettyPrint());
         String successMsg = BundleUtil.getStringFromBundle("file.addreplace.success.add");
-
       
         addResponse.then().assertThat()
                 /**
                  * @todo We have a need to show human readable success messages
                  * via API in a consistent location.
                  */
-                //                .body("message", equalTo(successMsg))
                 .body("status", equalTo(AbstractApiBean.STATUS_OK))
                 .body("data.files[0].categories[0]", equalTo("Data"))
                 .body("data.files[0].dataFile.contentType", equalTo("image/png"))
                 .body("data.files[0].dataFile.description", equalTo("my description"))
                 .body("data.files[0].directoryLabel", equalTo("data/subdir1"))
-//                .body("data.files[0].dataFile.tags", nullValue())
                 .body("data.files[0].dataFile.tabularTags", nullValue())
                 .body("data.files[0].label", equalTo("dataverseproject.png"))
                 // not sure why description appears in two places
@@ -137,18 +135,20 @@ public class FilesIT {
         
         
         //------------------------------------------------
-        // Try to add the same file again -- and fail
+        // Try to add the same file again -- and get warning
         //------------------------------------------------
         Response addTwiceResponse = UtilIT.uploadFileViaNative(datasetId.toString(), pathToFile, apiToken);
 
         msgt("2nd requests: " + addTwiceResponse.prettyPrint());    //addResponse.prettyPrint();
         
-        String errMsg = BundleUtil.getStringFromBundle("file.addreplace.error.duplicate_file");
-                
+        String dupeName = "dataverseproject.png";
+
+        String errMsg = BundleUtil.getStringFromBundle("file.addreplace.warning.duplicate_file",
+                Arrays.asList(dupeName));
+        String errMsgFromResponse = JsonPath.from(addTwiceResponse.body().asString()).getString("message");
         addTwiceResponse.then().assertThat()
-                .body("message", Matchers.startsWith(errMsg))
-                .body("status", equalTo(AbstractApiBean.STATUS_ERROR))
-                .statusCode(BAD_REQUEST.getStatusCode());
+                .statusCode(OK.getStatusCode());
+        assertTrue(errMsgFromResponse.contains(errMsg));
     }
 
     
@@ -631,7 +631,7 @@ public class FilesIT {
                 .statusCode(OK.getStatusCode());
         
         Long newDfId = JsonPath.from(replaceResp.body().asString()).getLong("data.files[0].dataFile.id");
-        
+        System.out.print("newDfId: " + newDfId);
         //Adding an additional fileMetadata update tests after this to ensure updating replaced files works
         msg("Update file metadata for old file, will error");
         String updateDescription = "New description.";
@@ -644,6 +644,7 @@ public class FilesIT {
         //Adding an additional fileMetadata update tests after this to ensure updating replaced files works
         msg("Update file metadata for new file");
         //"junk" passed below is to test that it is discarded
+        System.out.print("params: " +  String.valueOf(newDfId) + " " + updateJsonString + " " + apiToken);
         Response updateMetadataResponse = UtilIT.updateFileMetadata(String.valueOf(newDfId), updateJsonString, apiToken);
         assertEquals(OK.getStatusCode(), updateMetadataResponse.getStatusCode());  
         //String updateMetadataResponseString = updateMetadataResponse.body().asString();
@@ -1263,8 +1264,8 @@ public class FilesIT {
         assertEquals(updateCategory, JsonPath.from(getUpMetadataResponseString).getString("categories[0]"));
         assertNull(JsonPath.from(getUpMetadataResponseString).getString("provFreeform")); //unupdated fields are not persisted
         assertEquals(updateDataFileTag, JsonPath.from(getUpMetadataResponseString).getString("dataFileTags[0]"));
-        
-        //We haven't published so the non-draft call should still give the pre-edit metadata
+
+//We haven't published so the non-draft call should still give the pre-edit metadata
         Response getOldMetadataResponse = UtilIT.getDataFileMetadata(origFileId, apiToken);
         String getOldMetadataResponseString = getOldMetadataResponse.body().asString();
         msg("Old Published (shouldn't be updated):");
@@ -1319,8 +1320,21 @@ public class FilesIT {
                 .statusCode(OK.getStatusCode());
         
         // wait for it to ingest... 
-        assertTrue("Failed test if Ingest Lock exceeds max duration " + pathToFile , UtilIT.sleepForLock(datasetId.longValue(), "Ingest", apiToken, UtilIT.MAXIMUM_INGEST_LOCK_DURATION));
+        assertTrue("Failed test if Ingest Lock exceeds max duration " + pathToFile , UtilIT.sleepForLock(datasetId.longValue(), "Ingest", apiToken, 5));
      //   sleep(10000);
+     
+        Response publishDataversetResp = UtilIT.publishDataverseViaSword(dataverseAlias, apiToken);
+        publishDataversetResp.then().assertThat()
+                .statusCode(OK.getStatusCode());
+        String apiTokenRando = createUserGetToken();
+        
+        Response datasetStorageSizeResponseDraft = UtilIT.findDatasetDownloadSize(datasetId.toString(), ":draft", apiTokenRando);
+        datasetStorageSizeResponseDraft.prettyPrint();
+        assertEquals(UNAUTHORIZED.getStatusCode(), datasetStorageSizeResponseDraft.getStatusCode());  
+        Response publishDatasetResp = UtilIT.publishDatasetViaNativeApi(datasetId, "major", apiToken);
+        //msg(publishDatasetResp.body().asString());
+        publishDatasetResp.then().assertThat()
+                .statusCode(OK.getStatusCode());
         
         // This is the magic number - the number of bytes in the 2 files uploaded
         // above, plus the size of the tab-delimited file generated by the ingest
@@ -1333,6 +1347,28 @@ public class FilesIT {
         dvStorageSizeResponse.prettyPrint();
                 
         assertEquals(magicControlString, JsonPath.from(dvStorageSizeResponse.body().asString()).getString("data.message"));
+        
+        magicControlString = MessageFormat.format(BundleUtil.getStringFromBundle("datasets.api.datasize.storage"), magicSizeNumber);
+        
+        //no perms
+
+        Response datasetStorageSizeResponse = UtilIT.findDatasetStorageSize(datasetId.toString(), apiTokenRando);
+        datasetStorageSizeResponse.prettyPrint();
+        assertEquals(UNAUTHORIZED.getStatusCode(), datasetStorageSizeResponse.getStatusCode());  
+                
+        //has perms
+        datasetStorageSizeResponse = UtilIT.findDatasetStorageSize(datasetId.toString(), apiToken);
+        datasetStorageSizeResponse.prettyPrint();
+
+        assertEquals(magicControlString, JsonPath.from(datasetStorageSizeResponse.body().asString()).getString("data.message"));
+        
+        magicControlString = MessageFormat.format(BundleUtil.getStringFromBundle("datasets.api.datasize.download"), magicSizeNumber);
+        
+        Response datasetDownloadSizeResponse = UtilIT.findDatasetDownloadSize(datasetId.toString());
+        datasetDownloadSizeResponse.prettyPrint();
+                
+        assertEquals(magicControlString, JsonPath.from(datasetDownloadSizeResponse.body().asString()).getString("data.message"));
+        
     }
     
     @Test
