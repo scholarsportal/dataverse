@@ -2169,9 +2169,7 @@ public class DatasetPage implements java.io.Serializable {
         datasetExploreTools = externalToolService.findDatasetToolsByType(ExternalTool.Type.EXPLORE);
         rowsPerPage = 10;
       
-        
-        
-        return null;
+
     }
     
     private Boolean fileTreeViewRequired = null; 
