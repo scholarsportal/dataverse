@@ -216,8 +216,6 @@ public class ExternalTool implements Serializable {
         return displayName;
     }
 
-    public String getDisplayNameLang() { return displayNameLang; }
-
     public void setDisplayNameLang(String displayNameLang) {
         this.displayNameLang = displayNameLang;
     }
