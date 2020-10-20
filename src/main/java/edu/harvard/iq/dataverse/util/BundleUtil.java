@@ -159,7 +159,7 @@ public class BundleUtil {
         }
         return getStringFromBundleNoMissingCheck(key, null, bundle);
     }
-    
+
     /**
      * Return JVM default locale.
      *
@@ -174,6 +174,15 @@ public class BundleUtil {
      */
     public static Locale getDefaultLocale() {
         return Locale.getDefault();
+    }
+
+
+    public static String getStringFromDefaultBundleEng(String key )  {
+        ResourceBundle bundle = getResourceBundle(defaultBundleFile, new Locale("en"));
+        if (bundle == null) {
+            return null;
+        }
+        return getStringFromBundleNoMissingCheck(key, null, bundle);
     }
 
 }

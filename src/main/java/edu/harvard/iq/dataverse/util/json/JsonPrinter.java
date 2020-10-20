@@ -16,6 +16,7 @@ import edu.harvard.iq.dataverse.DataverseContact;
 import edu.harvard.iq.dataverse.DataverseFacet;
 import edu.harvard.iq.dataverse.DataverseTheme;
 import edu.harvard.iq.dataverse.authorization.DataverseRole;
+import edu.harvard.iq.dataverse.authorization.groups.impl.affiliation.AffiliationGroup;
 import edu.harvard.iq.dataverse.authorization.groups.impl.maildomain.MailDomainGroup;
 import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinUser;
 import edu.harvard.iq.dataverse.FileMetadata;
@@ -179,6 +180,15 @@ public class JsonPrinter {
         return bld;
     }
 
+    public static JsonObjectBuilder json(AffiliationGroup grp) {
+        return jsonObjectBuilder()
+                .add("alias", grp.getPersistedGroupAlias() )
+                .add("identifier", grp.getIdentifier())
+                .add("id", grp.getId() )
+                .add("name", grp.getDisplayName() )
+                .add("description", grp.getDescription() );
+    }
+
     public static JsonObjectBuilder json(ShibGroup grp) {
         return jsonObjectBuilder()
                 .add("name", grp.getName())
@@ -186,7 +196,7 @@ public class JsonPrinter {
                 .add("pattern", grp.getPattern())
                 .add("id", grp.getId());
     }
-    
+
     public static JsonObjectBuilder json(MailDomainGroup grp) {
         JsonObjectBuilder bld = jsonObjectBuilder()
             .add("alias", grp.getPersistedGroupAlias() )

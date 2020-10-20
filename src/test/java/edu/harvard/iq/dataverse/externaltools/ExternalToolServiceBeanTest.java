@@ -74,6 +74,7 @@ public class ExternalToolServiceBeanTest {
                         .add(Json.createObjectBuilder()
                                 .add("dvLocale", "{localeCode}")
                                 .build())
+
                         .build())
                 .build());
         job.add(ExternalTool.CONTENT_TYPE, DataFileServiceBean.MIME_TYPE_TSV_ALT);

@@ -74,7 +74,7 @@
                                             </div>
                                         </div>
                                     </ui:repeat>
-                                    
+
                                     <!-- validation -->
                                     <div class="form-group" jsf:rendered="#{LoginPage.requireExtraValidation}">
                                         <div class="col-sm-offset-4 col-sm-8">
@@ -90,7 +90,7 @@
                                             <h:message for="messageSum" styleClass="bg-danger text-danger"/>
                                         </div>
                                     </div>
-                                    
+
                                     <div class="form-group">
                                         <div class="col-sm-offset-4 col-sm-9 button-block">
                                             <p:commandButton id="login" styleClass="btn btn-default" value="#{bundle.login}" update="@form,:messagePanel" action="#{LoginPage.login}"/>
@@ -159,7 +159,7 @@
 
                                 </script>
                                 <script src="/resources/js/shib/idpselect_config.js"></script>
-                                <script src="/resources/js/shib/idpselect.js"></script>
+                                <script src="/resources/js/shib/idpselect.js" id="idpselectId" lang="#{LoginPage.session.localeCode}"></script>
                                 <script src="/resources/js/shib/idpselect_style.js"></script>
                             </div>
 
@@ -202,13 +202,17 @@
                             </div>
 
                             <div id="otherProviders" jsf:rendered="#{LoginPage.listAuthenticationProviders().size() > 1}">
-                                <h4>#{bundle['auth.providers.title']}</h4>
+                                <div jsf:rendered="#{LoginPage.authProvider.id == 'builtin'}"><h4>#{bundle['auth.providers.title']}</h4></div>
+                                <div jsf:rendered="#{LoginPage.authProvider.id == 'shib'}"><h4>#{bundle['auth.providers.remote.title']}</h4></div>
                                 <h:form>
                                     <ui:repeat value="#{LoginPage.listAuthenticationProviders()}" var="provider">
                                         <p:commandLink rendered="#{provider.id != LoginPage.authProvider.id}" styleClass="btn btn-default" actionListener="#{LoginPage.setAuthProviderById(provider.id)}" update="login-container">
                                             <h:outputText value="#{provider.title}" />
                                         </p:commandLink>
                                     </ui:repeat>
+                                    <p:commandLink styleClass="btn btn-default" action="/dataverseuser?faces-redirect=true&amp;editMode=CREATE">
+                                        <h:outputText value="#{bundle['signup']}" />
+                                    </p:commandLink>
                                 </h:form>
                                 <div jsf:rendered="#{LoginPage.authProvider.id == 'builtin'}">
                                     <p class="help-block">
@@ -218,14 +222,6 @@
                                         </h:outputFormat>
                                     </p>
                                 </div>
-                            </div>
-                            
-                            <div id="signUpLink" jsf:rendered="#{dataverseHeaderFragment.signupAllowed}">
-                                <p class="help-block margin-top">
-                                    <h:outputFormat value="#{bundle['login.signup.blurb']}" escape="false">
-                                        <f:param value="#{dataverseHeaderFragment.getSignupUrl(navigationWrapper.redirectPage)}"/>
-                                    </h:outputFormat>
-                                </p>
                             </div>
                         </div>
                     </div>

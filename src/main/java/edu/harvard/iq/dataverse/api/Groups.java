@@ -1,5 +1,7 @@
 package edu.harvard.iq.dataverse.api;
 
+import edu.harvard.iq.dataverse.authorization.groups.impl.affiliation.AffiliationGroup;
+import edu.harvard.iq.dataverse.authorization.groups.impl.affiliation.AffiliationGroupProvider;
 import edu.harvard.iq.dataverse.authorization.groups.impl.ipaddress.IpGroup;
 import edu.harvard.iq.dataverse.authorization.groups.impl.ipaddress.IpGroupProvider;
 import edu.harvard.iq.dataverse.authorization.groups.impl.maildomain.MailDomainGroup;
@@ -9,26 +11,28 @@ import edu.harvard.iq.dataverse.authorization.groups.impl.shib.ShibGroupProvider
 import edu.harvard.iq.dataverse.util.json.JsonParseException;
 import edu.harvard.iq.dataverse.util.json.JsonParser;
 
+
+import javax.annotation.PostConstruct;
 import javax.ejb.Stateless;
 import javax.interceptor.Interceptors;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObject;
+import javax.json.JsonString;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
+import java.util.List;
 import static edu.harvard.iq.dataverse.util.json.JsonPrinter.*;
 
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
-import javax.annotation.PostConstruct;
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObject;
-import javax.json.JsonString;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-import javax.ws.rs.PathParam;
+
+import static edu.harvard.iq.dataverse.util.json.JsonPrinter.json;
+import static edu.harvard.iq.dataverse.util.json.JsonPrinter.toJsonArray;
 import static org.apache.commons.lang.StringUtils.isNumeric;
 
 /**
@@ -43,6 +47,7 @@ public class Groups extends AbstractApiBean {
     private IpGroupProvider ipGroupPrv;
     private ShibGroupProvider shibGroupPrv;
     private MailDomainGroupProvider mailDomainGroupPrv;
+    private AffiliationGroupProvider affiliationGroupPrv;
 
     Pattern legalGroupName = Pattern.compile("^[-_a-zA-Z0-9]+$");
 
@@ -51,6 +56,7 @@ public class Groups extends AbstractApiBean {
         ipGroupPrv = groupSvc.getIpGroupProvider();
         shibGroupPrv = groupSvc.getShibGroupProvider();
         mailDomainGroupPrv = groupSvc.getMailDomainGroupProvider();
+        affiliationGroupPrv = groupSvc.getAffiliationGroupProvider();
     }
 
     /**
@@ -217,8 +223,8 @@ public class Groups extends AbstractApiBean {
             return error(Response.Status.BAD_REQUEST, "Could not find Shibboleth group with an id of " + id);
         }
     }
-    
-    
+
+
     /**
      * Creates a new {@link MailDomainGroup}. The name of the group is based on the
      * {@code alias:} field, but might be changed to ensure uniqueness.
@@ -234,7 +240,7 @@ public class Groups extends AbstractApiBean {
 
         return created("/groups/domain/" + grp.getPersistedGroupAlias(), json(grp) );
     }
-    
+
     /**
      * Creates or updates the {@link MailDomainGroup} named {@code groupName}.
      * @param groupAlias Name of the group.
@@ -251,27 +257,27 @@ public class Groups extends AbstractApiBean {
         if ( ! legalGroupName.matcher(groupAlias).matches() ) {
             return badRequest("Group name can contain only letters, digits, and the chars '-' and '_'");
         }
-        
+
         MailDomainGroup grp = new JsonParser().parseMailDomainGroup(dto);
         mailDomainGroupPrv.saveOrUpdate(Optional.of(groupAlias), grp);
-        
+
         return created("/groups/domain/" + grp.getPersistedGroupAlias(), json(grp) );
     }
-    
+
     @GET
     @Path("domain")
     public Response listMailDomainGroups() {
         return ok( mailDomainGroupPrv.findGlobalGroups()
             .stream().map(g->json(g)).collect(toJsonArray()) );
     }
-    
+
     @GET
     @Path("domain/{groupAlias}")
     public Response getMailDomainGroup(@PathParam("groupAlias") String groupAlias) {
         MailDomainGroup grp = mailDomainGroupPrv.get(groupAlias);
         return (grp == null) ? notFound( "Group " + groupAlias + " not found") : ok(json(grp));
     }
-    
+
     @DELETE
     @Path("domain/{groupAlias}")
     public Response deleteMailDomainGroup(@PathParam("groupAlias") String groupAlias) {
@@ -279,4 +285,105 @@ public class Groups extends AbstractApiBean {
         return ok("Group " + groupAlias + " deleted.");
     }
 
+    @GET
+    @Path("affiliation")
+    public Response listAffiliationGroups() {
+        return ok(affiliationGroupPrv.findGlobalGroups()
+                .stream().map(g -> json(g)).collect(toJsonArray()));
+    }
+
+    @GET
+    @Path("affiliation/{groupId}")
+    public Response getAffiliationGroup(@PathParam("groupId") String groupId) {
+        AffiliationGroup grp;
+        if (isNumeric(groupId)) {
+            grp = affiliationGroupPrv.get(Long.parseLong(groupId));
+        } else {
+            grp = affiliationGroupPrv.get(groupId);
+        }
+
+        return (grp == null) ? notFound("Group " + groupId + " not found") : ok(json(grp));
+    }
+
+    @POST
+    @Path("affiliation")
+    public Response postAffiliationGroup(JsonObject dto) {
+        try {
+            AffiliationGroup grp = new JsonParser().parseAffiliationGroup(dto);
+            grp.setGroupProvider(affiliationGroupPrv);
+            affiliationGroupPrv.store(grp);
+            return created("/groups/affiliation" + grp.getPersistedGroupAlias(), json(grp));
+        } catch (Exception e) {
+            logger.log(Level.WARNING, "Error while storing a new Affiliation group: " + e.getMessage(), e);
+            return error(Response.Status.INTERNAL_SERVER_ERROR, "Error: " + e.getMessage());
+        }
+    }
+
+    @POST
+    @Path("affiliations")
+    public Response postAffiliationGroups(JsonObject dto) {
+        try {
+            new JsonParser().parseAffiliationGroups(dto).forEach(group -> {
+                group.setGroupProvider(affiliationGroupPrv);
+                affiliationGroupPrv.store(group);
+            });
+        } catch (Exception e) {
+            logger.log(Level.WARNING, "Error while storing a new Affiliation group: " + e.getMessage(), e);
+            return error(Response.Status.INTERNAL_SERVER_ERROR, "Error: " + e.getMessage());
+        }
+        return ok("/groups/affiliations");
+    }
+
+    @PUT
+    @Path("affiliation/{groupName}")
+    public Response putAffiliationGroups(@PathParam("groupName") String groupName, JsonObject dto) {
+        try {
+            if (groupName == null || groupName.trim().isEmpty()) {
+                return badRequest("Affiliation group name cannot be empty");
+            }
+            if (!legalGroupName.matcher(groupName).matches()) {
+                return badRequest("Affiliation group name can contain only letters, digits, and the chars '-' and '_'");
+            }
+            AffiliationGroup grp = new JsonParser().parseAffiliationGroup(dto);
+            grp.setGroupProvider(affiliationGroupPrv);
+            grp.setPersistedGroupAlias(groupName);
+            affiliationGroupPrv.store(grp);
+            return created("/groups/ip/" + grp.getPersistedGroupAlias(), json(grp));
+
+        } catch (Exception e) {
+            logger.log(Level.WARNING, "Error while updating Affiliation group: " + e.getMessage(), e);
+            return error(Response.Status.INTERNAL_SERVER_ERROR, "Error: " + e.getMessage());
+
+        }
+    }
+
+    @DELETE
+    @Path("affiliation/{groupId}")
+    public Response deleteAffiliationGroup(@PathParam("groupId") String groupId) {
+        AffiliationGroup grp;
+        if (isNumeric(groupId)) {
+            grp = affiliationGroupPrv.get(Long.parseLong(groupId));
+        } else {
+            grp = affiliationGroupPrv.get(groupId);
+        }
+
+        if (grp == null) return notFound("Group " + groupId + " not found");
+
+        try {
+            affiliationGroupPrv.deleteGroup(grp);
+            return ok("Group " + grp.getAlias() + " deleted.");
+        } catch (Exception topExp) {
+            // get to the cause (unwraps EJB exception wrappers).
+            Throwable e = topExp;
+            while (e.getCause() != null) {
+                e = e.getCause();
+            }
+
+            if (e instanceof IllegalArgumentException) {
+                return error(Response.Status.BAD_REQUEST, e.getMessage());
+            } else {
+                throw topExp;
+            }
+        }
+    }
 }

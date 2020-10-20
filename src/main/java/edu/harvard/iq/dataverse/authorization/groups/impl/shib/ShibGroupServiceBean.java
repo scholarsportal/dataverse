@@ -6,10 +6,10 @@ import edu.harvard.iq.dataverse.actionlogging.ActionLogRecord;
 import edu.harvard.iq.dataverse.actionlogging.ActionLogServiceBean;
 import edu.harvard.iq.dataverse.authorization.groups.GroupServiceBean;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
+
+import java.lang.reflect.Array;
+import java.util.*;
 import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -39,6 +39,8 @@ public class ShibGroupServiceBean {
     GroupServiceBean groupService;
     @EJB
     ActionLogServiceBean actionLogSvc;
+    @EJB
+    SettingsServiceBean settingService;
 
     /**
      * @return A ShibGroup or null.

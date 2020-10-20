@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+<h:head>
+</h:head>
+
+<h:body>
+    <f:metadata>
+        <f:viewParam name="dataverseId" value="#{dataverseServiceBean.findRootDataverse().id}"/>
+        <f:viewAction action="#{DashboardUsersPage.init}"/>
+        <f:viewAction action="#{dataverseHeaderFragment.initBreadcrumbs(dataverseServiceBean.findRootDataverse())}"/>
+        <f:viewAction
+                action="#{dataverseHeaderFragment.addBreadcrumb('/dashboard.xhtml?dataverseId='.concat(dataverse.id), bundle['dashboard.title'])}"/>
+        <f:viewAction action="#{dataverseHeaderFragment.addBreadcrumb(bundle['dashboard.card.groups.manage'])}"/>
+    </f:metadata>
+
+    <ui:composition template="/dataverse_template.xhtml">
+        <ui:param name="pageTitle"
+                  value="#{bundle['dashboard.card.users.header']} - #{dataverseServiceBean.findRootDataverse().name} #{bundle.dataverse}"/>
+        <ui:param name="showDataverseHeader" value="false"/>
+        <ui:define name="body">
+            <h:form id="dashboardGroupsForm">
+                <div class="row">
+                    <div class="col-sm-12 text-right">
+                        <p:commandLink type="reset" id="addGroupButton" styleClass="btn btn-default margin-bottom"
+                                       action="#{DashboardUsersPage.reset}"
+                                       update="@([id$=dashboardGroupsAddDialog])"
+                                       oncomplete="PF('dashboardGroupsAddWidget').show();">
+                            <p:resetInput target=":dashboardGroupsDialogInnerForm"></p:resetInput>
+                            <span class="glyphicon glyphicon-plus"/> #{bundle['dashboard.card.groups.create']}
+                        </p:commandLink>
+                    </div>
+                </div>
+                <p:dataTable id="affiliationGroupsTable" value="#{DashboardUsersPage.affiliationGroups}" var="group"
+                             widgetVar="affiliationGroupsTable">
+                    <p:column width="35%" headerText="#{bundle['dashboard.card.groups.displayname']}">
+                        <h:outputText value="#{group.displayName}"/>
+                    </p:column>
+                    <p:column headerText="#{bundle['dashboard.card.groups.emaildomain']}">
+                        <h:outputText value="#{group.emaildomain}"/>
+                    </p:column>
+                    <p:column headerText="#{bundle['dashboard.card.groups.alias']}">
+                        <h:outputText value="#{group.persistedGroupAlias} "/>
+                    </p:column>
+                    <p:column headerText="#{bundle['dashboard.card.groups.description']}">
+                        <h:outputText value="#{group.description}"/>
+                    </p:column>
+                    <p:column width="15%" headerText="#{bundle['dashboard.card.groups.action']}">
+                        <div align="center">
+                            <p:commandLink type="button" styleClass="btn btn-default bootstrap-button-tooltip"
+                                           action="#{DashboardUsersPage.setGroupForEdit(group)}"
+                                           oncomplete="PF('dashboardGroupsAddWidget').show();"
+                                           update="@([id$=dashboardGroupsAddDialog])"
+                                           title="#{bundle['dashboard.card.groups.edit']}">
+                                <span class="glyphicon glyphicon-edit no-text"></span>
+                            </p:commandLink>
+                            <p:commandLink disabled="#{DashboardUsersPage.isAssigned(group)}" type="button" styleClass="btn btn-default bootstrap-button-tooltip"
+                                           action="#{DashboardUsersPage.setGroupForDeletion(group)}"
+                                           update="@([id$=deleteGroupsDialog])"
+                                           oncomplete="PF('deleteGroupsWidget').show();"
+                                           title="#{bundle['dashboard.card.groups.delete']}">
+                                <span class="glyphicon glyphicon-trash no-text"></span>
+                            </p:commandLink>
+                        </div>
+                    </p:column>
+                </p:dataTable>
+            </h:form>
+
+            <p:dialog id="deleteGroupsDialog" header="#{bundle['dashboard.card.groups.tbl_header.group.delete']}"
+                      widgetVar="deleteGroupsWidget">
+                <h:form id="deleteGroupsForm">
+                    <p class="text-warning"><span
+                            class="glyphicon glyphicon-warning-sign"/> #{DashboardUsersPage.confirmRemoveAffiliationGroupMessage}
+                    </p>
+                    <div class="button-block">
+                        <p:commandButton styleClass="btn btn-default" value="#{bundle.yes}"
+                                         update="@([id$=dashboardGroupsForm])"
+                                         oncomplete="PF('deleteGroupsWidget').hide();"
+                                         action="#{DashboardUsersPage.deleteAffiliationGroup}"/>
+                        <p:commandButton styleClass="btn btn-default" value="#{bundle.no}"
+                                         onclick="PF('deleteGroupsWidget').hide();" type="button"/>
+                    </div>
+                </h:form>
+            </p:dialog>
+
+            <p:dialog id="dashboardGroupsAddDialog"
+                      widgetVar="dashboardGroupsAddWidget"
+                      header="#{bundle['dashboard.card.groups.tbl_header.group.create']}"
+                      modal="true" width="50%">
+
+                <h:form id="dashboardGroupsDialogInnerForm">
+
+                    <div class="row">
+                        <div class="form-group">
+                            <label for="affiliationId" class="col-sm-3 control-label text-info">
+                    <span>
+                        #{bundle.affiliation}<span class="glyphicon glyphicon-asterisk text-danger"/>
+                    </span>
+                            </label>
+                            <div class="col-sm-6">
+                                <p:selectOneMenu id="affiliationId" styleClass="form-control"
+                                                 requiredMessage="Please select an affiliation"
+                                                 value="#{DashboardUsersPage.displayname}" required="true"
+                                                 label="Affiliation"
+                                                 rendered="#{DashboardUsersPage.pageMode == 'CREATE'}">
+                                    <f:selectItem itemValue="#{null}" itemLabel="Select affiliation"/>
+                                    <f:selectItems value="#{DashboardUsersPage.affiliationList}"/>
+                                </p:selectOneMenu>
+                                <b><h:outputText value="#{DashboardUsersPage.displayname}"
+                                                 rendered="#{DashboardUsersPage.pageMode == 'EDIT'}"
+                                                 disabled="true"></h:outputText></b>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group"></div>
+
+                    <!-- emaildomain: -->
+                    <div class="row">
+                        <div class="form-group">
+                            <label for="emaildomain" class="col-sm-3 control-label text-info">
+                                    <span>
+                                            #{bundle['dashboard.card.groups.emaildomain']} <span
+                                            class="glyphicon glyphicon-asterisk text-danger"/>
+                                        </span>
+                            </label>
+                            <div class="col-sm-6">
+                                <p:inputText id="emaildomain" styleClass="form-control"
+                                             value="#{DashboardUsersPage.emaildomain}"
+                                             required="true" label="EmailDomain" maxlength="255"
+                                             placeholder="utoronto.ca"
+                                             validator="#{DashboardUsersPage.validateEmailDomain}"
+                                             binding="#{DashboardUsersPage.emaildomainField}"/>
+                                <p:message for="emaildomain"/>
+                                <p class="help-block">#{bundle['dashboard.card.groups.addGroupsWidget.emaildomain.helptext']}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- alias -->
+                    <div class="row">
+                        <div class="form-group">
+                            <label for="alias" class="col-sm-3 control-label text-info">
+                                    <span>
+                                        #{bundle['dashboard.card.groups.alias']} <span
+                                            class="glyphicon glyphicon-asterisk text-danger"/>
+                                    </span>
+                            </label>
+                            <div class="col-sm-6">
+                                <p:inputText id="alias" styleClass="form-control"
+                                             value="#{DashboardUsersPage.alias}"
+                                             required="true" label="Alias" maxlength="255"
+                                             validator="#{DashboardUsersPage.validateAlias}"/>
+                                <p:message for="alias"/>
+                                <p class="help-block">#{bundle['dashboard.card.groups.addGroupsWidget.alias.helptext']}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- description: -->
+                    <div class="row">
+                        <div class="form-group">
+                            <label for="description" class="col-sm-3 control-label text-info">
+                                    <span>
+                                            #{bundle['dashboard.card.groups.description']} <span class="glyphicon"/>
+                                        </span>
+                            </label>
+                            <div class="col-sm-6">
+                                <p:inputText id="description" styleClass="form-control"
+                                             value="#{DashboardUsersPage.description}" label="Description"
+                                             maxlength="255"/>
+                                <p:message for="description"/>
+                                <p class="help-block">#{bundle['dashboard.card.groups.addGroupsWidget.description.helptext']}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-sm-6 col-sm-offset-3 button-block">
+                        <p:commandLink styleClass="btn btn-default"
+                                       value="#{bundle.saveChanges}"
+                                       update="@([id$=dashboardGroupsForm],[id$=dashboardGroupsDialogInnerForm])"
+                                       oncomplete="if (!args.validationFailed) PF('dashboardGroupsAddWidget').hide();"
+                                       action="#{DashboardUsersPage.save}">
+                        </p:commandLink>
+                        <p:commandLink styleClass="btn btn-default" value="#{bundle.cancel}"
+                                       onclick="PF('dashboardGroupsAddWidget').hide()"/>
+                    </div>
+                </h:form>
+            </p:dialog>
+
+        </ui:define>
+    </ui:composition>
+</h:body>
+</html>

@@ -14,6 +14,7 @@ public class AuthenticatedUserDisplayInfo extends RoleAssigneeDisplayInfo {
     @NotBlank(message = "{user.firstName}")
     private String firstName;
     private String position;
+    private String affiliation;
     
     /*
      * @todo Shouldn't we persist the displayName too? It still exists on the
@@ -23,7 +24,8 @@ public class AuthenticatedUserDisplayInfo extends RoleAssigneeDisplayInfo {
         super(firstName + " " + lastName,emailAddress,affiliation);
         this.firstName = firstName;
         this.lastName = lastName;
-        this.position = position;        
+        this.position = position;
+        this.affiliation = affiliation;
     }
 
     public AuthenticatedUserDisplayInfo() {
@@ -31,6 +33,7 @@ public class AuthenticatedUserDisplayInfo extends RoleAssigneeDisplayInfo {
         firstName="";
         lastName="";
         position="";
+        affiliation="";
     }
 
     
@@ -58,6 +61,14 @@ public class AuthenticatedUserDisplayInfo extends RoleAssigneeDisplayInfo {
         this.firstName = firstName;
     }
 
+    public String getAffiliation() {
+        return affiliation;
+    }
+
+    public void setAffiliation(String affiliation) {
+        this.affiliation = affiliation;
+    }
+    
     public String getPosition() {
         return position;
     }
@@ -68,7 +79,7 @@ public class AuthenticatedUserDisplayInfo extends RoleAssigneeDisplayInfo {
 
     @Override
     public String toString() {
-        return "AuthenticatedUserDisplayInfo{firstName=" + firstName + ", lastName=" + lastName + ", position=" + position + ", email=" + getEmailAddress() + '}';
+        return "AuthenticatedUserDisplayInfo{firstName=" + firstName + ", lastName=" + lastName + ", affiliation=" + affiliation + ", position=" + position + ", email=" + getEmailAddress() + '}';
     }
 
     @Override
@@ -94,6 +105,9 @@ public class AuthenticatedUserDisplayInfo extends RoleAssigneeDisplayInfo {
             return false;
         }
         if (!Objects.equals(this.firstName, other.firstName)) {
+            return false;
+        }
+        if (!Objects.equals(this.affiliation, other.affiliation)) {
             return false;
         }
         return Objects.equals(this.position, other.position) && super.equals(obj);

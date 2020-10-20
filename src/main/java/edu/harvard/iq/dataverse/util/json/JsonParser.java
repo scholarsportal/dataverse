@@ -1,26 +1,11 @@
 package edu.harvard.iq.dataverse.util.json;
 
 import com.google.gson.Gson;
-import edu.harvard.iq.dataverse.ControlledVocabularyValue;
-import edu.harvard.iq.dataverse.DataFile;
-import edu.harvard.iq.dataverse.DataFileCategory;
-import edu.harvard.iq.dataverse.Dataset;
-import edu.harvard.iq.dataverse.DatasetField;
-import edu.harvard.iq.dataverse.DatasetFieldConstant;
-import edu.harvard.iq.dataverse.DatasetFieldCompoundValue;
-import edu.harvard.iq.dataverse.DatasetFieldServiceBean;
-import edu.harvard.iq.dataverse.DatasetFieldType;
-import edu.harvard.iq.dataverse.DatasetFieldValue;
-import edu.harvard.iq.dataverse.DatasetVersion;
-import edu.harvard.iq.dataverse.Dataverse;
-import edu.harvard.iq.dataverse.DataverseContact;
-import edu.harvard.iq.dataverse.DataverseTheme;
-import edu.harvard.iq.dataverse.FileMetadata;
-import edu.harvard.iq.dataverse.MetadataBlockServiceBean;
-import edu.harvard.iq.dataverse.TermsOfUseAndAccess;
+import edu.harvard.iq.dataverse.*;
 import edu.harvard.iq.dataverse.TermsOfUseAndAccess.License;
 import edu.harvard.iq.dataverse.api.Util;
 import edu.harvard.iq.dataverse.api.dto.FieldDTO;
+import edu.harvard.iq.dataverse.authorization.groups.impl.affiliation.AffiliationGroup;
 import edu.harvard.iq.dataverse.authorization.groups.impl.ipaddress.IpGroup;
 import edu.harvard.iq.dataverse.authorization.groups.impl.ipaddress.ip.IpAddress;
 import edu.harvard.iq.dataverse.authorization.groups.impl.ipaddress.ip.IpAddressRange;
@@ -30,6 +15,9 @@ import edu.harvard.iq.dataverse.harvest.client.HarvestingClient;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.workflow.Workflow;
 import edu.harvard.iq.dataverse.workflow.step.WorkflowStepData;
+
+import javax.json.*;
+import javax.json.JsonValue.ValueType;
 import org.apache.commons.validator.routines.DomainValidator;
 
 import java.io.StringReader;
@@ -37,6 +25,7 @@ import java.sql.Timestamp;
 import java.text.ParseException;
 import java.util.*;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 import java.util.stream.Collectors;
 import javax.json.*;
 import javax.json.JsonValue.ValueType;
@@ -93,7 +82,7 @@ public class JsonParser {
         dv.setPermissionRoot(jobj.getBoolean("permissionRoot", false));
         dv.setFacetRoot(jobj.getBoolean("facetRoot", false));
         dv.setAffiliation(jobj.getString("affiliation", null));
-      
+
         if (jobj.containsKey("dataverseContacts")) {
             JsonArray dvContacts = jobj.getJsonArray("dataverseContacts");
             int i = 0;
@@ -237,10 +226,10 @@ public class JsonParser {
 
         return retVal;
     }
-    
+
     public MailDomainGroup parseMailDomainGroup(JsonObject obj) throws JsonParseException {
         MailDomainGroup grp = new MailDomainGroup();
-        
+
         if (obj.containsKey("id")) {
             grp.setId(obj.getJsonNumber("id").longValue());
         }
@@ -262,8 +251,23 @@ public class JsonParser {
         } else {
             throw new JsonParseException("Field domains is mandatory.");
         }
-        
+
         return grp;
+    }
+
+    public Stream<AffiliationGroup> parseAffiliationGroups(JsonObject object) {
+        JsonArray jsonArray = object.getJsonArray("affiliations");
+        Stream<AffiliationGroup> affiliationGroupStream = jsonArray.stream().map(jsonValue -> (JsonObject) jsonValue).map(this::parseAffiliationGroup);
+        return affiliationGroupStream;
+    }
+
+    public AffiliationGroup parseAffiliationGroup(JsonObject object) {
+        AffiliationGroup group = new AffiliationGroup();
+        group.setDisplayName(object.getString("name", null));
+        group.setDescription(object.getString("description", null));
+        group.setPersistedGroupAlias(object.getString("alias", null));
+        group.setEmaildomain(object.getString("emaildomain", null));
+        return group;
     }
 
     public DatasetVersion parseDatasetVersion(JsonObject obj) throws JsonParseException {
@@ -439,7 +443,7 @@ public class JsonParser {
                         dsv.getDataset().getFiles().add(dataFile);
                     }
                 }
-                
+
                 fileMetadatas.add(fileMetadata);
                 fileMetadata.setCategories(getCategories(filemetadataJson, dsv.getDataset()));
             }

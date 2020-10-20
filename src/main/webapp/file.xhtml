@@ -63,11 +63,11 @@
                                         <!-- DATASET Publication Status -->
                                         <h:outputText value="#{bundle['dataset.versionUI.draft']}" styleClass="label label-primary" rendered="#{FilePage.fileMetadata.datasetVersion.draft}"/>
                                         <h:outputText value="#{bundle['dataset.versionUI.inReview']}" styleClass="label label-success" rendered="#{FilePage.fileMetadata.datasetVersion.inReview}"/>
-                                        <h:outputText value="#{bundle['dataset.versionUI.unpublished']}" styleClass="label label-warning" rendered="#{!FilePage.fileMetadata.datasetVersion.dataset.released}"/>   
+                                        <h:outputText value="#{bundle['dataset.versionUI.unpublished']}" styleClass="label label-warning" rendered="#{!FilePage.fileMetadata.datasetVersion.dataset.released}"/>
                                         <h:outputText value="#{bundle['dataset.versionUI.deaccessioned']}" styleClass="label label-danger" rendered="#{FilePage.fileMetadata.datasetVersion.deaccessioned}"/>
                                         <!-- DATASET VERSION NUMBER -->
                                         <h:outputText styleClass="label label-default" rendered="#{FilePage.fileMetadata.datasetVersion.released and !(FilePage.fileMetadata.datasetVersion.draft or FilePage.fileMetadata.datasetVersion.inReview)}"
-                                                      value="#{bundle['file.DatasetVersion']} #{FilePage.fileMetadata.datasetVersion.versionNumber}.#{FilePage.fileMetadata.datasetVersion.minorVersionNumber}"/> 
+                                                      value="#{bundle['file.DatasetVersion']} #{FilePage.fileMetadata.datasetVersion.versionNumber}.#{FilePage.fileMetadata.datasetVersion.minorVersionNumber}"/>
                                         <h:outputText styleClass="label label-default" rendered="#{!FilePage.fileMetadata.datasetVersion.released and !(FilePage.fileMetadata.datasetVersion.draft or FilePage.fileMetadata.datasetVersion.inReview)}"
                                                       value="#{bundle['file.DatasetVersion']} #{FilePage.fileMetadata.datasetVersion.versionState}"/>
                                     </div>
@@ -86,9 +86,9 @@
                                                 <span id="citation-select-2" onclick="if (event.target) { selectText(event.target); } else{ selectText(this); }">
                                                     <h:outputText value="#{FilePage.fileMetadata.dataFile.isIdentifierRegistered() ? FilePage.fileMetadata.getDirectFileCitation(true) : FilePage.fileMetadata.getFileCitation(true)}" escape="false"/>
                                                 </span>
-                                                <span class="glyphicon glyphicon-question-sign text-primary" jsf:rendered="#{!FilePage.fileMetadata.datasetVersion.dataset.released}" 
+                                                <span class="glyphicon glyphicon-question-sign text-primary" jsf:rendered="#{!FilePage.fileMetadata.datasetVersion.dataset.released}"
                                                       data-toggle="tooltip" data-placement="top" data-original-title="#{bundle['dataset.cite.title.released']}"/>
-                                                <span class="glyphicon glyphicon-question-sign text-primary" jsf:rendered="#{FilePage.fileMetadata.datasetVersion.dataset.released and FilePage.fileMetadata.datasetVersion.draft}" 
+                                                <span class="glyphicon glyphicon-question-sign text-primary" jsf:rendered="#{FilePage.fileMetadata.datasetVersion.dataset.released and FilePage.fileMetadata.datasetVersion.draft}"
                                                       data-toggle="tooltip" data-placement="top" data-original-title="#{bundle['dataset.cite.title.draft']}"/>
                                             </div>
                                             <div class="pull-left row col-sm-8 padding-none">
@@ -130,11 +130,11 @@
                                                 <span class="citation-select" onclick="if (event.target) { selectText(event.target); } else{ selectText(this); }">
                                                     <h:outputText value="#{FilePage.fileMetadata.datasetVersion.getCitation(true)}" escape="false"/>
                                                 </span>
-                                                <span class="glyphicon glyphicon-question-sign text-primary" jsf:rendered="#{!FilePage.fileMetadata.datasetVersion.dataset.released}" 
+                                                <span class="glyphicon glyphicon-question-sign text-primary" jsf:rendered="#{!FilePage.fileMetadata.datasetVersion.dataset.released}"
                                                       data-toggle="tooltip" data-placement="top" data-original-title="#{bundle['dataset.cite.title.released']}"/>
-                                                <span class="glyphicon glyphicon-question-sign text-primary" jsf:rendered="#{FilePage.fileMetadata.datasetVersion.dataset.released and FilePage.fileMetadata.datasetVersion.draft}" 
+                                                <span class="glyphicon glyphicon-question-sign text-primary" jsf:rendered="#{FilePage.fileMetadata.datasetVersion.dataset.released and FilePage.fileMetadata.datasetVersion.draft}"
                                                       data-toggle="tooltip" data-placement="top" data-original-title="#{bundle['dataset.cite.title.draft']}"/>
-                                                <span class="glyphicon glyphicon-question-sign text-primary" jsf:rendered="#{FilePage.fileMetadata.datasetVersion.deaccessioned}" 
+                                                <span class="glyphicon glyphicon-question-sign text-primary" jsf:rendered="#{FilePage.fileMetadata.datasetVersion.deaccessioned}"
                                                       data-toggle="tooltip" data-placement="top" data-original-title="#{bundle['dataset.cite.title.deassessioned']}"/>
                                             </div>
                                             <div class="pull-left row col-sm-8 padding-none">
@@ -174,7 +174,7 @@
                                     <!-- ActionButtonBlock -->
                                     <div id="actionButtonBlock">
                                             <!-- DOWNLOAD/ACCESS DATASET -->
-                                            <div class="btn-group btn-group-justified" 
+                                            <div class="btn-group btn-group-justified"
                                                  jsf:rendered="#{showAccessFileButtonGroup}">
                                                 <div class="btn-group">
                                                     <button type="button" class="btn btn-primary btn-access-file dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -182,7 +182,7 @@
                                                     </button>
                                                     <ul class="dropdown-menu pull-right text-left">
                                                         <!-- Explore/Download/Request Button Block -->
-                                                        <ui:fragment rendered="#{!FilePage.fileMetadata.dataFile.filePackage 
+                                                        <ui:fragment rendered="#{!FilePage.fileMetadata.dataFile.filePackage
                                                                                    or FilePage.fileMetadata.dataFile.filePackage and systemConfig.HTTPDownload}">
                                                             <ui:include src="file-download-button-fragment.xhtml">
                                                                 <ui:param name="fileMetadata" value="#{FilePage.fileMetadata}"/>
@@ -206,7 +206,7 @@
 
                                                 <!-- Edit Button Group -->
                                                 <div class="btn-group" jsf:rendered="#{dataverseSession.user.authenticated
-                                                                         and permissionsWrapper.canIssueUpdateDatasetCommand(FilePage.fileMetadata.datasetVersion.dataset) 
+                                                                         and permissionsWrapper.canIssueUpdateDatasetCommand(FilePage.fileMetadata.datasetVersion.dataset)
                                                                          and (dataFileServiceBean.hasReplacement(FilePage.fileMetadata.dataFile) or dataFileServiceBean.hasBeenDeleted(FilePage.fileMetadata.dataFile))}">
                                                     <p:commandLink styleClass="btn btn-default btn-access btn-edit" onclick="PF('fileAlreadyReplacedPrevious').show()"
                                                                    title="#{bundle['file.editBtn']}">
@@ -223,16 +223,16 @@
                                                     <ul class="dropdown-menu pull-right text-left">
 
                                                         <!-- Map Data/Set Up Button Block -->
-                                                        <ui:fragment rendered="#{dataverseSession.user.authenticated and FilePage.canUpdateDataset() 
+                                                        <ui:fragment rendered="#{dataverseSession.user.authenticated and FilePage.canUpdateDataset()
                                                                                  and (FilePage.getConfigureTools().size() > 0
-                                                                                 or worldMapPermissionHelper.canUserSeeMapDataButtonFromPage(FilePage.fileMetadata) or worldMapPermissionHelper.canSeeMapButtonReminderToPublishFromPage(FilePage.fileMetadata))}">		
+                                                                                 or worldMapPermissionHelper.canUserSeeMapDataButtonFromPage(FilePage.fileMetadata) or worldMapPermissionHelper.canSeeMapButtonReminderToPublishFromPage(FilePage.fileMetadata))}">
                                                             <ui:include src="file-configure-dropdown-fragment.xhtml">
                                                                 <ui:param name="configureTools" value="#{FilePage.getConfigureTools()}"/>
                                                                 <ui:param name="isFilePg" value="true"/>
                                                                 <ui:param name="fileId" value="#{FilePage.fileMetadata.dataFile.id}"/>
-                                                                <ui:param name="fileMetadata" value="#{FilePage.fileMetadata}"/>		
-                                                                <ui:param name="canUpdateDataset" value="#{FilePage.canUpdateDataset()}"/>		
-                                                            </ui:include>		
+                                                                <ui:param name="fileMetadata" value="#{FilePage.fileMetadata}"/>
+                                                                <ui:param name="canUpdateDataset" value="#{FilePage.canUpdateDataset()}"/>
+                                                            </ui:include>
                                                         </ui:fragment>
                                                         <!-- END: Map Data/Set Up Button Block -->
 
@@ -242,9 +242,9 @@
                                                                            update="editProvenancePopup"
                                                                            oncomplete="PF('editProvenancePopup').show();bind_bsui_components();">
                                                                            <f:actionListener binding="#{provPopupFragmentBean.updatePopupState(fileMetadata, true)}" /> <!--clearProvenanceUpdates() -->
-                                                                            #{bundle['file.provenance']} 
+                                                                            #{bundle['file.provenance']}
                                                                 </p:commandLink>
-                                                            </li> 
+                                                            </li>
                                                         </ui:fragment>
                                                         <li>
                                                             <h:outputLink value="/editdatafiles.xhtml?selectedFileIds=#{FilePage.fileMetadata.dataFile.id}&#38;datasetId=#{FilePage.fileMetadata.datasetVersion.dataset.id}&#38;mode=SINGLE&#38;version=#{FilePage.version}">
@@ -265,16 +265,16 @@
                                                                         <h:outputText value="#{bundle['file.unrestrict']}"/>
                                                                     </p:commandLink>
                                                                 </li>
-                                                            </ui:fragment>     
+                                                            </ui:fragment>
                                                         </ui:fragment>
-                                                        <ui:fragment rendered="#{FilePage.fileMetadata.dataFile.released and FilePage.draftReplacementFile == false and !FilePage.fileMetadata.dataFile.filePackage}">                                        
+                                                        <ui:fragment rendered="#{FilePage.fileMetadata.dataFile.released and FilePage.draftReplacementFile == false and !FilePage.fileMetadata.dataFile.filePackage}">
                                                         <li><!-- start: replace file link -->
                                                             <h:outputLink value="/editdatafiles.xhtml?mode=SINGLE_REPLACE&#38;datasetId=#{FilePage.fileMetadata.datasetVersion.dataset.id}&#38;fid=#{FilePage.fileMetadata.dataFile.id}&#38;version=#{FilePage.version}">
                                                                  <h:outputText value="#{bundle['file.replace']}"/>
                                                             </h:outputLink>
                                                         <!-- end replace file link --></li>
                                                         </ui:fragment>
-                                                        <ui:fragment rendered="#{ !FilePage.fileMetadata.dataFile.filePackage and ((FilePage.fileMetadata.dataFile.released and FilePage.draftReplacementFile == true) or (!FilePage.fileMetadata.dataFile.released and FilePage.fileMetadata.datasetVersion.dataset.released)) }">                                        
+                                                        <ui:fragment rendered="#{ !FilePage.fileMetadata.dataFile.filePackage and ((FilePage.fileMetadata.dataFile.released and FilePage.draftReplacementFile == true) or (!FilePage.fileMetadata.dataFile.released and FilePage.fileMetadata.datasetVersion.dataset.released)) }">
                                                         <li><!-- start: already replaced replace file link -->
                                                             <p:commandLink title="#{bundle['file.delete']}" onclick="PF('fileAlreadyReplacedDraft').show();">
                                                                 <h:outputText value="#{bundle['file.replace']}"/>
@@ -290,7 +290,7 @@
                                                                 </p:commandLink>
                                                             </li>
                                                         </ui:fragment>
-                                                        <ui:fragment rendered="#{!FilePage.fileMetadata.dataFile.released or !FilePage.fileMetadata.dataFile.filePackage}"> 
+                                                        <ui:fragment rendered="#{!FilePage.fileMetadata.dataFile.released or !FilePage.fileMetadata.dataFile.filePackage}">
                                                             <li>
                                                                 <p:commandLink title="#{bundle['file.delete']}" onclick="PF('deleteFileConfirmation').show();">
                                                                     <h:outputText value= "#{bundle['file.delete']}"/>
@@ -325,18 +325,18 @@
                                     <!-- END: ActionButtonBlock -->
                                 </div>
 
-                                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3 pull-right margin-bottom" 
+                                <div class="col-xs-12 col-sm-12 col-md-4 col-lg-3 pull-right margin-bottom"
                                      jsf:rendered="#{!(widgetWrapper.widgetView or FilePage.fileMetadata.dataFile.filePackage or FilePage.fileMetadata.datasetVersion.deaccessioned)}">
                                     <!-- Metrics -->
                                     <div id="metrics-block">
                                         <div id="metrics-heading">
                                             #{bundle['metrics.file.title']}
                                             <ui:fragment rendered="#{!settingsWrapper.makeDataCountDisplayEnabled}">
-                                                <span class="glyphicon glyphicon-question-sign tooltip-icon" data-toggle="tooltip" data-placement="auto top" 
+                                                <span class="glyphicon glyphicon-question-sign tooltip-icon" data-toggle="tooltip" data-placement="auto top"
                                                     data-trigger="hover" data-original-title="#{bundle['metrics.file.tip.default']}"></span>
                                             </ui:fragment>
                                             <ui:fragment rendered="#{settingsWrapper.makeDataCountDisplayEnabled}">
-                                                <a tabindex="0" role="button" class="glyphicon glyphicon-question-sign tooltip-icon" data-toggle="popover" data-placement="auto top" 
+                                                <a tabindex="0" role="button" class="glyphicon glyphicon-question-sign tooltip-icon" data-toggle="popover" data-placement="auto top"
                                                     data-trigger="focus" data-html="true" data-content="#{bundle['metrics.file.tip.makedatacount']}"></a>
                                             </ui:fragment>
                                         </div>
@@ -363,7 +363,7 @@
                                 </div>
 
                                 <!-- DEACCESSION ONLY?? NO SUMMARY BLOCK?? RESPONSIVE ORDER HACK BOOTSTRAP 3 https://stackoverflow.com/a/24834574 -->
-                                <div jsf:rendered="#{FilePage.fileMetadata.datasetVersion.deaccessioned}" 
+                                <div jsf:rendered="#{FilePage.fileMetadata.datasetVersion.deaccessioned}"
                                      id="dataset-colorder-block" class="visible-md-block visible-lg-block col-md-8 col-lg-9"><!--Hack--></div>
                                 <!-- END: RESPONSIVE ORDER HACK BOOTSTRAP 3 -->
 

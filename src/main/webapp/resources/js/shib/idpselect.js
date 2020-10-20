@@ -887,6 +887,7 @@ function IdPSelectUI() {
     // module locals
     //
     var idpData;
+    var idpBlackList;
     var base64chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
     var idpSelectDiv;
     var lang;
@@ -1228,6 +1229,48 @@ function IdPSelectUI() {
     } ;
 
 
+    var loadIdpIgnoreList = function () {
+        var xhr = null;
+
+        try {
+            xhr = new XMLHttpRequest();
+        } catch (e) {}
+        if (null == xhr) {
+            //
+            // EDS24. try to get 'Microsoft.XMLHTTP'
+            //
+            try {
+                xhr = new ActiveXObject("Microsoft.XMLHTTP");
+            } catch (e) {}
+        }
+        if (null == xhr) {
+            //
+            // EDS35. try to get 'Microsoft.XMLHTTP'
+            //
+            try {
+                xhr = new  ActiveXObject('MSXML2.XMLHTTP.3.0');
+            } catch (e) {}
+        }
+        if (null == xhr) {
+            fatal(getLocalizedMessage('fatal.noXMLHttpRequest'));
+            return false;
+        }
+        var url = "/api/info/idpignorelist";
+        xhr.open('GET', url, false);
+        xhr.send(null);
+        if(xhr.status == 200) {
+            var jsonData = xhr.responseText;
+            if(jsonData === null){
+                return false;
+            }
+            idpBlackList = JSON.parse(jsonData);
+            return idpBlackList;
+        } else {
+            getLocalizedMessage('Failed to load idpIgnoreList.');
+            return false;
+        }
+    };
+
     /**
        Loads the data used by the IdP selection UI.  Data is loaded
        from a JSON document fetched from the given url.
@@ -1295,8 +1338,18 @@ function IdPSelectUI() {
             //
 
             idpData = JSON.parse(jsonData);
-
-        }else{
+            var list = loadIdpIgnoreList();
+            if (list && list.data) {
+                idpBlackList = list.data;
+                idpData = idpData.filter(function (obj) {
+                    if (obj.DisplayNames && obj.DisplayNames[0] && obj.DisplayNames[0].value) {
+                        return !idpBlackList.includes(obj.DisplayNames[0].value);
+                    } else {
+                        return true;
+                    }
+                });
+            }
+        } else {
             fatal(getLocalizedMessage('fatal.loadFailed') + dataSource + '.');
             return false;
         }

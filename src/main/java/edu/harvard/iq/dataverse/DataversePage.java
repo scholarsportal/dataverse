@@ -2,6 +2,7 @@ package edu.harvard.iq.dataverse;
 
 import edu.harvard.iq.dataverse.UserNotification.Type;
 import edu.harvard.iq.dataverse.authorization.Permission;
+import edu.harvard.iq.dataverse.authorization.groups.impl.affiliation.AffiliationServiceBean;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.authorization.users.User;
 import edu.harvard.iq.dataverse.dataaccess.DataAccess;
@@ -40,6 +41,7 @@ import javax.inject.Named;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -113,16 +115,18 @@ public class DataversePage implements java.io.Serializable {
     @EJB
     DataverseLinkingServiceBean linkingService;
     @Inject PermissionsWrapper permissionsWrapper;
-    @Inject DataverseHeaderFragment dataverseHeaderFragment; 
+    @Inject DataverseHeaderFragment dataverseHeaderFragment;
+    @Inject
+    AffiliationServiceBean affiliationServiceBean;
 
-    private Dataverse dataverse = new Dataverse();  
+    private Dataverse dataverse = new Dataverse();
 
     /**
      * View parameters
      */
     private Long id = null;
     private String alias = null;
-    private Long ownerId = null;    
+    private Long ownerId = null;
     private EditMode editMode;
     private LinkMode linkMode;
 
@@ -212,7 +216,7 @@ public class DataversePage implements java.io.Serializable {
 
         return (session.getUser().isSuperuser() && (dataverse.getOwner() != null || !testquery.isEmpty()));
     }
-    
+
     public void setupLinkingPopup (String popupSetting){
         if (popupSetting.equals("link")){
             setLinkMode(LinkMode.LINKDATAVERSE);           
@@ -277,12 +281,12 @@ public class DataversePage implements java.io.Serializable {
     public void setDataverse(Dataverse dataverse) {
         this.dataverse = dataverse;
     }
-    
+
     public Long getId() { return this.id; }
     public void setId(Long id) { this.id = id; }
 
     public String getAlias() { return this.alias; }
-    public void setAlias(String alias) { this.alias = alias; }    
+    public void setAlias(String alias) { this.alias = alias; }
 
     public EditMode getEditMode() {
         return editMode;
@@ -311,7 +315,7 @@ public class DataversePage implements java.io.Serializable {
             dataverseHeaderFragment.initBreadcrumbs(dataverse);
         }
     }
-    
+
     public String init() {
         //System.out.println("_YE_OLDE_QUERY_COUNTER_");  // for debug purposes
 
@@ -433,17 +437,15 @@ public class DataversePage implements java.io.Serializable {
     private List<Dataverse> carouselFeaturedDataverses = null;
     
     public List<Dataverse> getCarouselFeaturedDataverses() {
-        if (carouselFeaturedDataverses != null) {
-            return carouselFeaturedDataverses;
+        if (carouselFeaturedDataverses == null) {
+            carouselFeaturedDataverses = featuredDataverseService.findByDataverseIdQuick(dataverse.getId());
         }
-        carouselFeaturedDataverses = featuredDataverseService.findByDataverseIdQuick(dataverse.getId());/*new ArrayList();
-        
-        List<DataverseFeaturedDataverse> featuredList = featuredDataverseService.findByDataverseId(dataverse.getId());
-        for (DataverseFeaturedDataverse dfd : featuredList) {
-            Dataverse fd = dfd.getFeaturedDataverse();
-            retList.add(fd);
-        }*/
-        
+        String ipAffiliation = affiliationServiceBean.getAffiliationFromIPAddress();
+        Optional<Dataverse> match = carouselFeaturedDataverses.stream().filter(dataverse -> ipAffiliation.equalsIgnoreCase(dataverse.getAffiliation())).findFirst();
+        if (match.isPresent()) {
+            carouselFeaturedDataverses.remove(match.get());
+            carouselFeaturedDataverses.add(0, match.get());
+        }
         return carouselFeaturedDataverses;
     }
 
@@ -1201,7 +1203,7 @@ public class DataversePage implements java.io.Serializable {
     public void setSearchFieldSubtree(String searchFieldSubtree) {
         this.searchFieldSubtree = searchFieldSubtree;
     }
-    
+
     public List<Dataverse> completeHostDataverseMenuList(String query) {
         if (session.getUser().isAuthenticated()) {
             return dataverseService.filterDataversesForHosting(query, dvRequestService.getDataverseRequest());

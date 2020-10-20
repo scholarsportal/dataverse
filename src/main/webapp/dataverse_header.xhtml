@@ -72,8 +72,15 @@
                                 <h:outputText value="#{bundle['header.about']}"/>
                             </h:outputLink>
                         </li>
-                        <li>
-                            <h:outputLink value="#{settingsWrapper.get(':NavbarGuidesUrl', settingsWrapper.guidesBaseUrl.concat('/').concat(systemConfig.guidesVersion).concat('/user'))}" target="_blank" rel="noopener">
+
+                        <li jsf:rendered="#{dataverseSession.localeCode=='en'}">
+                            <h:outputLink value="https://learn.scholarsportal.info/all-guides/dataverse/" target="_blank" rel="noopener">
+                                <h:outputText value="#{bundle['header.guides.user']}"/>
+                            </h:outputLink>
+                        </li>
+
+                        <li jsf:rendered="#{dataverseSession.localeCode=='fr'}">
+                            <h:outputLink value="https://learn.scholarsportal.info/fr/guides/dataverse/" target="_blank" rel="noopener">
                                 <h:outputText value="#{bundle['header.guides.user']}"/>
                             </h:outputLink>
                         </li>
@@ -106,12 +113,6 @@
                             </ul>
                         </li>
                         <ui:fragment rendered="#{!dataverseSession.user.authenticated}">
-                            <li>
-                                <h:outputLink rendered="#{dataverseHeaderFragment.signupAllowed}"
-                                              value="#{dataverseHeaderFragment.getSignupUrl(navigationWrapper.redirectPage)}">
-                                    #{bundle['header.signUp']}
-                                </h:outputLink>
-                            </li>
                             <li>
                                 <h:outputLink value="/loginpage.xhtml?#{loginRedirectPage}">
                                     #{bundle.login}
@@ -241,10 +242,10 @@
             <ui:repeat value="#{dataverseHeaderFragment.breadcrumbs}" var="breadcrumb" varStatus="status">
                 <h:outputText value=" > " styleClass="breadcrumbCarrot" rendered="#{!status.first}"/>
                 <div class="breadcrumbBlock">
-                    
+
                     <!-- TO-DO, REMOVED HIGHLIGHTED CURRENT PAGE TITLE WITH false RENDER, NEED TO MOVE TO PGS...??? -->
                     <h:outputText value="#{breadcrumb.breadcrumbText}" styleClass="#{'breadcrumbActive'}" rendered="#{false}"/>
-                    
+
                     <ui:fragment rendered="#{!status.last}">
                         <h:outputText value="#{breadcrumb.breadcrumbText}" rendered="#{!breadcrumb.dvObject.instanceofDataverse and !breadcrumb.dvObject.instanceofDataset and !breadcrumb.dvObject.instanceofDataFile and empty breadcrumb.url}"/>
                         <ui:fragment rendered="#{breadcrumb.dvObject == null and !empty breadcrumb.url}">
