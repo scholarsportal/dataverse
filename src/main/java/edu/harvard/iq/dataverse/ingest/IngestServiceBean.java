@@ -304,7 +304,8 @@ public class IngestServiceBean {
 						//set file size
 						dataFile.setFilesize(dataAccess.getSize());
 						if(dataAccess instanceof S3AccessIO) {
-							  ((S3AccessIO<DvObject>)dataAccess).removeTempTag();
+							  // JC
+                            // ((S3AccessIO<DvObject>)dataAccess).removeTempTag();
 						}
 					} catch (IOException ioex) {
 						logger.warning("Failed to get file size, storage id " + dataFile.getStorageIdentifier() + " ("
