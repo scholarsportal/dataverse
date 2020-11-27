@@ -662,8 +662,11 @@ public class DataverseUserPage implements java.io.Serializable {
 
     public void setRedirectPage(String redirectPage) {
         logger.log(Level.FINE, "=======DataverseUserPage : setRedirectPage  {0}  ", new Object[] {redirectPage});
+        if(redirectPage != null) {
+            logger.log(Level.FINE, "=======DataverseUserPage : setRedirectPage  {0}  ", new Object[] {redirectPage});
 
-        this.redirectPage = redirectPage;
+            this.redirectPage = redirectPage;
+        }
     } 
 
     public String getInputPassword() {
