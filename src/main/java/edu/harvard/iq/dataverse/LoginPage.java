@@ -267,7 +267,9 @@ public class LoginPage implements java.io.Serializable {
     }
 
     public void setRedirectPage(String redirectPage) {
-        this.redirectPage = redirectPage;
+        if(redirectPage != null) {
+            this.redirectPage = redirectPage;
+        }
     }
 
     public AuthenticationProvider getAuthProvider() {

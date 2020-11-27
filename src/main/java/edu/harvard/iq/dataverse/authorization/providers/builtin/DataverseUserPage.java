@@ -357,7 +357,7 @@ public class DataverseUserPage implements java.io.Serializable {
             
             String userAffiliation = au.getAffiliation();
             String alias = affiliationServiceBean.getAlias(userAffiliation);
-            Dataverse dv = dataverseService.findByAlias(alias);            
+            Dataverse dv = dataverseService.findByAlias(alias);
             if (dv == null || !dv.isReleased()) {
                 alias = "";                
             }
@@ -365,7 +365,7 @@ public class DataverseUserPage implements java.io.Serializable {
                 redirectPage = "%2Fdataverse.xhtml%3Falias%3D" + alias;
                 logger.log(Level.FINE, "redirect {0} to affiliate {1} dataverse", new Object[] {redirectPage, alias});
             }
-            
+
             if ("dataverse.xhtml".equals(redirectPage)) {
                 redirectPage = redirectPage + "?alias=" + dataverseService.findRootDataverse().getAlias();
             }
@@ -643,7 +643,9 @@ public class DataverseUserPage implements java.io.Serializable {
     }
 
     public void setRedirectPage(String redirectPage) {
-        this.redirectPage = redirectPage;
+        if(redirectPage != null) {
+            this.redirectPage = redirectPage;
+        }
     } 
 
     public String getInputPassword() {

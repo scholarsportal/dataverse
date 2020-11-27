@@ -594,11 +594,14 @@ public class Shib implements java.io.Serializable {
     }
 
     public String getRedirectPage() {
-        return redirectPage;
+         return redirectPage;
     }
 
     public void setRedirectPage(String redirectPage) {
-        this.redirectPage = redirectPage;
+       if(redirectPage != null) {
+             this.redirectPage = redirectPage;
+        }
+
     }
 
 }
