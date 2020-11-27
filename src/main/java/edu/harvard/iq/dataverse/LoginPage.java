@@ -181,7 +181,7 @@ public class LoginPage implements java.io.Serializable {
             if (dv == null || !dv.isReleased()) {
                 alias = "";                
             }
-            logger.log(Level.FINE, "LoginPage: affiliation {0} redirects to alias {1} redirectPage {2} " , new Object[]{affiliation, alias, redirectPage});
+            logger.log(Level.FINE, "affiliation {0} redirects to alias {1} redirectPage {2} " + new Object[]{affiliation, alias, redirectPage});
             if (!alias.equals("") && (redirectPage.contains("dataverse.xhtml") || redirectPage.contains("dataverseuser.xhtml"))) {
                 redirectPage = "%2Fdataverse.xhtml%3Falias%3D" + alias;
                 logger.log(Level.FINE, "redirect to affiliate dataverse", redirectPage);
@@ -270,7 +270,6 @@ public class LoginPage implements java.io.Serializable {
         if(redirectPage != null) {
             this.redirectPage = redirectPage;
         }
-
     }
 
     public AuthenticationProvider getAuthProvider() {
