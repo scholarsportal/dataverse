@@ -357,7 +357,11 @@ public class DataverseUserPage implements java.io.Serializable {
             
             String userAffiliation = au.getAffiliation();
             String alias = affiliationServiceBean.getAlias(userAffiliation);
-            Dataverse dv = dataverseService.findByAlias(alias);            
+            Dataverse dv = dataverseService.findByAlias(alias);
+
+            logger.log(Level.INFO, "=======DataverseUserPage 1 : affiliation {0} redirects to alias {1} redirectPage {2} " , new Object[]{userAffiliation, alias, redirectPage});
+
+
             if (dv == null || !dv.isReleased()) {
                 alias = "";                
             }
@@ -365,10 +369,23 @@ public class DataverseUserPage implements java.io.Serializable {
                 redirectPage = "%2Fdataverse.xhtml%3Falias%3D" + alias;
                 logger.log(Level.FINE, "redirect {0} to affiliate {1} dataverse", new Object[] {redirectPage, alias});
             }
-            
+
+            logger.log(Level.INFO, "=======DataverseUserPage 2 : affiliation {0} redirects to alias {1} redirectPage {2} " , new Object[]{userAffiliation, alias, redirectPage});
+
+
             if ("dataverse.xhtml".equals(redirectPage)) {
                 redirectPage = redirectPage + "?alias=" + dataverseService.findRootDataverse().getAlias();
             }
+
+            logger.log(Level.INFO, "=======DataverseUserPage 3 : affiliation {0} redirects to alias {1} redirectPage {2} " , new Object[]{userAffiliation, alias, redirectPage});
+
+/*
+            if (redirectPage == null) {
+                redirectPage = "dataverse.xhtml?alias=" + dataverseService.findRootDataverse().getAlias();
+            }
+*/
+            logger.log(Level.INFO, "=======DataverseUserPage 4 : affiliation {0} redirects to alias {1} redirectPage {2} " , new Object[]{userAffiliation, alias, redirectPage});
+
 
             try {
                 redirectPage = URLDecoder.decode(redirectPage, "UTF-8");
@@ -639,10 +656,13 @@ public class DataverseUserPage implements java.io.Serializable {
     }
 
     public String getRedirectPage() {
+        logger.log(Level.FINE, "=======DataverseUserPage : getRedirectPage  {0}  ", new Object[] {redirectPage});
         return redirectPage;
     }
 
     public void setRedirectPage(String redirectPage) {
+        logger.log(Level.FINE, "=======DataverseUserPage : setRedirectPage  {0}  ", new Object[] {redirectPage});
+
         this.redirectPage = redirectPage;
     } 
 
