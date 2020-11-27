@@ -263,16 +263,11 @@ public class LoginPage implements java.io.Serializable {
     }
 
     public String getRedirectPage() {
-        logger.log(Level.FINE, "=======LoginPage : getRedirectPage  {0}  ", new Object[] {redirectPage});
-
         return redirectPage;
     }
 
     public void setRedirectPage(String redirectPage) {
-        logger.log(Level.FINE, "=======LoginPage : setRedirectPage  {0}  ", new Object[] {redirectPage});
         if(redirectPage != null) {
-            logger.log(Level.FINE, "=======LoginPage : setRedirectPage  {0}  ", new Object[] {redirectPage});
-
             this.redirectPage = redirectPage;
         }
 

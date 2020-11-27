@@ -656,15 +656,11 @@ public class DataverseUserPage implements java.io.Serializable {
     }
 
     public String getRedirectPage() {
-        logger.log(Level.FINE, "=======DataverseUserPage : getRedirectPage  {0}  ", new Object[] {redirectPage});
         return redirectPage;
     }
 
     public void setRedirectPage(String redirectPage) {
-        logger.log(Level.FINE, "=======DataverseUserPage : setRedirectPage  {0}  ", new Object[] {redirectPage});
         if(redirectPage != null) {
-            logger.log(Level.FINE, "=======DataverseUserPage : setRedirectPage  {0}  ", new Object[] {redirectPage});
-
             this.redirectPage = redirectPage;
         }
     } 
