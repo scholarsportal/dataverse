@@ -688,7 +688,7 @@ public class FileUtil implements java.io.Serializable  {
         
     }
     
-    private static String checksumDigestToString(byte[] digestBytes) {
+    public static String checksumDigestToString(byte[] digestBytes) {
         StringBuilder sb = new StringBuilder("");
         for (int i = 0; i < digestBytes.length; i++) {
             sb.append(Integer.toString((digestBytes[i] & 0xff) + 0x100, 16).substring(1));
@@ -1554,6 +1554,21 @@ public class FileUtil implements java.io.Serializable  {
              * future to when the dataset is published to see if the file will
              * be publicly downloadable or not.
              */
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Show preview in many cases, but not when restricted.
+     *
+     * Originally, preview was limited to isPubliclyDownloadable().
+     */
+    public static boolean isPreviewAllowed(FileMetadata fileMetadata) {
+        if (fileMetadata == null) {
+            return false;
+        }
+        if (fileMetadata.isRestricted()) {
             return false;
         }
         return true;
