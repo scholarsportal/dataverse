@@ -3022,7 +3022,7 @@ public class EditDatafilesPage implements java.io.Serializable {
     public void setFileAccessRequest(boolean fileAccessRequest) {
         this.fileAccessRequest = fileAccessRequest;
     }
-    }
+
 
     public String getClientId() {
         logger.info(settingsSvc.getValueForKey(SettingsServiceBean.Key.GlobusClientId));
