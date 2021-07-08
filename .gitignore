@@ -5,6 +5,7 @@ nbactions.xml
 .settings
 .classpath
 .project
+.github
 michael-local
 GPATH
 GTAGS
