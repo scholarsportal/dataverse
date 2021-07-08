@@ -13,6 +13,7 @@ import edu.harvard.iq.dataverse.DvObject;
 import edu.harvard.iq.dataverse.UserNotification;
 import edu.harvard.iq.dataverse.authorization.Permission;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
+import edu.harvard.iq.dataverse.dataset.DatasetUtil;
 import edu.harvard.iq.dataverse.engine.command.CommandContext;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
 import edu.harvard.iq.dataverse.engine.command.RequiredPermissions;
@@ -309,30 +310,40 @@ public class FinalizeDatasetPublicationCommand extends AbstractPublishDatasetCom
 
     private void validateDataFiles(Dataset dataset, CommandContext ctxt) throws CommandException {
         try {
-            for (DataFile dataFile : dataset.getFiles()) {
-                // TODO: Should we validate all the files in the dataset, or only 
-                // the files that haven't been published previously?
-                // (the decision was made to validate all the files on every  
-                // major release; we can revisit the decision if there's any 
-                // indication that this makes publishing take significantly longer.
-                logger.log(Level.FINE, "validating DataFile {0}", dataFile.getId());
-                FileUtil.validateDataFileChecksum(dataFile);
+            long maxDatasetSize = 0l;
+            maxDatasetSize = ctxt.systemConfig().getDatasetValidationSizeLimit();
+
+            long datasetSize = DatasetUtil.getDownloadSizeNumeric(dataset.getLatestVersion(), false);
+            if (maxDatasetSize == -1 || datasetSize < maxDatasetSize) {
+                for (DataFile dataFile : dataset.getFiles()) {
+                    // TODO: Should we validate all the files in the dataset, or only
+                    // the files that haven't been published previously?
+                    // (the decision was made to validate all the files on every
+                    // major release; we can revisit the decision if there's any
+                    // indication that this makes publishing take significantly longer.
+                    logger.log(Level.FINE, "validating DataFile {0}", dataFile.getId());
+                    FileUtil.validateDataFileChecksum(dataFile, ctxt.systemConfig());
+                }
+            }
+            else {
+                String message = "Skipping to validate File Checksum of the dataset " + dataset.getDisplayName() + ", because of the size of the dataset limit (set to " + maxDatasetSize + " ); ";
+                logger.info(message);
             }
         } catch (Throwable e) {
-            
+
             if (dataset.isLockedFor(DatasetLock.Reason.finalizePublication)) {
                 DatasetLock lock = dataset.getLockFor(DatasetLock.Reason.finalizePublication);
                 lock.setReason(DatasetLock.Reason.FileValidationFailed);
                 lock.setInfo(FILE_VALIDATION_ERROR);
                 ctxt.datasets().updateDatasetLock(lock);
-            } else {            
+            } else {
                 // Lock the dataset with a new FileValidationFailed lock: 
                 DatasetLock lock = new DatasetLock(DatasetLock.Reason.FileValidationFailed, getRequest().getAuthenticatedUser()); //(AuthenticatedUser)getUser());
                 lock.setDataset(dataset);
                 lock.setInfo(FILE_VALIDATION_ERROR);
                 ctxt.datasets().addDatasetLock(dataset, lock);
             }
-            
+
             // Throw a new CommandException; if the command is being called 
             // synchronously, it will be intercepted and the page will display 
             // the error message for the user.

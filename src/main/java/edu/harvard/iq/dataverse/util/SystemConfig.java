@@ -2,7 +2,6 @@ package edu.harvard.iq.dataverse.util;
 
 import com.ocpsoft.pretty.PrettyContext;
 import edu.harvard.iq.dataverse.DataFile;
-import edu.harvard.iq.dataverse.Dataset;
 import edu.harvard.iq.dataverse.DataverseServiceBean;
 import edu.harvard.iq.dataverse.DvObjectContainer;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
@@ -1063,5 +1062,35 @@ public class SystemConfig {
 		//As of 5.0 the 'doi.dataciterestapiurlstring' is the documented jvm option. Prior versions used 'doi.mdcbaseurlstring' or were hardcoded to api.datacite.org, so the defaults are for backward compatibility.
         return System.getProperty("doi.dataciterestapiurlstring", System.getProperty("doi.mdcbaseurlstring", "https://api.datacite.org"));
 	}
+
+    public long getDatasetValidationSizeLimit() {
+        String limitEntry = settingsService.getValueForKey(SettingsServiceBean.Key.DatasetValidationSizeLimit);
+
+        if (limitEntry != null) {
+            try {
+                Long sizeOption = new Long(limitEntry);
+                return sizeOption;
+            } catch (NumberFormatException nfe) {
+                logger.warning("Invalid value for DatasetValidationSizeLimit option? - " + limitEntry);
+            }
+        }
+        // -1 means no limit is set;
+        return -1;
+    }
+
+    public long getFileValidationSizeLimit() {
+        String limitEntry = settingsService.getValueForKey(SettingsServiceBean.Key.FileValidationSizeLimit);
+
+        if (limitEntry != null) {
+            try {
+                Long sizeOption = new Long(limitEntry);
+                return sizeOption;
+            } catch (NumberFormatException nfe) {
+                logger.warning("Invalid value for FileValidationSizeLimit option? - " + limitEntry);
+            }
+        }
+        // -1 means no limit is set;
+        return -1;
+    }
 
 }
