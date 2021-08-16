@@ -70,7 +70,6 @@ import javax.validation.ConstraintViolationException;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response.Status;
 
-import edu.harvard.iq.dataverse.util.SystemConfig;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -159,8 +158,6 @@ public class Admin extends AbstractApiBean {
 	// Make the session available
 	@Inject
 	DataverseSession session;
-	@EJB
-	SystemConfig systemConfig;
 
 	public static final String listUsersPartialAPIPath = "list-users";
 	public static final String listUsersFullAPIPath = "/api/admin/" + listUsersPartialAPIPath;
@@ -1140,7 +1137,7 @@ public class Admin extends AbstractApiBean {
 
                     
                     try {
-                        FileUtil.validateDataFileChecksum(dataFile,systemConfig);
+                        FileUtil.validateDataFileChecksum(dataFile);
                         success = true;
                     } catch (IOException ex) {
                         output.add("status", "invalid");

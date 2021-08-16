@@ -326,11 +326,18 @@ public class FinalizeDatasetPublicationCommand extends AbstractPublishDatasetCom
                     // major release; we can revisit the decision if there's any
                     // indication that this makes publishing take significantly longer.
                     logger.log(Level.FINE, "validating DataFile {0}", dataFile.getId());
-                    FileUtil.validateDataFileChecksum(dataFile, ctxt.systemConfig());
+                    long maxFileSize = ctxt.systemConfig().getFileValidationSizeLimit();
+                    if (maxFileSize == -1 || dataFile.getOriginalFileSize() < maxFileSize) {
+                        FileUtil.validateDataFileChecksum(dataFile);
+                    }
+                    else {
+                        String message = "Skipping to validate Checksum of the datafile " + dataFile.getIdentifier() + ", because of the size of the datafile limit (set to " + maxFileSize + " ); ";
+                        logger.info(message);
+                    }
                 }
             }
             else {
-                String message = "Skipping to validate File Checksum of the dataset " + dataset.getDisplayName() + ", because of the size of the dataset limit (set to " + maxDatasetSize + " ); ";
+                String message = "Skipping to validate Checksum of the dataset " + dataset.getDisplayName() + ", because of the size of the dataset limit (set to " + maxDatasetSize + " ); ";
                 logger.info(message);
             }
         } catch (Throwable e) {
