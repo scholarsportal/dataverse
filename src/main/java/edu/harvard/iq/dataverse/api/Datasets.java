@@ -2564,7 +2564,7 @@ public class Datasets extends AbstractApiBean {
         List<String> deleted;
         try {
             StorageIO<DvObject> datasetIO = DataAccess.getStorageIO(dataset);
-            logger.info(" ====  (api  ) getStorageLocation   ====== " + datasetIO.getStorageLocation());
+            //logger.info(" ====  (api  ) getStorageLocation   ====== " + datasetIO.getStorageLocation());
             deleted = datasetIO.cleanUp(filter, doDryRun);
         } catch (IOException ex) {
             logger.log(Level.SEVERE, null, ex);

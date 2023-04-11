@@ -1315,10 +1315,11 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
         }
         Dataset dataset = this.getDataset();
         if (dataset == null) {
+            logger.info(" ====  ( s3 api  ) throws exception   ====== " );
             throw new IOException("This S3AccessIO object hasn't been properly initialized.");
         }
         String prefix = dataset.getAuthorityForFileStorage() + "/" + dataset.getIdentifierForFileStorage() + "/";
-
+        logger.info(" ====  ( s3 api  ) prefix   ====== " + prefix);
         List<String> ret = new ArrayList<>();
         ListObjectsRequest req = new ListObjectsRequest().withBucketName(bucketName).withPrefix(prefix);
         ObjectListing storedFilesList = null; 
@@ -1346,6 +1347,7 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
 
         for (S3ObjectSummary item : storedFilesSummary) {
             String fileName = item.getKey().substring(prefix.length());
+            logger.info(" ====  ( s3 api  ) lastItemName   ====== " + fileName);
             ret.add(fileName);
         }
         return ret;
@@ -1371,11 +1373,13 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
 
     @Override
     public List<String> cleanUp(Predicate<String> filter, boolean dryRun) throws IOException {
+        logger.info(" ====  ( s3 api  ) cleanUp   ====== " );
         List<String> toDelete = this.listAllFiles().stream().filter(filter).collect(Collectors.toList());
         if (dryRun) {
             return toDelete;
         }
         for (String f : toDelete) {
+            logger.info(" ====  ( s3 api  ) toDelete   ====== " + f);
             this.deleteFile(f);
         }
         return toDelete;
