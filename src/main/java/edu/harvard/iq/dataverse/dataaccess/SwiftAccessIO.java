@@ -906,6 +906,7 @@ public class SwiftAccessIO<T extends DvObject> extends StorageIO<T> {
         }
         Dataset dataset = this.getDataset();
         if (dataset == null) {
+            logger.info(" ====  (api  ) throws exception   ====== " );
             throw new IOException("This SwiftAccessIO object hasn't been properly initialized.");
         }
         String prefix = getSwiftContainerName(dataset) + swiftFolderPathSeparator;
@@ -950,11 +951,13 @@ public class SwiftAccessIO<T extends DvObject> extends StorageIO<T> {
 
     @Override
     public List<String> cleanUp(Predicate<String> filter, boolean dryRun) throws IOException {
+        logger.info(" ====  (api  ) cleanUp   ====== " );
         List<String> toDelete = this.listAllFiles().stream().filter(filter).collect(Collectors.toList());
         if (dryRun) {
             return toDelete;
         }
         for (String f : toDelete) {
+            logger.info(" ====  (api  ) toDelete   ====== " + f);
             this.deleteFile(f);
         }
         return toDelete;

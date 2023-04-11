@@ -2545,18 +2545,26 @@ public class Datasets extends AbstractApiBean {
 
         // check if no legacy files are present
         Set<String> datasetFilenames = getDatasetFilenames(dataset);
-        if (datasetFilenames.stream().anyMatch(x -> !dataFilePattern.matcher(x).matches())) {
-            logger.log(Level.WARNING, "Dataset contains legacy files not matching the naming pattern!");
-        }
 
         datasetFilenames.forEach(name -> {
             logger.info(" ====  (api  ) datasetFilenames   ====== " + name);
         });
 
+
+        if (datasetFilenames.stream().anyMatch(x -> !dataFilePattern.matcher(x).matches())) {
+            logger.log(Level.WARNING, "Dataset contains legacy files not matching the naming pattern!");
+        }else
+        {
+            logger.info(" ====  (api  ) dataFilePattern matches  ====== " + dataFilePattern);
+        }
+
         Predicate<String> filter = getToDeleteFilesFilter(datasetFilenames);
+        logger.info(" ====  (api  ) filter.toString()   ====== " + filter.toString());
+
         List<String> deleted;
         try {
             StorageIO<DvObject> datasetIO = DataAccess.getStorageIO(dataset);
+            logger.info(" ====  (api  ) getStorageLocation   ====== " + datasetIO.getStorageLocation());
             deleted = datasetIO.cleanUp(filter, doDryRun);
         } catch (IOException ex) {
             logger.log(Level.SEVERE, null, ex);
