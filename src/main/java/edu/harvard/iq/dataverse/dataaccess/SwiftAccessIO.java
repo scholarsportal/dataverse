@@ -909,6 +909,8 @@ public class SwiftAccessIO<T extends DvObject> extends StorageIO<T> {
             throw new IOException("This SwiftAccessIO object hasn't been properly initialized.");
         }
         String prefix = getSwiftContainerName(dataset) + swiftFolderPathSeparator;
+
+        logger.info(" ====  (api  ) prefix   ====== " + prefix);
         
         Collection<StoredObject> items; 
         String lastItemName = null; 
@@ -917,9 +919,12 @@ public class SwiftAccessIO<T extends DvObject> extends StorageIO<T> {
         while ((items = this.swiftContainer.list(prefix, lastItemName, LIST_PAGE_LIMIT)) != null && items.size() > 0) {
             for (StoredObject item : items) {
                 lastItemName = item.getName().substring(prefix.length());
+                logger.info(" ====  (api  ) lastItemName   ====== " + lastItemName);
                 ret.add(lastItemName);
             }
         }
+
+        logger.info(" ====  (api  ) ret.size()   ====== " + ret.size());
 
         return ret;
     }

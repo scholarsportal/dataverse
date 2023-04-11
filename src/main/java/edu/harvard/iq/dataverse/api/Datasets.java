@@ -2531,7 +2531,9 @@ public class Datasets extends AbstractApiBean {
         } catch (WrappedResponse wr) {
             return wr.getResponse();
         }
-        
+
+        logger.info(" ====  (api dataset.getDisplayName) jsonData   ====== " + dataset.getDisplayName());
+
         // check permissions
         if (!permissionSvc.permissionsFor(createDataverseRequest(authUser), dataset).contains(Permission.EditDataset)) {
             return error(Response.Status.INTERNAL_SERVER_ERROR, "Access denied!");
@@ -2539,11 +2541,17 @@ public class Datasets extends AbstractApiBean {
 
         boolean doDryRun = dryrun != null && dryrun.booleanValue();
 
+        logger.info(" ====  (api  ) doDryRun   ====== " + doDryRun);
+
         // check if no legacy files are present
         Set<String> datasetFilenames = getDatasetFilenames(dataset);
         if (datasetFilenames.stream().anyMatch(x -> !dataFilePattern.matcher(x).matches())) {
             logger.log(Level.WARNING, "Dataset contains legacy files not matching the naming pattern!");
         }
+
+        datasetFilenames.forEach(name -> {
+            logger.info(" ====  (api  ) datasetFilenames   ====== " + name);
+        });
 
         Predicate<String> filter = getToDeleteFilesFilter(datasetFilenames);
         List<String> deleted;
