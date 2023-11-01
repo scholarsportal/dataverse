@@ -194,7 +194,6 @@ var fileUpload = class fileUploadClass {
                 if(this.urls.hasOwnProperty("url")) {
                 $.ajax({
                         url: this.urls.url,
-                        headers: { "x-amz-tagging": "dv-state=temp" },
                         type: 'PUT',
                         data: this.file,
                         context:this,
