@@ -94,6 +94,7 @@ public class UserNotificationServiceBean {
 
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void sendNotificationInNewTransaction(AuthenticatedUser dataverseUser, Timestamp sendDate, Type type, Long objectId) {
+        logger.info("JC  Sending notifications 2: ");
         sendNotification(dataverseUser, sendDate, type, objectId, "");
     }
     
@@ -102,6 +103,7 @@ public class UserNotificationServiceBean {
     }
 
     public void sendNotification(AuthenticatedUser dataverseUser, Timestamp sendDate, Type type, Long objectId, String comment) {
+        logger.info("JC  Sending notifications 3: ");
         sendNotification(dataverseUser, sendDate, type, objectId, comment, null, false);
     }
 
@@ -110,9 +112,11 @@ public class UserNotificationServiceBean {
     }
 
     public void sendNotification(AuthenticatedUser dataverseUser, Timestamp sendDate, Type type, Long objectId, String comment, AuthenticatedUser requestor, boolean isHtmlContent) {
+        logger.info("JC  Sending notifications 4: ");
         sendNotification(dataverseUser, sendDate, type, objectId, comment, requestor, isHtmlContent, null);
     }
     public void sendNotification(AuthenticatedUser dataverseUser, Timestamp sendDate, Type type, Long objectId, String comment, AuthenticatedUser requestor, boolean isHtmlContent, String additionalInfo) {
+        logger.info("JC  Sending notifications 5: ");
         UserNotification userNotification = new UserNotification();
         userNotification.setUser(dataverseUser);
         userNotification.setSendDate(sendDate);
@@ -120,14 +124,18 @@ public class UserNotificationServiceBean {
         userNotification.setObjectId(objectId);
         userNotification.setRequestor(requestor);
         userNotification.setAdditionalInfo(additionalInfo);
+        logger.info("JC  Sending notifications 6: ");
 
         if (!isEmailMuted(userNotification) && mailService.sendNotificationEmail(userNotification, comment, requestor, isHtmlContent)) {
+            logger.info("JC  Sending notifications 7: ");
             logger.fine("email was sent");
             userNotification.setEmailed(true);
         } else {
+            logger.info("JC  Sending notifications 8: ");
             logger.fine("email was not sent");
         }
         if (!isNotificationMuted(userNotification)) {
+            logger.info("JC  Sending notifications 9: ");
             save(userNotification);
         }
     }

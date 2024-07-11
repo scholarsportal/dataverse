@@ -345,7 +345,7 @@
                                                     <!-- Publish BTN DROPDOWN-MENU OPTIONS -->
                                                     <ul class="dropdown-menu pull-right text-left">
                                                         <li jsf:rendered="#{showPublishLink}" class="#{!DatasetPage.hasValidTermsOfAccess or ( DatasetPage.locked and !DatasetPage.dataset.latestVersion.inReview) ? 'disabled' : ''}">
-                                                            <!-- Publish LINK -->
+                                                            <!-- JC Publish LINK -->
                                                             <p:commandLink styleClass="#{!DatasetPage.hasValidTermsOfAccess or (DatasetPage.locked and !DatasetPage.dataset.latestVersion.inReview) ? 'disabled' : ''}" 
                                                                            disabled="#{!DatasetPage.hasValidTermsOfAccess or (DatasetPage.locked and !DatasetPage.dataset.latestVersion.inReview)}"
                                                                            action="#{DatasetPage.processPublishButton()}">

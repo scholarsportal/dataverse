@@ -75,7 +75,8 @@ public class FinalizeDatasetPublicationCommand extends AbstractPublishDatasetCom
     @Override
     public Dataset execute(CommandContext ctxt) throws CommandException {
         Dataset theDataset = getDataset();
-        
+
+        // JC 1
         logger.info("Finalizing publication of the dataset "+theDataset.getGlobalId().asString());
         
         // validate the physical files before we do anything else: 
@@ -244,7 +245,7 @@ public class FinalizeDatasetPublicationCommand extends AbstractPublishDatasetCom
         if (readyDataset.isLockedFor(DatasetLock.Reason.InReview) ) {
             ctxt.datasets().removeDatasetLocks(readyDataset, DatasetLock.Reason.InReview);
         }
-        
+        //JC 2
         logger.info("Successfully published the dataset "+readyDataset.getGlobalId().asString());
         readyDataset = ctxt.em().merge(readyDataset);
         
@@ -495,6 +496,8 @@ public class FinalizeDatasetPublicationCommand extends AbstractPublishDatasetCom
             }
         }
         */
+
+logger.info("JC  Sending notifications : 1 ");
         ctxt.roles().rolesAssignments(subject).stream()
             .filter(  ra -> ra.getRole().permissions().contains(Permission.ViewUnpublishedDataset) || ra.getRole().permissions().contains(Permission.DownloadFile))
             .flatMap( ra -> ctxt.roleAssignees().getExplicitUsers(ctxt.roleAssignees().getRoleAssignee(ra.getAssigneeIdentifier())).stream() )

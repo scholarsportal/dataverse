@@ -114,6 +114,8 @@ public class MailServiceBean implements java.io.Serializable {
      * @return Status: true if sent successfully, false otherwise
      */
     public boolean sendSystemEmail(String to, String subject, String messageText, boolean isHtmlContent) {
+        logger.info("JC  Sending notifications 6.4 to address: " + to);
+
         Optional<InternetAddress> optionalAddress = getSystemAddress();
         if (optionalAddress.isEmpty()) {
             logger.fine(() -> "Skipping sending mail to " + to + ", because no system address has been set.");
@@ -126,11 +128,13 @@ public class MailServiceBean implements java.io.Serializable {
             BundleUtil.getStringFromBundle(isHtmlContent ? "notification.email.closing.html" : "notification.email.closing",
                 List.of(BrandingUtil.getSupportTeamEmailAddress(systemAddress), BrandingUtil.getSupportTeamName(systemAddress)));
 
-        logger.fine(() -> "Sending email to %s. Subject: <<<%s>>>. Body: %s".formatted(to, subject, body));
+        logger.info("JC  Sending notifications 6.4 body : " + body);
+
+        logger.info(() -> "Sending email to %s. Subject: <<<%s>>>. Body: %s".formatted(to, subject, body));
         try {
             // Since JavaMail 1.6, we have support for UTF-8 mail addresses and do not need to handle these ourselves.
             InternetAddress[] recipients = InternetAddress.parse(to);
-            
+            logger.info("JC  Sending notifications 6.4 from address : " + systemAddress.getAddress().toString());
             MimeMessage msg = new MimeMessage(session);
             msg.setFrom(systemAddress);
             msg.setSentDate(new Date());
@@ -141,13 +145,15 @@ public class MailServiceBean implements java.io.Serializable {
             } else {
                 msg.setText(body, charset);
             }
-            
+            logger.info("JC  Sending notifications 6.5 tansport send - start  : "  );
             Transport.send(msg, recipients);
+            logger.info("JC  Sending notifications 6.5 tansport send - end  : "  );
             return true;
         } catch (MessagingException ae) {
             logger.log(Level.WARNING, "Failed to send mail to %s: %s".formatted(to, ae.getMessage()), ae);
             logger.info("When UTF-8 characters in recipients: make sure MTA supports it and JVM option " + JvmSettings.MAIL_MTA_SUPPORT_UTF8.getScopedKey() + "=true");
         }
+        logger.info("JC  Sending notifications 6.5 tansport send - failed  : "  );
         return false;
     }
     
@@ -278,14 +284,16 @@ public class MailServiceBean implements java.io.Serializable {
     }
 
     public Boolean sendNotificationEmail(UserNotification notification, String comment, AuthenticatedUser requestor, boolean isHtmlContent){
-
+        logger.info("JC  Sending notifications 6.1: ");
         boolean retval = false;
         String emailAddress = getUserEmailAddress(notification);
         if (emailAddress != null){
            Object objectOfNotification =  getObjectOfNotification(notification);
            if (objectOfNotification != null){
                String messageText = getMessageTextBasedOnNotification(notification, objectOfNotification, comment, requestor);
+               logger.info("JC  Sending notifications 6.2: " + messageText);
                String subjectText = MailUtil.getSubjectTextBasedOnNotification(notification, objectOfNotification);
+               logger.info("JC  Sending notifications 6.3: " + subjectText);
                if (!(messageText.isEmpty() || subjectText.isEmpty())){
                    retval = sendSystemEmail(emailAddress, subjectText, messageText, isHtmlContent);
                } else {

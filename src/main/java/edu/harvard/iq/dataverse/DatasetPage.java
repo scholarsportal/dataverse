@@ -4277,6 +4277,7 @@ public class DatasetPage implements java.io.Serializable {
     }
 
     public void processPublishButton() {
+        logger.info(" JC TESTING process publish dataset =  "  );
         if (dataset.isReleased()) {
             PrimeFaces.current().executeScript("PF('publishDataset').show()");
         }
