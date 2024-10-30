@@ -81,6 +81,7 @@ public class DataverseHeaderFragment implements java.io.Serializable {
     }
     
     public void initBreadcrumbs(DvObject dvObject) {
+        System.out.println("  Jayanthy initBreadcrumbs START 1 " ) ;
             if (dvObject == null) {
                 return;
             }
@@ -90,6 +91,8 @@ public class DataverseHeaderFragment implements java.io.Serializable {
                 initBreadcrumbs(dvObject.getOwner(), dvObject instanceof Dataverse ? BundleUtil.getStringFromBundle("newDataverse") : 
                         dvObject instanceof Dataset ? BundleUtil.getStringFromBundle("newDataset") : null );
             }
+
+        System.out.println("  Jayanthy initBreadcrumbs END 1 " ) ;
     }
     
     public void initBreadcrumbsForFileMetadata(FileMetadata fmd) {
@@ -327,11 +330,16 @@ public class DataverseHeaderFragment implements java.io.Serializable {
     }
 
     public void addBreadcrumb (String url, String linkString){
+        System.out.println("  Jayanthy addBreadcrumb START 1 " ) ;
         breadcrumbs.add(new Breadcrumb(url, linkString));
+        System.out.println("  Jayanthy addBreadcrumb END 1 " ) ;
     }
     
     public void addBreadcrumb (String linkString){
+
+        System.out.println("  Jayanthy addBreadcrumb START 2 " ) ;
         breadcrumbs.add(new Breadcrumb(linkString));
+        System.out.println("  Jayanthy addBreadcrumb END 2 " ) ;
     }
 
     // inner class used for breadcrumbs
