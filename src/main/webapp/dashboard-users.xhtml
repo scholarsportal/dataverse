@@ -23,49 +23,7 @@
             <ui:param name="pageTitle" value="#{bundle['dashboard.card.users.header']} - #{dataverseServiceBean.findRootDataverse().name} #{bundle.dataverse}"/>
             <ui:param name="showDataverseHeader" value="false"/>
             <ui:define name="body">
-                <h:form id="dashboardUsersForm">
-                    <p:focus for="searchFiles"/>
-                    <div jsf:id="userssHeaderBlock" class="row">
-                        <div class="col-xs-6">
-                            <div class="input-group">
-                                <p:inputText type="hidden" id="selectedPage" value="#{DashboardUsersPage.selectedPage}" />
-                                <p:inputText id="searchFiles" styleClass="form-control" value="#{DashboardUsersPage.searchTerm}" widgetVar="inputSearchTerm"
-                                             onkeypress="if (event.keyCode == 13) { submitsearch(); return false; }"/>
-                                <p:watermark for="searchFiles" value="#{bundle['dashboard.list_users.searchTerm.watermark']}"/>
-                                <p:remoteCommand name="submitsearch" action="#{DashboardUsersPage.runUserSearch()}" process="@this @widgetVar(inputSearchTerm)" update="@form" partialSubmit="true"/>
-                                <span class="input-group-btn">
-                                    <p:commandLink title="#{bundle['dataverse.search.btn.find']}" styleClass="btn btn-default bootstrap-button-tooltip" action="#{DashboardUsersPage.runUserSearch()}" process="@this @widgetVar(inputSearchTerm)" update="@form" partialSubmit="true">
-                                        <span class="glyphicon glyphicon-search no-text"/>
-                                    </p:commandLink>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
 
-                    <div class="row">
-                        <div class="col-xs-12" style="margin-bottom: 1em;">
-                            <div class="btn-group pull-right">
-                                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
-                                    <span class="glyphicon glyphicon-sort"></span> #{bundle['dataverse.results.btn.sort']} <span class="caret"></span>
-                                </button>
-                                <ul class="dropdown-menu pull-right text-left">
-                                    <ui:repeat value="#{DashboardUsersPage.getSortingMap().entrySet()}" var="sortFieldEntry">
-                                        <li>
-                                            <p:commandLink action="#{DashboardUsersPage.runUserSearchWithSort(sortFieldEntry.key)}" process="@this @widgetVar(inputSearchTerm)" update="@form" partialSubmit="true">
-                                                <h:outputText value="#{bundle[sortFieldEntry.value]}" styleClass="#{DashboardUsersPage.isSortedBy(sortFieldEntry.key) ? 'highlightBold' : ''}"/>
-                                            </p:commandLink>
-                                        </li>
-                                    </ui:repeat>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-
-                    <ui:include src="dashboard-users-pager.xhtml">
-                        <ui:param name="listPager" value="#{DashboardUsersPage.pager}" />
-                    </ui:include>
-
-                </h:form>
             </ui:define>
         </ui:composition>
 
