@@ -136,15 +136,20 @@ public class DashboardUsersPage implements java.io.Serializable {
     }
 
     public String init() {
+
+        System.out.println("  Jayanthy DashboardUsersPage START " ) ;
         if ((session.getUser() != null) && (session.getUser().isAuthenticated()) && (session.getUser().isSuperuser())) {
             authUser = (AuthenticatedUser) session.getUser();
             userListMaker = new UserListMaker(userService);
+            System.out.println("  Jayanthy DashboardUsersPage START 1 " ) ;
             runUserSearch();
+            System.out.println("  Jayanthy DashboardUsersPage START 2 " ) ;
         } else {
+            System.out.println("  Jayanthy DashboardUsersPage START 3 " ) ;
             return permissionsWrapper.notAuthorized();
             // redirect to login OR give some type ‘you must be logged in message'
         }
-
+        System.out.println("  Jayanthy DashboardUsersPage END " ) ;
         return null;
     }
 
