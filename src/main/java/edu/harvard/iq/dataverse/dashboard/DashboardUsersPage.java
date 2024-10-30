@@ -164,6 +164,7 @@ public class DashboardUsersPage implements java.io.Serializable {
 
     public boolean runUserSearch(){
         logger.fine("Run the search!");
+        System.out.println("  Jayanthy runUserSearch START " ) ;
         /**
          * (1) Determine the number of users returned by the count
          */
@@ -179,7 +180,7 @@ public class DashboardUsersPage implements java.io.Serializable {
 
         this.userList = userListResult.getUserList();
         this.pager = userListResult.getPager();
-
+        System.out.println("  Jayanthy runUserSearch END " ) ;
         return true;
     }
 

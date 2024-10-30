@@ -34,8 +34,8 @@ public class UserListResult {
         
     
     public UserListResult(String searchTerm, Pager pager, List<AuthenticatedUser> userList){
-        
-        
+
+        System.out.println("  Jayanthy function userList is   1 " ) ;
         if (searchTerm == null){
             searchTerm = "";
         }
@@ -50,7 +50,7 @@ public class UserListResult {
         if (this.userList == null){
             this.userList = new ArrayList<>();  // new empty list
         }
-       
+        System.out.println("  Jayanthy function userList is END " ) ;
     }
 
     public Integer getSelectedPageNumber(){

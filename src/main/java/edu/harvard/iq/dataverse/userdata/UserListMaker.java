@@ -103,13 +103,16 @@ public class UserListMaker {
         // (3) Retrieve the users
         // -------------------------------------------------
         List<AuthenticatedUser> userList = userService.getAuthenticatedUserList(searchTerm, sortKey, itemsPerPage, offset);
+
+        System.out.println("  Jayanthy getAuthenticatedUserList END " ) ;
         if (userList == null) {
+            System.out.println("  Jayanthy userList is null 1 " ) ;
             pager = new Pager(0, itemsPerPage, selectedPage);
             return new UserListResult(searchTerm, pager, null);
         }
-
+        System.out.println("  Jayanthy userList is NOT null 1 " ) ;
         pager = new Pager(userCount.intValue(), itemsPerPage, selectedPage);
-
+        System.out.println("  Jayanthy userList is NOT null 2 " ) ;
         return new UserListResult(searchTerm, pager, userList);
     }
 
