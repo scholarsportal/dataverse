@@ -193,6 +193,8 @@ public class DashboardUsersPage implements java.io.Serializable {
      * @return
      */
     public String getUserCount() {
+
+        System.out.println("  Jayanthy getusercount 1 " ) ;
         return NumberFormat.getInstance().format(userService.getTotalUserCount());
     }
 
