@@ -222,9 +222,6 @@ public class DataverseServiceBean implements java.io.Serializable {
      * NoResultException which is a RuntimeException?
      */
     public Dataverse findRootDataverse() {
-        System.out.println("  Jayanthy findRootDataverse START 1 " ) ;
-        Dataverse r = em.createNamedQuery("Dataverse.findRoot", Dataverse.class).getSingleResult();
-        System.out.println("  Jayanthy findRootDataverse START 1 id is : " + r.getId() ) ;
         return em.createNamedQuery("Dataverse.findRoot", Dataverse.class).getSingleResult();
     }
     

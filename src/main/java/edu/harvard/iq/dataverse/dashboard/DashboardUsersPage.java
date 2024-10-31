@@ -136,20 +136,15 @@ public class DashboardUsersPage implements java.io.Serializable {
     }
 
     public String init() {
-
-        System.out.println("  Jayanthy DashboardUsersPage START " ) ;
         if ((session.getUser() != null) && (session.getUser().isAuthenticated()) && (session.getUser().isSuperuser())) {
             authUser = (AuthenticatedUser) session.getUser();
             userListMaker = new UserListMaker(userService);
-            System.out.println("  Jayanthy DashboardUsersPage START 1 " ) ;
             runUserSearch();
-            System.out.println("  Jayanthy DashboardUsersPage START 2 " ) ;
         } else {
-            System.out.println("  Jayanthy DashboardUsersPage START 3 " ) ;
             return permissionsWrapper.notAuthorized();
             // redirect to login OR give some type ‘you must be logged in message'
         }
-        System.out.println("  Jayanthy DashboardUsersPage END " ) ;
+
         return null;
     }
 
@@ -169,7 +164,6 @@ public class DashboardUsersPage implements java.io.Serializable {
 
     public boolean runUserSearch(){
         logger.fine("Run the search!");
-        System.out.println("  Jayanthy runUserSearch START " ) ;
         /**
          * (1) Determine the number of users returned by the count
          */
@@ -185,7 +179,7 @@ public class DashboardUsersPage implements java.io.Serializable {
 
         this.userList = userListResult.getUserList();
         this.pager = userListResult.getPager();
-        System.out.println("  Jayanthy runUserSearch END " ) ;
+
         return true;
     }
 
@@ -199,8 +193,6 @@ public class DashboardUsersPage implements java.io.Serializable {
      * @return
      */
     public String getUserCount() {
-
-        System.out.println("  Jayanthy getusercount 1 " ) ;
         return NumberFormat.getInstance().format(userService.getTotalUserCount());
     }
 

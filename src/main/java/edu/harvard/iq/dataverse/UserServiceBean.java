@@ -78,16 +78,13 @@ public class UserServiceBean {
             offset = 0;
         }
 
-        System.out.println("  Jayanthy getAuthenticatedUserList 1 " ) ;
         List<Object[]> userResults = getUserListCore(searchTerm, sortKey, resultLimit, offset);
 
-        System.out.println("  Jayanthy getAuthenticatedUserList 2 " ) ;
         // Initialize empty list for AuthenticatedUser objects
         //
         List<AuthenticatedUser> viewObjects = new ArrayList<>();
 
         if (userResults == null){
-            System.out.println("  Jayanthy getAuthenticatedUserList 3 " ) ;
             return viewObjects;
         }
 
@@ -95,16 +92,14 @@ public class UserServiceBean {
         // GATHER GIANT HASHMAP OF ALL { user identifier : [role, role, role] }
         // -------------------------------------------------
 
-        System.out.println("  Jayanthy getAuthenticatedUserList 4 " ) ;
         HashMap<String, List<String>> roleLookup = retrieveRolesForUsers(userResults);
         if (roleLookup == null) {
-            System.out.println("  Jayanthy getAuthenticatedUserList 5 " ) ;
             roleLookup = new HashMap<>();
         }
         //  1st Loop :
         // gather  [ @user, .....]
         // get the hashmap
-        System.out.println("  Jayanthy getAuthenticatedUserList 6 " ) ;
+
         // -------------------------------------------------
         // We have results, format them into AuthenticatedUser objects
         // -------------------------------------------------
@@ -113,22 +108,17 @@ public class UserServiceBean {
         for (Object[] userInfo : userResults) {
             // GET ROLES FOR THIS USER FROM GIANT HASHMAP
             rowNum++;
-            System.out.println("  Jayanthy getAuthenticatedUserList 7 " ) ;
+
             //String roles = getUserRolesAsString((Integer) dbResultRow[0]);
             roleString = "";
             List<String> roleList = roleLookup.get("@" + (String)userInfo[1]);
-
-            System.out.println("  Jayanthy getAuthenticatedUserList 8 " ) ;
             if ((roleList != null)&&(!roleList.isEmpty())){
-                System.out.println("  Jayanthy getAuthenticatedUserList 9 " ) ;
                 roleString = roleList.stream().collect(Collectors.joining(", "));
             }
-            System.out.println("  Jayanthy getAuthenticatedUserList 10 " ) ;
             AuthenticatedUser singleUser = createAuthenticatedUserForView(userInfo, roleString, rowNum);
-            System.out.println("  Jayanthy getAuthenticatedUserList 11 " ) ;
             viewObjects.add(singleUser);
         }
-        System.out.println("  Jayanthy getAuthenticatedUserList 12 " ) ;
+
         return viewObjects;
     }
 
@@ -499,8 +489,6 @@ public class UserServiceBean {
      * @return
      */
     public Long getTotalUserCount() {
-
-        System.out.println("  Jayanthy getTotalUserCount 2 " ) ;
         return getUserCount("");
     }
 
@@ -510,22 +498,16 @@ public class UserServiceBean {
      * @return
      */
     public Long getUserCount(String searchTerm) {
-
-        System.out.println("  Jayanthy getUserCount 3 -"  + searchTerm + "-END") ;
-
         if ((searchTerm==null) || (searchTerm.isEmpty())) {
             searchTerm = "";
         }
         searchTerm = searchTerm.trim();
 
         String sharedSearchClause = "";
-        System.out.println("  Jayanthy getUserCount 4 -"  ) ;
+
         if (!searchTerm.isEmpty()) {
-            System.out.println("  Jayanthy getUserCount 5 -"  ) ;
             sharedSearchClause = " AND " + getSharedSearchClause(searchTerm);
         }
-
-        System.out.println("  Jayanthy getUserCount 6 -"  ) ;
 
         String qstr = "SELECT count(u.id)";
         qstr += " FROM authenticateduser u,";
@@ -537,9 +519,8 @@ public class UserServiceBean {
         qstr += sharedSearchClause;
         qstr += ";";
 
-        System.out.println("  Jayanthy getUserCount 7 -"  ) ;
         Query nativeQuery = em.createNativeQuery(qstr);
-        System.out.println("  Jayanthy getUserCount 8 -"  ) ;
+
         return (Long)nativeQuery.getSingleResult();
     }
 
