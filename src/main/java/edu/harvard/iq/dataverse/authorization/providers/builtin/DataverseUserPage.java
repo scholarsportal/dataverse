@@ -90,7 +90,8 @@ public class DataverseUserPage implements java.io.Serializable {
     private static final Logger logger = Logger.getLogger(DataverseUserPage.class.getCanonicalName());
 
     public enum EditMode {
-        CREATE, EDIT, CHANGE_PASSWORD, FORGOT, SUPPORT
+        CREATE, EDIT, CHANGE_PASSWORD, FORGOT
+        //, SUPPORT
     };
 
     @Inject
@@ -246,7 +247,7 @@ public class DataverseUserPage implements java.io.Serializable {
     }
 
     public void supportMode( ) {
-        editMode = EditMode.SUPPORT;
+       // editMode = EditMode.SUPPORT;
     }
 
     public void validateUserName(FacesContext context, UIComponent toValidate, Object value) {
@@ -850,6 +851,8 @@ public class DataverseUserPage implements java.io.Serializable {
         String affiliation = bundle.getString("affiliation.other");
         affiliationList.remove(affiliation);
         affiliationList.add(affiliationList.size(), affiliation);
+
+        /*
         if (editMode == EditMode.SUPPORT) {
             if (sendFeedbackDialog.isLoggedIn()) {
                 String userEmail = sendFeedbackDialog.loggedInUserEmail();
@@ -863,12 +866,27 @@ public class DataverseUserPage implements java.io.Serializable {
             affiliation = affiliationServiceBean.getLocalizedAffiliation(affiliation);
             sendFeedbackDialog.setMessageAffiliation(affiliation);
         }
+
+        */
         if (editMode == EditMode.EDIT) {
             String language = bundle.getLocale().getLanguage();
             if (StringUtils.isNotBlank(language) && !language.equalsIgnoreCase("en")) {
                 ResourceBundle enBundle = BundleUtil.getResourceBundle("affiliation", new Locale("en"));
                 affiliationServiceBean.convertAffiliation(userDisplayInfo, enBundle, bundle);
             }
+        }
+        else {
+            if (sendFeedbackDialog.isLoggedIn()) {
+                String userEmail = sendFeedbackDialog.loggedInUserEmail();
+                AffiliationGroup group = affiliationGroupServiceBean.find(userEmail);
+                if(group != null) {
+                    affiliation = group.getDisplayName();
+                }
+            } else {
+                affiliation = affiliationServiceBean.getAffiliationFromIPAddress();
+            }
+            affiliation = affiliationServiceBean.getLocalizedAffiliation(affiliation);
+            sendFeedbackDialog.setMessageAffiliation(affiliation);
         }
         return affiliationList;
     }

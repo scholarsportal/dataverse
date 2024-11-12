@@ -108,7 +108,7 @@ public class SendFeedbackDialog implements java.io.Serializable {
         op2 = Long.valueOf(random.nextInt(10));
         userSum = null;
         systemAddress = mailService.getSupportAddress().orElse(null);
-        dataverseUserPage.supportMode() ;
+        //dataverseUserPage.supportMode() ;
     }
 
     public Long getOp1() {
