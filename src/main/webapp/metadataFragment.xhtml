@@ -21,6 +21,10 @@
             <h:outputFormat rendered="#{!(empty mdLang and mdlangCode!='undefined')}" value="#{bundle['dataset.metadatalanguage.view.guidance']}" escape="false">
                 <f:param value="#{mdLang}"/>
             </h:outputFormat>
+
+            <h:outputFormat rendered="#{!(empty mdLang and mdlangCode!='undefined')}" value="#{bundle['dataset.metadatalanguage.view.guidance']}" escape="false">
+                <f:param value="#{mdlangCode}"/>
+            </h:outputFormat>
         </p>
         <ui:repeat value="#{metadataBlocks}"
                    var="metadataBlockVal" varStatus="block">
