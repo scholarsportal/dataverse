@@ -380,7 +380,7 @@
                                                                     <ui:param name="cvoc" value="#{cvocConf.containsKey(subdsf.datasetFieldType.id) ? cvocConf.get(subdsf.datasetFieldType.id) : cvocConf.containsKey(dsf.datasetFieldType.id)? cvocConf.get(dsf.datasetFieldType.id): cvocConf.containsKey(dsfv.datasetField.datasetFieldType.id)? cvocConf.get(dsfv.datasetField.datasetFieldType.id): null}"/>
                                                                 </ui:include>
                                                             </ui:fragment>
-                                                            <!-- MOVED SELECT ONE TO dataFieldForEdit -->
+                                                            <!-- MOVED SELECT ONE TO dataFieldForEdit  jayanthy -->
                                                             <div jsf:rendered="#{subdsf.datasetFieldType.controlledVocabulary}" data-cvoc-managed-field="#{settingsWrapper.isCvocField(subdsf.datasetFieldType.id)? subdsf.datasetFieldType.name : ''}">
                                                                 <p:selectOneMenu id="cvv" value="#{subdsf.singleControlledVocabularyValue}" converter="controlledVocabularyValueConverter" style="width: auto !important; max-width:100%; min-width:200px;"
                                                                                  rendered="#{!subdsf.datasetFieldType.allowMultiples}" filter="#{(subdsf.datasetFieldType.controlledVocabularyValues.size() lt 10) ? 'false':'true'}" filterMatchMode="contains" >

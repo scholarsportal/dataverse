@@ -6200,11 +6200,15 @@ public class DatasetPage implements java.io.Serializable {
     }
 
     public String getLocaleDisplayName(String code) {
+        System.out.println("  Jayanthy = the language code : "+ code) ;
         String displayName = settingsWrapper.getBaseMetadataLanguageMap(false).get(code);
+        System.out.println("  Jayanthy = the displayName code 1 : "+ displayName) ;
         if(displayName==null && !code.equals(DvObjectContainer.UNDEFINED_CODE)) {
             //Default (for cases such as :when a Dataset has a metadatalanguage code but :MetadataLanguages is no longer defined).
+            System.out.println("  Jayanthy = the displayName code 2 : "+ displayName) ;
             displayName = new Locale(code).getDisplayName();
         }
+        System.out.println("  Jayanthy = the displayName code 3 : "+ displayName) ;
         return displayName;
     }
 

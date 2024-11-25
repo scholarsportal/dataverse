@@ -119,7 +119,7 @@ public class ControlledVocabularyValue implements Serializable  {
     }
     
     public String getLocaleStrValue(String language) {
-        
+        System.out.println("  Jayanthy = cvv: the language code 1 : "+ language) ;
         if(language !=null && language.isBlank()) {
             //null picks up current UI lang
             language=null;
@@ -131,6 +131,7 @@ public class ControlledVocabularyValue implements Serializable  {
         if(this.datasetFieldType == null) {
             logger.warning("Null datasetFieldType for value: " + strValue);
         }
+        System.out.println("  Jayanthy = cvv: the language code 2 : "+ language) ;
         return getLocaleStrValue(strValue, this.datasetFieldType.getName(),getDatasetFieldType().getMetadataBlock().getName(),language == null ? null : new Locale(language), true);
     }
     
@@ -143,6 +144,7 @@ public class ControlledVocabularyValue implements Serializable  {
                     metadataBlockName, locale);
             if (!val.isBlank()) {
                 logger.fine("Found : " + val);
+                System.out.println(" Jayanthy = key :" + key + " = value :" + val);
                 return val;
             } else {
                 return sendDefault ? strValue : null;
