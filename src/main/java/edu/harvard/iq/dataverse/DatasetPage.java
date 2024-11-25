@@ -6192,10 +6192,19 @@ public class DatasetPage implements java.io.Serializable {
         return getEffectiveMetadataLanguage(false);
     }
     public String getEffectiveMetadataLanguage(boolean ofParent) {
+        System.out.println("  Jayanthy = getEffectiveMetadataLanguage ofParent : "+ ofParent) ;
+        System.out.println("  Jayanthy = getEffectiveMetadataLanguage dataset.getOwner() : "+ dataset.getOwner()) ;
+        System.out.println("  Jayanthy = getEffectiveMetadataLanguage dataset.getOwner().getEffectiveMetadataLanguage() : "+ dataset.getOwner().getEffectiveMetadataLanguage()) ;
+        System.out.println("  Jayanthy = getEffectiveMetadataLanguagedataset.getEffectiveMetadataLanguage() : "+ dataset.getEffectiveMetadataLanguage()) ;
+        System.out.println("  Jayanthy = getEffectiveMetadataLanguagedataset.getEffectiveMetadataLanguage() : "+ dataset.getEffectiveMetadataLanguage()) ;
+
         String mdLang = ofParent ? dataset.getOwner().getEffectiveMetadataLanguage() : dataset.getEffectiveMetadataLanguage();
+        System.out.println("  Jayanthy = mdLang : "+ mdLang) ;
         if (mdLang.equals(DvObjectContainer.UNDEFINED_CODE)) {
+            System.out.println("  Jayanthy = mdLang inside : "+ settingsWrapper.getDefaultMetadataLanguage()) ;
             mdLang = settingsWrapper.getDefaultMetadataLanguage();
         }
+        System.out.println("  Jayanthy = mdLang END : "+ mdLang) ;
         return mdLang;
     }
 
