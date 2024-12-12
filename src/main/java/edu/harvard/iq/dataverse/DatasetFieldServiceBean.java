@@ -276,7 +276,8 @@ public class DatasetFieldServiceBean implements java.io.Serializable {
      * @return - a map of JsonObjects containing configuration information keyed by the DatasetFieldType id (Long)
      */
     public Map<Long, JsonObject> getCVocConf(boolean byTermUriField){
-        
+
+        System.out.println("Jayanthy DatasetFieldServiceBean getCVocConf"  );
         //ToDo - change to an API call to be able to provide feedback if the json is invalid?
         String cvocSetting = settingsService.getValueForKey(SettingsServiceBean.Key.CVocConf);
         if (cvocSetting == null || cvocSetting.isEmpty()) {
@@ -853,6 +854,9 @@ public class DatasetFieldServiceBean implements java.io.Serializable {
         // If the fields list of supported languages contains the current locale (e.g.
         // the lang of the UI, or the current metadata input/display lang (tbd)), use
         // that. Otherwise, return the first in the list
+
+        System.out.println( " Jayanthy datasetfieldservicebean for language: "+ languages);
+        System.out.println( " Jayanthy datasetfieldservicebean for localeCode: "+ localeCode);
         String[] langStrings = languages.split("\\s*,\\s*");
         if (langStrings.length > 0) {
             if (Arrays.asList(langStrings).contains(localeCode)) {

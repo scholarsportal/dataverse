@@ -6217,6 +6217,7 @@ public class DatasetPage implements java.io.Serializable {
     }
 
     public String getFieldLanguage(String languages) {
+        System.out.println( " Jayanthy Datasetpage output for language: "+ languages);
         return fieldService.getFieldLanguage(languages,session.getLocaleCode());
     }
 

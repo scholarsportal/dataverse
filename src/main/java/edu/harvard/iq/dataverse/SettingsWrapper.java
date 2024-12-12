@@ -793,15 +793,35 @@ public class SettingsWrapper implements java.io.Serializable {
     }
     
     public Map<Long, JsonObject> getCVocConf(boolean byTermField) {
+
+        System.out.println("Jayanthy getCVocConf"  );
         if (byTermField) {
+            System.out.println("Jayanthy getCVocConf 1"  );
             if (cachedCvocByTermFieldMap == null) {
                 cachedCvocByTermFieldMap = fieldService.getCVocConf(true);
             }
+
+            for (Map.Entry<Long, JsonObject> entry : cachedCvocByTermFieldMap.entrySet()) {
+                Long key = entry.getKey();
+                JsonObject value = entry.getValue();
+
+                // Displaying the key-value pair
+                System.out.println("Jayanthy 1 Key: " + key + ", Value: " + value);
+            }
             return cachedCvocByTermFieldMap;
         } else {
+            System.out.println("Jayanthy getCVocConf 2"  );
             // Cache this in the view
             if (cachedCvocMap == null) {
                 cachedCvocMap = fieldService.getCVocConf(false);
+            }
+
+            for (Map.Entry<Long, JsonObject> entry : cachedCvocMap.entrySet()) {
+                Long key = entry.getKey();
+                JsonObject value = entry.getValue();
+
+                // Displaying the key-value pair
+                System.out.println("Jayanthy 2 Key: " + key + ", Value: " + value);
             }
             return cachedCvocMap;
         }

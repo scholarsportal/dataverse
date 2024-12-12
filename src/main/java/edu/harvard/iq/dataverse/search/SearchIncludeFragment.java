@@ -1231,7 +1231,8 @@ public class SearchIncludeFragment implements java.io.Serializable {
     }
     
     public List<String> getFriendlyNamesFromFilterQuery(String filterQuery) {
-        
+
+        System.out.println(" Jayanthy the getFriendlyNamesFromFilterQuery : START " );
         
         if ((filterQuery == null)||
             (datasetfieldFriendlyNamesBySolrField == null)||
@@ -1251,10 +1252,12 @@ public class SearchIncludeFragment implements java.io.Serializable {
 
         String datasetfieldFriendyName = datasetfieldFriendlyNamesBySolrField.get(key);
         if (datasetfieldFriendyName != null) {
+            System.out.println(" Jayanthy the getFriendlyNamesFromFilterQuery : ADD1 " +  datasetfieldFriendyName);
             friendlyNames.add(datasetfieldFriendyName);
         } else {
             String nonDatasetSolrField = staticSolrFieldFriendlyNamesBySolrField.get(key);
             if (nonDatasetSolrField != null) {
+                System.out.println(" Jayanthy the getFriendlyNamesFromFilterQuery : ADD12 " +  nonDatasetSolrField);
                 friendlyNames.add(nonDatasetSolrField);
             } else if (key.equals(SearchFields.PUBLICATION_STATUS)) {
                 /**
@@ -1264,9 +1267,11 @@ public class SearchIncludeFragment implements java.io.Serializable {
                  * solrQueryResponse.getStaticSolrFieldFriendlyNamesBySolrField()
                  * and
                  */
+                System.out.println(" Jayanthy the getFriendlyNamesFromFilterQuery : ADD13 Publication Status");
                 friendlyNames.add("Publication Status");
             } else {
                 // meh. better than nuthin'
+                System.out.println(" Jayanthy the getFriendlyNamesFromFilterQuery : ADD14 " +  key);
                 friendlyNames.add(key);
             }
         }
@@ -1279,28 +1284,35 @@ public class SearchIncludeFragment implements java.io.Serializable {
             Optional<String> friendlyName = getDataverse().getMetadataBlockFacets().stream().filter(block -> block.getMetadataBlock().getName().equals(valueWithoutQuotes)).findFirst().map(block -> block.getMetadataBlock().getLocaleDisplayFacet());
             logger.fine(String.format("action=getFriendlyNamesFromFilterQuery key=%s value=%s friendlyName=%s", key, value, friendlyName));
             if(friendlyName.isPresent()) {
+                System.out.println(" Jayanthy the getFriendlyNamesFromFilterQuery : ADD21 " +  friendlyName.get());
                 friendlyNames.add(friendlyName.get());
                 return friendlyNames;
             }
         } else if (key.equals(SearchFields.DATASET_LICENSE)) {
             try {
+                System.out.println(" Jayanthy the getFriendlyNamesFromFilterQuery : ADD22 " +  valueWithoutQuotes);
                 friendlyNames.add(BundleUtil.getStringFromPropertyFile("license." + valueWithoutQuotes.toLowerCase().replace(" ","_") + ".name", "License"));
             } catch (Exception e) {
                 logger.fine(String.format("action=getFriendlyNamesFromFilterQuery cannot find friendlyName for key=%s value=%s", key, value));
             }
         }
 
+        System.out.println("  Jayanthy the getFriendlyNamesFromFilterQuery : ADD23 " +  valueWithoutQuotes);
         friendlyNames.add(valueWithoutQuotes);
         return friendlyNames;
     }
     
     public Long getFieldTypeId(String friendlyName) {
+
+        System.out.println(" Jayanthy getFieldType friendlyName: " + friendlyName) ;
         List<DatasetFieldType> types = datasetFieldService.findAllFacetableFieldTypes();
         for (DatasetFieldType type : types) {
             if (datasetfieldFriendlyNamesBySolrField.get(type.getSolrField().getNameFacetable()).equals(friendlyName)) {
+                System.out.println(" Jayanthy getFieldType type.getId output: " + type.getId()) ;
                 return type.getId();
             }
         }
+        System.out.println(" Jayanthy getFieldType id output is null "  ) ;
         return null;
     }
 
