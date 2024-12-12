@@ -1306,7 +1306,9 @@ public class SearchIncludeFragment implements java.io.Serializable {
 
         System.out.println(" Jayanthy getFieldType friendlyName: " + friendlyName) ;
         List<DatasetFieldType> types = datasetFieldService.findAllFacetableFieldTypes();
+        System.out.println(" Jayanthy getFieldType types.size() : " + types.size()) ;
         for (DatasetFieldType type : types) {
+            System.out.println(" Jayanthy getFieldType type.getSolrField().getNameFacetable(): " + type.getSolrField().getNameFacetable()) ;
             if (datasetfieldFriendlyNamesBySolrField.get(type.getSolrField().getNameFacetable()).equals(friendlyName)) {
                 System.out.println(" Jayanthy getFieldType type.getId output: " + type.getId()) ;
                 return type.getId();
