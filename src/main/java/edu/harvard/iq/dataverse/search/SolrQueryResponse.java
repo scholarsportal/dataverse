@@ -176,6 +176,10 @@ public class SolrQueryResponse {
     }
 
     public Map<String, String> getDatasetfieldFriendlyNamesBySolrField() {
+
+        for (Map.Entry<String, String> entry : datasetfieldFriendlyNamesBySolrField.entrySet()) {
+            System.out.println("Jayanthy datasetfieldFriendlyNamesBySolrField Key: " + entry.getKey() + ", Value: " + entry.getValue());
+        }
         return datasetfieldFriendlyNamesBySolrField;
     }
 
