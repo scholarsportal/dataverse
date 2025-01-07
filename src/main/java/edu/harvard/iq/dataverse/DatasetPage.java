@@ -3581,7 +3581,7 @@ public class DatasetPage implements java.io.Serializable {
         if (deleteLink(selectedDataverseForLinking)) {
             JsfHelper.addSuccessMessage(BundleUtil.getStringFromBundle("dataset.message.unlinkSuccess", getSuccessMessageArguments()));
         } else {
-            FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_INFO, BundleUtil.getStringFromBundle("dataset.notlinked"), linkingDataverseErrorMessage);
+            FacesMessage message = new FacesMessage(FacesMessage.SEVERITY_INFO, BundleUtil.getStringFromBundle("dataset.notunlinked"), unlinkingDataverseErrorMessage);
             FacesContext.getCurrentInstance().addMessage(null, message);
         }
         alreadyLinkedDataverses = null; //force update to list of linked dataverses
@@ -3589,6 +3589,7 @@ public class DatasetPage implements java.io.Serializable {
 
     private String linkingDataverseErrorMessage = "";
 
+    private String unlinkingDataverseErrorMessage = "";
 
     public String getLinkingDataverseErrorMessage() {
         return linkingDataverseErrorMessage;
@@ -3611,7 +3612,7 @@ public class DatasetPage implements java.io.Serializable {
         } catch (CommandException ex) {
             String msg = "There was a problem linking this dataset to yours: " + ex;
             logger.severe(msg);
-            msg = BundleUtil.getStringFromBundle("dataset.notlinked.msg") + ex;
+            msg = BundleUtil.getStringFromBundle("dataset.notlinked.msg")  ;
             /**
              * @todo how do we get this message to show up in the GUI?
              */
@@ -3630,11 +3631,11 @@ public class DatasetPage implements java.io.Serializable {
         } catch (CommandException ex) {
             String msg = "There was a problem removing the link between this dataset to yours: " + ex;
             logger.severe(msg);
-            msg = BundleUtil.getStringFromBundle("dataset.notlinked.msg") + ex;
+            msg = BundleUtil.getStringFromBundle("dataset.notunlinked.msg")  ;
             /**
              * @todo how do we get this message to show up in the GUI?
              */
-            linkingDataverseErrorMessage = msg;
+            unlinkingDataverseErrorMessage = msg;
             retVal = false;
         }
         return retVal;
