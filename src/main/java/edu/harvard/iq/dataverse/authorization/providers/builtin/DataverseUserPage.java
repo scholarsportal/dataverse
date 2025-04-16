@@ -887,6 +887,11 @@ public class DataverseUserPage implements java.io.Serializable {
             }
             affiliation = affiliationServiceBean.getLocalizedAffiliation(affiliation);
             sendFeedbackDialog.setMessageAffiliation(affiliation);
+            String alias = affiliationServiceBean.getAlias(affiliation);// JC added for testing
+            System.out.println("  Jayanthy , the value of affiliation is : "+ affiliation);
+            System.out.println("  Jayanthy , the value of alias is : "+ alias);
+            Dataverse dv = dataverseService.findByAlias(alias);// JC added for testing
+            sendFeedbackDialog.setToDataverseContactEmail(dv.getContactEmails()); //jc added for testing
         }
         return affiliationList;
     }
