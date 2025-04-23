@@ -205,8 +205,12 @@ public class SendFeedbackDialog implements java.io.Serializable {
             systemEmail = systemAddress.getAddress();
         }
         if (feedbackTarget == null) {
-            this.toDataverseContactEmail = toDataverseContactEmail;
-            System.out.println("  Jayanthy 1, the value of toDataverseContactEmail : "+ toDataverseContactEmail);
+            if(toDataverseContactEmail.length() > 0) {
+                this.toDataverseContactEmail = toDataverseContactEmail;
+            } else {
+                this.toDataverseContactEmail = systemEmail;
+            }
+            System.out.println("  Jayanthy 1, the value of toDataverseContactEmail : "+ this.toDataverseContactEmail);
         } else {
             if (feedbackTarget.isInstanceofDataverse()) {
                 // Dataverse target
