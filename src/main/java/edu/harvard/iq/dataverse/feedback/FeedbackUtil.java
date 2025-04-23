@@ -151,7 +151,7 @@ public class FeedbackUtil {
         return dataverseSession.getUser().getDisplayInfo().getEmailAddress();
     }
 
-    private static List<DvObjectContact> getDataverseContacts(Dataverse dataverse) {
+    public static List<DvObjectContact> getDataverseContacts(Dataverse dataverse) {
         List<DvObjectContact> dataverseContacts = new ArrayList<>();
         for (DataverseContact dc : dataverse.getDataverseContacts()) {
             DvObjectContact dataverseContact = new DvObjectContact("", dc.getContactEmail());
@@ -160,7 +160,7 @@ public class FeedbackUtil {
         return dataverseContacts;
     }
 
-    private static List<DvObjectContact> getDatasetContacts(Dataset dataset) {
+    public static List<DvObjectContact> getDatasetContacts(Dataset dataset) {
         List<DvObjectContact> datasetContacts = new ArrayList<>();
         for (DatasetField dsf : dataset.getLatestVersion().getDatasetFields()) {
             if (dsf.getDatasetFieldType().getName().equals(DatasetFieldConstant.datasetContact)) {

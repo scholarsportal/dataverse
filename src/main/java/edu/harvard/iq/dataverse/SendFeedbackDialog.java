@@ -2,6 +2,7 @@ package edu.harvard.iq.dataverse;
 
 import edu.harvard.iq.dataverse.authorization.providers.builtin.DataverseUserPage;
 import edu.harvard.iq.dataverse.branding.BrandingUtil;
+import edu.harvard.iq.dataverse.feedback.DvObjectContact;
 import edu.harvard.iq.dataverse.feedback.Feedback;
 import edu.harvard.iq.dataverse.feedback.FeedbackUtil;
 import edu.harvard.iq.dataverse.settings.JvmSettings;
@@ -9,8 +10,8 @@ import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.JsfHelper;
 import edu.harvard.iq.dataverse.util.SystemConfig;
-import java.util.Optional;
-import java.util.Random;
+
+import java.util.*;
 import java.util.logging.Logger;
 import jakarta.ejb.EJB;
 import jakarta.faces.application.FacesMessage;
@@ -197,7 +198,61 @@ public class SendFeedbackDialog implements java.io.Serializable {
     }
 
     public void setToDataverseContactEmail(String toDataverseContactEmail) {
-        this.toDataverseContactEmail = toDataverseContactEmail;
+
+        String contactEmails;
+        String systemEmail = null;
+        if (systemAddress != null) {
+            systemEmail = systemAddress.getAddress();
+        }
+        if (feedbackTarget == null) {
+            this.toDataverseContactEmail = toDataverseContactEmail;
+        } else {
+            if (feedbackTarget.isInstanceofDataverse()) {
+                // Dataverse target
+                Dataverse dataverse = (Dataverse) feedbackTarget;
+                 List<DvObjectContact> contacts = FeedbackUtil.getDataverseContacts(dataverse);
+                List<String> contactEmailList = new ArrayList<String>();
+                for (DvObjectContact contact : contacts) {
+                    contactEmailList.add(contact.getEmail());
+                }
+                if (!contactEmailList.isEmpty()) {
+                    contactEmails = String.join(",", contactEmailList);
+                } else {
+                    // No contacts
+                    contactEmails = systemEmail;
+                }
+            } else if (feedbackTarget.isInstanceofDataset()) {
+                // Dataset target
+                Dataset dataset = (Dataset) feedbackTarget;
+                 List<DvObjectContact> contacts = FeedbackUtil.getDatasetContacts(dataset);
+                List<String> contactEmailList = new ArrayList<String>();
+
+                for (DvObjectContact contact : contacts) {
+                    contactEmailList.add(contact.getEmail());
+                }
+                if (!contactEmailList.isEmpty()) {
+                    contactEmails = String.join(",", contactEmailList);
+                } else {
+                    contactEmails = systemEmail;
+                }
+            } else {
+                // DataFile target
+                DataFile datafile = (DataFile) feedbackTarget;
+                List<DvObjectContact> contacts = FeedbackUtil.getDatasetContacts(datafile.getOwner());
+                 List<String> contactEmailList = new ArrayList<String>();
+
+                for (DvObjectContact contact : contacts) {
+                    contactEmailList.add(contact.getEmail());
+                }
+                if (!contactEmailList.isEmpty()) {
+                    contactEmails = String.join(",", contactEmailList);
+                } else {
+                    contactEmails = systemEmail;
+                }
+            }
+            this.toDataverseContactEmail = contactEmails;
+        }
+
     }
 
     public boolean isLoggedIn() {
