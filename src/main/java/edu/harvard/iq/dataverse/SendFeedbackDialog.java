@@ -206,6 +206,7 @@ public class SendFeedbackDialog implements java.io.Serializable {
         }
         if (feedbackTarget == null) {
             this.toDataverseContactEmail = toDataverseContactEmail;
+            System.out.println("  Jayanthy 1, the value of toDataverseContactEmail : "+ toDataverseContactEmail);
         } else {
             if (feedbackTarget.isInstanceofDataverse()) {
                 // Dataverse target
@@ -251,6 +252,8 @@ public class SendFeedbackDialog implements java.io.Serializable {
                 }
             }
             this.toDataverseContactEmail = contactEmails;
+
+            System.out.println("  Jayanthy 2, the value of toDataverseContactEmail : "+ contactEmails);
         }
 
     }

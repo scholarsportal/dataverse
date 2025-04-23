@@ -894,6 +894,9 @@ public class DataverseUserPage implements java.io.Serializable {
                 Dataverse dv = dataverseService.findByAlias(alias);// JC added for testing
                 sendFeedbackDialog.setToDataverseContactEmail(dv.getContactEmails()); //jc added for testing
             }
+            else {
+                sendFeedbackDialog.setToDataverseContactEmail("");
+            }
         }
         return affiliationList;
     }
