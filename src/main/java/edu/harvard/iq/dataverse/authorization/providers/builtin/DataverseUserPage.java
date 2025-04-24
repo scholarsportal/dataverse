@@ -892,7 +892,12 @@ public class DataverseUserPage implements java.io.Serializable {
             System.out.println("  Jayanthy , the value of alias is : "+ alias);
             if (!alias.equals("")) {
                 Dataverse dv = dataverseService.findByAlias(alias);// JC added for testing
-                sendFeedbackDialog.setToDataverseContactEmail(dv.getContactEmails()); //jc added for testing
+                if (dv != null) {
+                    sendFeedbackDialog.setToDataverseContactEmail(dv.getContactEmails()); //jc added for testing
+                }
+                else {
+                    sendFeedbackDialog.setToDataverseContactEmail("");
+                }
             }
             else {
                 sendFeedbackDialog.setToDataverseContactEmail("");
