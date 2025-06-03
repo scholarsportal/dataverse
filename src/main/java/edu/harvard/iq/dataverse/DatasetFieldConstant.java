@@ -6,6 +6,7 @@
 
 package edu.harvard.iq.dataverse;
 
+import edu.harvard.iq.dataverse.api.dto.FieldDTO;
 import jakarta.enterprise.context.Dependent;
 import jakarta.inject.Named;
 
@@ -174,6 +175,34 @@ public class DatasetFieldConstant implements java.io.Serializable  {
     public static final String noteInformationType="noteInformationType";
     public static final String notesInformationSubject="notesInformationSubject";
     public static final String subject="subject";
+
+    public static final String referenceSystemInfo = "referenceSystemInfo";
+    public static final String referenceSystemCode = "referenceSystemCode";
+    public static final String referenceSystemCodeSpace = "referenceSystemCodeSpace";
+
+    public static final String distribution = "distribution";
+    public static final String distributionLinkLabel = "distributionLinkLabel";
+    public static final String distributionLink = "distributionLink";
+    public static final String protocol = "protocol";
+
+    public static final String geoReferenceDate = "geoReferenceDate";
+    public static final String geoReferenceDateValue = "geoReferenceDateValue";
+    public static final String geoReferenceDateType = "geoReferenceDateType";
+
+    public static final String lineageStatement ="lineageStatement";
+    public static final String sourceDescription="sourceDescription";
+    public static final String processStep="processStep";
+
+    public static final String spatialResolution="spatialResolution";
+    public static final String spatialResolutionValue="spatialResolutionValue";
+    public static final String spatialResolutionType = "spatialResolutionType";
+
+    public static final String spatialRepresentationType="spatialRepresentationType";
+
+    public static final String geometricObjectCount  = "geometricObjectCount";
+    public static final String geometricObjectTypeCode = "geometricObjectTypeCode";
+
+    public static final String geoResourceType="geoResourceType";
     /*
      * The following getters are needed so we can use them as properties in JSP 
      */
