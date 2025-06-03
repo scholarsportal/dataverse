@@ -412,43 +412,49 @@ public class IsoExporter implements XMLExporter {
 
     private void writeResourceLineage(XMLStreamWriter xmlw, FieldDTO lineageStatementDTO,
                                       FieldDTO sourceDescriptionDTO, FieldDTO processStepDTO) throws XMLStreamException {
-        xmlw.writeStartElement("mdb:resourceLineage");
-        xmlw.writeStartElement("mrl:LI_Lineage");
-        String lineageStatement = lineageStatementDTO.getTypeName();
-        if (!lineageStatement.isEmpty()) {
-            xmlw.writeStartElement("mrl:statement");
-            xmlw.writeStartElement("gco:CharacterString");
-            xmlw.writeCharacters(lineageStatement);
-            xmlw.writeEndElement(); //gco:CharacterString
-            xmlw.writeEndElement(); //mrl:statement
-        }
+        if (lineageStatementDTO != null || sourceDescriptionDTO != null || processStepDTO != null) {
+            xmlw.writeStartElement("mdb:resourceLineage");
+            xmlw.writeStartElement("mrl:LI_Lineage");
+            if (lineageStatementDTO != null) {
+                String lineageStatement = lineageStatementDTO.getTypeName();
+                if (!lineageStatement.isEmpty()) {
+                    xmlw.writeStartElement("mrl:statement");
+                    xmlw.writeStartElement("gco:CharacterString");
+                    xmlw.writeCharacters(lineageStatement);
+                    xmlw.writeEndElement(); //gco:CharacterString
+                    xmlw.writeEndElement(); //mrl:statement
+                }
+            }
+            if (sourceDescriptionDTO != null) {
+                for (String source : sourceDescriptionDTO.getMultiplePrimitive()) {
+                    xmlw.writeStartElement("mrl:source");
+                    xmlw.writeStartElement("mrl:LI_Source");
+                    xmlw.writeStartElement("mrl:description");
+                    xmlw.writeStartElement("gco:CharacterString");
+                    xmlw.writeCharacters(source);
+                    xmlw.writeEndElement(); //gco:CharacterString
+                    xmlw.writeEndElement(); //mrl:description
+                    xmlw.writeEndElement(); //mrl:LI_Source
+                    xmlw.writeEndElement(); //mrl:source
+                }
+            }
+            if (processStepDTO != null) {
+                for (String process : processStepDTO.getMultiplePrimitive()) {
+                    xmlw.writeStartElement("mrl:processStep");
+                    xmlw.writeStartElement("mrl:LI_ProcessStep");
+                    xmlw.writeStartElement("mrl:description");
+                    xmlw.writeStartElement("gco:CharacterString");
+                    xmlw.writeCharacters(process);
+                    xmlw.writeEndElement(); //gco:CharacterString
+                    xmlw.writeEndElement(); //mrl:description
+                    xmlw.writeEndElement(); //mrl:LI_ProcessStep
+                    xmlw.writeEndElement(); //mrl:processStep
 
-        for (String source :sourceDescriptionDTO.getMultiplePrimitive()) {
-            xmlw.writeStartElement("mrl:source");
-            xmlw.writeStartElement("mrl:LI_Source");
-            xmlw.writeStartElement("mrl:description");
-            xmlw.writeStartElement("gco:CharacterString");
-            xmlw.writeCharacters(source);
-            xmlw.writeEndElement(); //gco:CharacterString
-            xmlw.writeEndElement(); //mrl:description
-            xmlw.writeEndElement(); //mrl:LI_Source
-            xmlw.writeEndElement(); //mrl:source
+                }
+            }
+            xmlw.writeEndElement(); //mdb:resourceLineage
+            xmlw.writeEndElement(); //mrl:LI_Lineage
         }
-
-        for (String process :processStepDTO.getMultiplePrimitive()) {
-            xmlw.writeStartElement("mrl:processStep");
-            xmlw.writeStartElement("mrl:LI_ProcessStep");
-            xmlw.writeStartElement("mrl:description");
-            xmlw.writeStartElement("gco:CharacterString");
-            xmlw.writeCharacters(process);
-            xmlw.writeEndElement(); //gco:CharacterString
-            xmlw.writeEndElement(); //mrl:description
-            xmlw.writeEndElement(); //mrl:LI_ProcessStep
-            xmlw.writeEndElement(); //mrl:processStep
-
-        }
-        xmlw.writeEndElement(); //mdb:resourceLineage
-        xmlw.writeEndElement(); //mrl:LI_Lineage
     }
     private void writeDatasetPersistentId(XMLStreamWriter xmlw, String persistentId, String authority, String protocol) throws XMLStreamException {
         xmlw.writeStartElement("mdb:metadataIdentifier");
@@ -517,33 +523,33 @@ public class IsoExporter implements XMLExporter {
     private void writeAlternativeMetadataReference(XMLStreamWriter xmlw, FieldDTO otherIdDTO) throws XMLStreamException {
         String otherId = "";
         String otherIdAgency = "";
-
-        for (HashSet<FieldDTO> foo : otherIdDTO.getMultipleCompound()) {
-            for (Iterator<FieldDTO> iterator = foo.iterator(); iterator.hasNext();) {
-                FieldDTO next = iterator.next();
-                if (DatasetFieldConstant.otherIdValue.equals(next.getTypeName())) {
-                    otherId =  next.getSinglePrimitive();
+        if (otherIdDTO != null) {
+            for (HashSet<FieldDTO> foo : otherIdDTO.getMultipleCompound()) {
+                for (Iterator<FieldDTO> iterator = foo.iterator(); iterator.hasNext(); ) {
+                    FieldDTO next = iterator.next();
+                    if (DatasetFieldConstant.otherIdValue.equals(next.getTypeName())) {
+                        otherId = next.getSinglePrimitive();
+                    }
+                    if (DatasetFieldConstant.otherIdAgency.equals(next.getTypeName())) {
+                        otherIdAgency = next.getSinglePrimitive();
+                    }
                 }
-                if (DatasetFieldConstant.otherIdAgency.equals(next.getTypeName())) {
-                    otherIdAgency =  next.getSinglePrimitive();
-                }
-            }
-            if (!otherId.isEmpty()){
-                xmlw.writeStartElement("mdb:alternativeMetadataReference");
-                xmlw.writeStartElement("cit:CI_Citation");
-                xmlw.writeStartElement("cit:title");
-                xmlw.writeAttribute("xsi:type", "lan:PT_FreeText_PropertyType");
-                xmlw.writeStartElement("gco:CharacterString");
-                xmlw.writeCharacters(otherIdAgency);
-                xmlw.writeEndElement(); //gco:CharacterString
-                xmlw.writeEndElement(); //cit:title
-                xmlw.writeStartElement("cit:identifier");
-                xmlw.writeStartElement("mcc:Identifier");
-                xmlw.writeStartElement("mcc:code");
-                xmlw.writeStartElement("gco:CharacterString");
-                xmlw.writeCharacters(otherId);
-                xmlw.writeEndElement(); //gco:CharacterString
-                xmlw.writeEndElement(); //mcc:code
+                if (!otherId.isEmpty()) {
+                    xmlw.writeStartElement("mdb:alternativeMetadataReference");
+                    xmlw.writeStartElement("cit:CI_Citation");
+                    xmlw.writeStartElement("cit:title");
+                    xmlw.writeAttribute("xsi:type", "lan:PT_FreeText_PropertyType");
+                    xmlw.writeStartElement("gco:CharacterString");
+                    xmlw.writeCharacters(otherIdAgency);
+                    xmlw.writeEndElement(); //gco:CharacterString
+                    xmlw.writeEndElement(); //cit:title
+                    xmlw.writeStartElement("cit:identifier");
+                    xmlw.writeStartElement("mcc:Identifier");
+                    xmlw.writeStartElement("mcc:code");
+                    xmlw.writeStartElement("gco:CharacterString");
+                    xmlw.writeCharacters(otherId);
+                    xmlw.writeEndElement(); //gco:CharacterString
+                    xmlw.writeEndElement(); //mcc:code
 //                xmlw.writeStartElement("mcc:codeSpace");
 //                xmlw.writeStartElement("gco:CharacterString");
 //                xmlw.writeCharacters(otherIdAgency);
@@ -554,17 +560,18 @@ public class IsoExporter implements XMLExporter {
 //                xmlw.writeCharacters(otherIdAgency);
 //                xmlw.writeEndElement(); //gco:CharacterString
 //                xmlw.writeEndElement(); //mcc:description
-                xmlw.writeEndElement(); //mcc:MD_Identifier
-                xmlw.writeEndElement(); //cit:identifier
-                xmlw.writeStartElement("cit:presentationForm");
-                xmlw.writeStartElement("cit:CI_PresentationFormCode");
-                xmlw.writeAttribute("codeList", "http://standards.iso.org/iso/19115/resources/Codelist/cat/codeLists.xml#CI_PresentationFormCode");
-                xmlw.writeAttribute("codeListValue", "documentDigital");
-                xmlw.writeCharacters("documentDigital");
-                xmlw.writeEndElement(); //cit:CI_PresentationFormCode
-                xmlw.writeEndElement(); //cit:presentationForm
-                xmlw.writeEndElement(); //cit:CI_Citation
-                xmlw.writeEndElement(); //mdb:alternativeMetadataReference
+                    xmlw.writeEndElement(); //mcc:MD_Identifier
+                    xmlw.writeEndElement(); //cit:identifier
+                    xmlw.writeStartElement("cit:presentationForm");
+                    xmlw.writeStartElement("cit:CI_PresentationFormCode");
+                    xmlw.writeAttribute("codeList", "http://standards.iso.org/iso/19115/resources/Codelist/cat/codeLists.xml#CI_PresentationFormCode");
+                    xmlw.writeAttribute("codeListValue", "documentDigital");
+                    xmlw.writeCharacters("documentDigital");
+                    xmlw.writeEndElement(); //cit:CI_PresentationFormCode
+                    xmlw.writeEndElement(); //cit:presentationForm
+                    xmlw.writeEndElement(); //cit:CI_Citation
+                    xmlw.writeEndElement(); //mdb:alternativeMetadataReference
+                }
             }
         }
     }
@@ -572,15 +579,16 @@ public class IsoExporter implements XMLExporter {
 
         logger.info("writeDefaultLocale");
         String language = "eng";
-        for (String lang : langDTO.getMultipleVocab()) {
+        if (langDTO != null) {
+            for (String lang : langDTO.getMultipleVocab()) {
 
-            if (lang.equals("English")) {
-                language = "eng";
-                break;
-            }
-            else if (lang.equals("French")) {
-                language = "fr";
-                break;
+                if (lang.equals("English")) {
+                    language = "eng";
+                    break;
+                } else if (lang.equals("French")) {
+                    language = "fr";
+                    break;
+                }
             }
         }
 //            if (!language.isEmpty() ) {
@@ -634,30 +642,32 @@ public class IsoExporter implements XMLExporter {
     }
 
     private void writeAbstractAndPurpose(XMLStreamWriter xmlw, FieldDTO descriptionDTO) throws XMLStreamException {
-        for (HashSet<FieldDTO> foo : descriptionDTO.getMultipleCompound()) {
-            String description = "";
-            String date = "";
-            for (Iterator<FieldDTO> iterator = foo.iterator(); iterator.hasNext(); ) {
-                FieldDTO next = iterator.next();
-                if (DatasetFieldConstant.descriptionText.equals(next.getTypeName())) {
-                    description = next.getSinglePrimitive();
+        if (descriptionDTO != null) {
+            for (HashSet<FieldDTO> foo : descriptionDTO.getMultipleCompound()) {
+                String description = "";
+                String date = "";
+                for (Iterator<FieldDTO> iterator = foo.iterator(); iterator.hasNext(); ) {
+                    FieldDTO next = iterator.next();
+                    if (DatasetFieldConstant.descriptionText.equals(next.getTypeName())) {
+                        description = next.getSinglePrimitive();
+                    }
+                    if (DatasetFieldConstant.descriptionDate.equals(next.getTypeName())) {
+                        date = next.getSinglePrimitive();
+                    }
                 }
-                if (DatasetFieldConstant.descriptionDate.equals(next.getTypeName())) {
-                    date = next.getSinglePrimitive();
-                }
+                xmlw.writeStartElement("mri:abstract");
+                xmlw.writeStartElement("gco:CharacterString");
+                xmlw.writeCharacters(description);
+                xmlw.writeEndElement(); //gco:CharacterString
+                xmlw.writeEndElement(); //field
+                xmlw.writeStartElement("mri:purpose"); //mri:abstract
+                xmlw.writeStartElement("gco:CharacterString");
+                xmlw.writeCharacters(description);
+                xmlw.writeEndElement(); //gco:CharacterString
+                xmlw.writeEndElement(); //mri:purpose
+                //mri:abstract/gco:CharacterString
+                //mri:purpose/gco:CharacterString
             }
-            xmlw.writeStartElement("mri:abstract");
-            xmlw.writeStartElement("gco:CharacterString");
-            xmlw.writeCharacters(description);
-            xmlw.writeEndElement(); //gco:CharacterString
-            xmlw.writeEndElement(); //field
-            xmlw.writeStartElement("mri:purpose"); //mri:abstract
-            xmlw.writeStartElement("gco:CharacterString");
-            xmlw.writeCharacters(description);
-            xmlw.writeEndElement(); //gco:CharacterString
-            xmlw.writeEndElement(); //mri:purpose
-            //mri:abstract/gco:CharacterString
-            //mri:purpose/gco:CharacterString
         }
     }
 
@@ -755,86 +765,92 @@ public class IsoExporter implements XMLExporter {
     }
 
     private void writeSpatialRepresentationType(XMLStreamWriter xmlw, FieldDTO spatialRepresentationTypeDTO ) throws XMLStreamException {
-        String spatialRepresentationType = spatialRepresentationTypeDTO.getSinglePrimitive();
-        if (!spatialRepresentationType.isEmpty()) {
-            xmlw.writeStartElement("mri:spatialRepresentationType");
-            xmlw.writeStartElement("mri:spatialRepresentationTypeCode");
-            xmlw.writeAttribute("codeSpace", "ISOTC211/19115");
-            xmlw.writeAttribute("codeList", "mcc:MD_SpatialRepresentationTypeCode");
-            xmlw.writeAttribute("codeListValue", spatialRepresentationType);
-            xmlw.writeCharacters(spatialRepresentationType);
-            xmlw.writeEndElement(); //mri:spatialRepresentationTypeCode
-            xmlw.writeEndElement(); //mri:spatialRepresentationType
+        if (spatialRepresentationTypeDTO != null) {
+            String spatialRepresentationType = spatialRepresentationTypeDTO.getSinglePrimitive();
+            if (!spatialRepresentationType.isEmpty()) {
+                xmlw.writeStartElement("mri:spatialRepresentationType");
+                xmlw.writeStartElement("mri:spatialRepresentationTypeCode");
+                xmlw.writeAttribute("codeSpace", "ISOTC211/19115");
+                xmlw.writeAttribute("codeList", "mcc:MD_SpatialRepresentationTypeCode");
+                xmlw.writeAttribute("codeListValue", spatialRepresentationType);
+                xmlw.writeCharacters(spatialRepresentationType);
+                xmlw.writeEndElement(); //mri:spatialRepresentationTypeCode
+                xmlw.writeEndElement(); //mri:spatialRepresentationType
+            }
         }
     }
 
     private void writeSpatialResolution(XMLStreamWriter xmlw, FieldDTO spatialResolutionDTO) throws XMLStreamException {
-        for (HashSet<FieldDTO> foo : spatialResolutionDTO.getMultipleCompound()) {
-            String spatialResolutionValue = "";
-            String spatialResolutionType = "";
-            for (Iterator<FieldDTO> iterator = foo.iterator(); iterator.hasNext();) {
-                FieldDTO next = iterator.next();
-                if (DatasetFieldConstant.spatialResolutionValue.equals(next.getTypeName())) {
-                    spatialResolutionValue = next.getSinglePrimitive();
+        if (spatialResolutionDTO != null) {
+            for (HashSet<FieldDTO> foo : spatialResolutionDTO.getMultipleCompound()) {
+                String spatialResolutionValue = "";
+                String spatialResolutionType = "";
+                for (Iterator<FieldDTO> iterator = foo.iterator(); iterator.hasNext(); ) {
+                    FieldDTO next = iterator.next();
+                    if (DatasetFieldConstant.spatialResolutionValue.equals(next.getTypeName())) {
+                        spatialResolutionValue = next.getSinglePrimitive();
+                    }
+                    if (DatasetFieldConstant.spatialResolutionType.equals(next.getTypeName())) {
+                        spatialResolutionType = next.getSinglePrimitive();
+                    }
                 }
-                if (DatasetFieldConstant.spatialResolutionType.equals(next.getTypeName())) {
-                    spatialResolutionType = next.getSinglePrimitive();
-                }
-            }
-            if (!spatialResolutionValue.isEmpty()) {
-                xmlw.writeStartElement("mri:spatialResolution");
-                xmlw.writeStartElement("mri:MD_Resolution");
-                if (spatialResolutionType.equals("equivalentScale")) {
-                    xmlw.writeStartElement("mri:equivalentScale");
-                    xmlw.writeStartElement("mri:MD_RepresentativeFraction");
-                    xmlw.writeStartElement("mri:denominator");
-                    xmlw.writeStartElement("gco:Integer");
-                    xmlw.writeCharacters(spatialResolutionValue);
-                    xmlw.writeEndElement(); //gco:Integer
-                    xmlw.writeEndElement(); //mri:denominator
-                    xmlw.writeEndElement(); //mri:MD_RepresentativeFraction
-                    xmlw.writeEndElement(); //mri:equivalentScale
+                if (!spatialResolutionValue.isEmpty()) {
+                    xmlw.writeStartElement("mri:spatialResolution");
+                    xmlw.writeStartElement("mri:MD_Resolution");
+                    if (spatialResolutionType.equals("equivalentScale")) {
+                        xmlw.writeStartElement("mri:equivalentScale");
+                        xmlw.writeStartElement("mri:MD_RepresentativeFraction");
+                        xmlw.writeStartElement("mri:denominator");
+                        xmlw.writeStartElement("gco:Integer");
+                        xmlw.writeCharacters(spatialResolutionValue);
+                        xmlw.writeEndElement(); //gco:Integer
+                        xmlw.writeEndElement(); //mri:denominator
+                        xmlw.writeEndElement(); //mri:MD_RepresentativeFraction
+                        xmlw.writeEndElement(); //mri:equivalentScale
 
+                    }
+                    xmlw.writeEndElement(); //mri:MD_Resolution
+                    xmlw.writeEndElement(); //mri:spatialResolution
                 }
-                xmlw.writeEndElement(); //mri:MD_Resolution
-                xmlw.writeEndElement(); //mri:spatialResolution
-            }
 
+            }
         }
     }
 
     private void writeSoftware(XMLStreamWriter xmlw, FieldDTO softwareDTO) throws XMLStreamException {
         int i = 0;
         String software = "";
-        for (HashSet<FieldDTO> foo : softwareDTO.getMultipleCompound()) {
-            String softwareName = "";
-            String softwareVersion = "";
+        if (softwareDTO != null) {
+            for (HashSet<FieldDTO> foo : softwareDTO.getMultipleCompound()) {
+                String softwareName = "";
+                String softwareVersion = "";
 
-            for (Iterator<FieldDTO> iterator = foo.iterator(); iterator.hasNext();) {
-                FieldDTO next = iterator.next();
-                if (DatasetFieldConstant.softwareName.equals(next.getTypeName())) {
-                    softwareName = next.getSinglePrimitive();
-                    logger.info(softwareName);
+                for (Iterator<FieldDTO> iterator = foo.iterator(); iterator.hasNext(); ) {
+                    FieldDTO next = iterator.next();
+                    if (DatasetFieldConstant.softwareName.equals(next.getTypeName())) {
+                        softwareName = next.getSinglePrimitive();
+                        logger.info(softwareName);
+                    }
+                    if (DatasetFieldConstant.softwareVersion.equals(next.getTypeName())) {
+                        softwareVersion = next.getSinglePrimitive();
+                        logger.info(softwareVersion);
+                    }
                 }
-                if (DatasetFieldConstant.softwareVersion.equals(next.getTypeName())) {
-                    softwareVersion = next.getSinglePrimitive();
-                    logger.info(softwareVersion);
+                String software1 = softwareName + " Version: " + softwareVersion;
+                if (i > 0) {
+                    software = software + ";" + software1;
+                } else {
+                    software = software1;
                 }
+                i++;
             }
-            String software1 = softwareName + " Version: "  + softwareVersion;
-            if (i >0) {
-                software = software + ";" + software1;
-            } else {
-                software = software1;
+            if (!software.isEmpty()) {
+                xmlw.writeStartElement("mri:environmentDescription"); //not repeatable
+                xmlw.writeStartElement("gco:CharacterString");
+                xmlw.writeCharacters(software);
+                xmlw.writeEndElement(); //gco:CharacterString
+                xmlw.writeEndElement(); //mri:environmentDescription
             }
-            i++;
-        }
-        if (!software.isEmpty()) {
-            xmlw.writeStartElement("mri:environmentDescription"); //not repeatable
-            xmlw.writeStartElement("gco:CharacterString");
-            xmlw.writeCharacters(software);
-            xmlw.writeEndElement(); //gco:CharacterString
-            xmlw.writeEndElement(); //mri:environmentDescription
         }
     }
 
@@ -853,34 +869,36 @@ public class IsoExporter implements XMLExporter {
 
 
         boolean isCVV = false;
-        for (HashSet<FieldDTO> foo : topicClassDTO.getMultipleCompound()) {
+        if (topicClassDTO != null) {
+            for (HashSet<FieldDTO> foo : topicClassDTO.getMultipleCompound()) {
 
-            String topicClassificationValue = "";
-            String topicClassificationVocab = "";
-            String topicClassificationURI = "";
-            for (Iterator<FieldDTO> iterator = foo.iterator(); iterator.hasNext();) {
-                FieldDTO next = iterator.next();
-                if (DatasetFieldConstant.topicClassValue.equals(next.getTypeName())) {
-                    // Currently getSingleVocab() is the same as getSinglePrimitive() so this works
-                    // for either case
-                    topicClassificationValue = next.getSinglePrimitive();
-                    if (next.isControlledVocabularyField()) {
-                        isCVV = true;
+                String topicClassificationValue = "";
+                String topicClassificationVocab = "";
+                String topicClassificationURI = "";
+                for (Iterator<FieldDTO> iterator = foo.iterator(); iterator.hasNext(); ) {
+                    FieldDTO next = iterator.next();
+                    if (DatasetFieldConstant.topicClassValue.equals(next.getTypeName())) {
+                        // Currently getSingleVocab() is the same as getSinglePrimitive() so this works
+                        // for either case
+                        topicClassificationValue = next.getSinglePrimitive();
+                        if (next.isControlledVocabularyField()) {
+                            isCVV = true;
+                        }
+                    }
+                    if (DatasetFieldConstant.topicClassVocab.equals(next.getTypeName())) {
+                        topicClassificationVocab = next.getSinglePrimitive();
+                    }
+                    if (DatasetFieldConstant.topicClassVocabURI.equals(next.getTypeName())) {
+                        topicClassificationURI = next.getSinglePrimitive();
                     }
                 }
-                if (DatasetFieldConstant.topicClassVocab.equals(next.getTypeName())) {
-                    topicClassificationVocab = next.getSinglePrimitive();
+                if (!topicClassificationValue.isEmpty()) {
+                    xmlw.writeStartElement("mri:topicCategory");
+                    xmlw.writeStartElement("mri:MD_TopicCategoryCode");
+                    xmlw.writeCharacters(topicClassificationValue);
+                    xmlw.writeEndElement(); //mri:MD_TopicCategoryCode
+                    xmlw.writeEndElement(); //mri:topicCategory
                 }
-                if (DatasetFieldConstant.topicClassVocabURI.equals(next.getTypeName())) {
-                    topicClassificationURI = next.getSinglePrimitive();
-                }
-            }
-            if (!topicClassificationValue.isEmpty()) {
-                xmlw.writeStartElement("mri:topicCategory");
-                xmlw.writeStartElement("mri:MD_TopicCategoryCode");
-                xmlw.writeCharacters(topicClassificationValue);
-                xmlw.writeEndElement(); //mri:MD_TopicCategoryCode
-                xmlw.writeEndElement(); //mri:topicCategory
             }
         }
     }
@@ -908,12 +926,18 @@ public class IsoExporter implements XMLExporter {
 
             }
         }
-        String distributionDate = distributionDateDTO.getSinglePrimitive();
-        if (!distributionDate.isEmpty()) {
-            distributionDate(xmlw, distributionDate);
+        if (distributionDateDTO != null) {
+            String distributionDate = distributionDateDTO.getSinglePrimitive();
+            if (!distributionDate.isEmpty()) {
+                distributionDate(xmlw, distributionDate);
+            }
         }
-        geoReferenceDate(xmlw, geoReferenceDateDTO);
-        writeSeries(xmlw, seriesDTO);
+        if (geoReferenceDateDTO != null) {
+            geoReferenceDate(xmlw, geoReferenceDateDTO);
+        }
+        if (seriesDTO != null) {
+            writeSeries(xmlw, seriesDTO);
+        }
         xmlw.writeEndElement(); //cit:CI_Citation
         xmlw.writeEndElement(); //mri:citation
     }
@@ -1001,12 +1025,14 @@ public class IsoExporter implements XMLExporter {
     }
 
     private void alternativeTitle(XMLStreamWriter xmlw, FieldDTO alternativeTitleDTO) throws XMLStreamException {
-        for (String altTitle : alternativeTitleDTO.getMultiplePrimitive()) {
-            xmlw.writeStartElement("cit:alternateTitle");
-            xmlw.writeStartElement("gco:CharacterString");
-            xmlw.writeCharacters(altTitle);
-            xmlw.writeEndElement(); //gco:CharacterString
-            xmlw.writeEndElement(); //cit:alternateTitle
+        if (alternativeTitleDTO != null) {
+            for (String altTitle : alternativeTitleDTO.getMultiplePrimitive()) {
+                xmlw.writeStartElement("cit:alternateTitle");
+                xmlw.writeStartElement("gco:CharacterString");
+                xmlw.writeCharacters(altTitle);
+                xmlw.writeEndElement(); //gco:CharacterString
+                xmlw.writeEndElement(); //cit:alternateTitle
+            }
         }
     }
 
@@ -1157,76 +1183,80 @@ public class IsoExporter implements XMLExporter {
     }
 
     private void writeReferenceSystemInfo(XMLStreamWriter xmlw, FieldDTO referenceSystemInfoDTO) throws XMLStreamException {
-        logger.info("writeReferenceSystemInfo");
-        logger.info(Long.toString(referenceSystemInfoDTO.getMultipleCompound().size()));
-        for (HashSet<FieldDTO> foo : referenceSystemInfoDTO.getMultipleCompound()) {
+        //logger.info("writeReferenceSystemInfo");
+        //logger.info(Long.toString(referenceSystemInfoDTO.getMultipleCompound().size()));
+        if (referenceSystemInfoDTO != null) {
+            for (HashSet<FieldDTO> foo : referenceSystemInfoDTO.getMultipleCompound()) {
 
-            String referenceSystemCode = "";
-            String referenceSystemCodeSpace = "";
-            for (Iterator<FieldDTO> iterator = foo.iterator(); iterator.hasNext(); ) {
-                FieldDTO next = iterator.next();
-                if (DatasetFieldConstant.referenceSystemCode.equals(next.getTypeName())) {
-                    referenceSystemCode = next.getSinglePrimitive();
+                String referenceSystemCode = "";
+                String referenceSystemCodeSpace = "";
+                for (Iterator<FieldDTO> iterator = foo.iterator(); iterator.hasNext(); ) {
+                    FieldDTO next = iterator.next();
+                    if (DatasetFieldConstant.referenceSystemCode.equals(next.getTypeName())) {
+                        referenceSystemCode = next.getSinglePrimitive();
+                    }
+                    if (DatasetFieldConstant.referenceSystemCodeSpace.equals(next.getTypeName())) {
+                        referenceSystemCodeSpace = next.getSinglePrimitive();
+                    }
                 }
-                if (DatasetFieldConstant.referenceSystemCodeSpace.equals(next.getTypeName())) {
-                    referenceSystemCodeSpace = next.getSinglePrimitive();
-                }
+
+                xmlw.writeStartElement("mdb:referenceSystemInfo");
+                xmlw.writeStartElement("mrs:MD_ReferenceSystem");
+                xmlw.writeStartElement("mrs:referenceSystemIdentifier");
+                xmlw.writeStartElement("mcc:MD_Identifier");
+                xmlw.writeStartElement("mcc:code");
+                xmlw.writeStartElement("gco:CharacterString");
+                xmlw.writeCharacters(referenceSystemCode);
+                xmlw.writeEndElement(); //gco:CharacterString
+                xmlw.writeEndElement(); //mcc:code
+                xmlw.writeStartElement("mcc:codeSpace");
+                xmlw.writeStartElement("gco:CharacterString");
+                xmlw.writeCharacters(referenceSystemCodeSpace);
+                xmlw.writeEndElement(); //gco:CharacterString
+                xmlw.writeEndElement(); //mcc:codeSpace
+                xmlw.writeEndElement(); // mcc:MD_Identifier
+                xmlw.writeEndElement(); //mrs:referenceSystemIdentifier
+                xmlw.writeEndElement(); //mrs:MD_ReferenceSystem
+                xmlw.writeEndElement(); //mdb:referenceSystemInfo
             }
-
-            xmlw.writeStartElement("mdb:referenceSystemInfo");
-            xmlw.writeStartElement("mrs:MD_ReferenceSystem");
-            xmlw.writeStartElement("mrs:referenceSystemIdentifier");
-            xmlw.writeStartElement("mcc:MD_Identifier");
-            xmlw.writeStartElement("mcc:code");
-            xmlw.writeStartElement("gco:CharacterString");
-            xmlw.writeCharacters(referenceSystemCode);
-            xmlw.writeEndElement(); //gco:CharacterString
-            xmlw.writeEndElement(); //mcc:code
-            xmlw.writeStartElement("mcc:codeSpace");
-            xmlw.writeStartElement("gco:CharacterString");
-            xmlw.writeCharacters(referenceSystemCodeSpace);
-            xmlw.writeEndElement(); //gco:CharacterString
-            xmlw.writeEndElement(); //mcc:codeSpace
-            xmlw.writeEndElement(); // mcc:MD_Identifier
-            xmlw.writeEndElement(); //mrs:referenceSystemIdentifier
-            xmlw.writeEndElement(); //mrs:MD_ReferenceSystem
-            xmlw.writeEndElement(); //mdb:referenceSystemInfo
         }
     }
 
     private void writeDistributionInfo(XMLStreamWriter xmlw, FieldDTO distributionDTO) throws XMLStreamException {
-        ArrayList<HashSet<FieldDTO>> distibution = distributionDTO.getMultipleCompound();
-        if (distibution.size() > 0) {
-            xmlw.writeStartElement("mdb:distributionInfo");
-            xmlw.writeStartElement("mrd:MD_Distribution");
-            xmlw.writeStartElement("mrd:transferOptions");
-            xmlw.writeStartElement("mrd:MD_DigitalTransferOptions");
-            for (HashSet<FieldDTO> foo : distibution) {
+        if (distributionDTO != null) {
+            ArrayList<HashSet<FieldDTO>> distibution = distributionDTO.getMultipleCompound();
+            if (distibution.size() > 0) {
+                xmlw.writeStartElement("mdb:distributionInfo");
+                xmlw.writeStartElement("mrd:MD_Distribution");
+                xmlw.writeStartElement("mrd:transferOptions");
+                xmlw.writeStartElement("mrd:MD_DigitalTransferOptions");
+                for (HashSet<FieldDTO> foo : distibution) {
 
-                String distributionLinkLabel = "";
-                String distributionLink = "";
-                String protocol = "";
-                for (Iterator<FieldDTO> iterator = foo.iterator(); iterator.hasNext(); ) {
-                    FieldDTO next = iterator.next();
-                    if (DatasetFieldConstant.distributionLinkLabel.equals(next.getTypeName())) {
-                        distributionLinkLabel = next.getSinglePrimitive();
+                    String distributionLinkLabel = "";
+                    String distributionLink = "";
+                    String protocol = "";
+                    for (Iterator<FieldDTO> iterator = foo.iterator(); iterator.hasNext(); ) {
+                        FieldDTO next = iterator.next();
+                        if (DatasetFieldConstant.distributionLinkLabel.equals(next.getTypeName())) {
+                            distributionLinkLabel = next.getSinglePrimitive();
+                        }
+                        if (DatasetFieldConstant.distributionLink.equals(next.getTypeName())) {
+                            distributionLink = next.getSinglePrimitive();
+                        }
+                        if (DatasetFieldConstant.protocol.equals(next.getTypeName())) {
+                            protocol = next.getSinglePrimitive();
+                        }
                     }
-                    if (DatasetFieldConstant.distributionLink.equals(next.getTypeName())) {
-                        distributionLink = next.getSinglePrimitive();
-                    }
-                    if (DatasetFieldConstant.protocol.equals(next.getTypeName())) {
-                        protocol = next.getSinglePrimitive();
-                    }
+
+                    onLine(xmlw, distributionLinkLabel, distributionLink, protocol);
+
                 }
-
-                onLine(xmlw, distributionLinkLabel, distributionLink, protocol);
+                xmlw.writeEndElement(); //mrd:MD_DigitalTransferOptions
+                xmlw.writeEndElement(); //mrd:transferOptions
+                xmlw.writeEndElement(); //mrd:MD_Distribution
+                xmlw.writeEndElement(); //mdb:distributionInfo
 
             }
-            xmlw.writeEndElement(); //mrd:MD_DigitalTransferOptions
-            xmlw.writeEndElement(); //mrd:transferOptions
-            xmlw.writeEndElement(); //mrd:MD_Distribution
-            xmlw.writeEndElement(); //mdb:distributionInfo
-
         }
     }
 
