@@ -279,8 +279,14 @@ public class IsoExporter implements XMLExporter {
     }
 
     private void writeSpatialRepresentationInfo(XMLStreamWriter xmlw, FieldDTO geometricObjectCountDTO, FieldDTO geometricObjectTypeCodeDTO) throws XMLStreamException {
-        String geometricObjectCount = geometricObjectCountDTO.getSinglePrimitive();
-        String geometricObjectTypeCode = geometricObjectTypeCodeDTO.getSinglePrimitive();
+        String geometricObjectCount = "";
+        if (geometricObjectCountDTO != null) {
+            geometricObjectCount = geometricObjectCountDTO.getSinglePrimitive();
+        }
+        String geometricObjectTypeCode = "";
+        if (geometricObjectTypeCodeDTO !=null) {
+            geometricObjectTypeCode = geometricObjectTypeCodeDTO.getSinglePrimitive();
+        }
 
         if (!geometricObjectCount.isEmpty() || !geometricObjectTypeCode.isEmpty()) {
             xmlw.writeStartElement("mdb:SpatialRepresentationInfo");
