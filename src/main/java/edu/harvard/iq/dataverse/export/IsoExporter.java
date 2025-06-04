@@ -192,6 +192,10 @@ public class IsoExporter implements XMLExporter {
                         if (DatasetFieldConstant.geometricObjectCount.equals(fieldDTO.getTypeName())) {
                             geometricObjectCountDTO = fieldDTO;
                         }
+
+                        if (DatasetFieldConstant.geometricObjectTypeCode.equals(fieldDTO.getTypeName())) {
+                            geometricObjectTypeCodeDTO = fieldDTO;
+                        }
                         if (DatasetFieldConstant.geoResourceType.equals(fieldDTO.getTypeName())) {
                             geoResourceTypeDTO = fieldDTO;
                         }
