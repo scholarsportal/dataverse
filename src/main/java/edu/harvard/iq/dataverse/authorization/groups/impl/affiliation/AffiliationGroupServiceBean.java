@@ -63,6 +63,10 @@ public class AffiliationGroupServiceBean {
             topLevelDomain = domain;
         }
 
+        if(domain.equalsIgnoreCase("sri.utoronto.ca"))
+        {
+            topLevelDomain = "sunnybrook.ca";
+        }
         AffiliationGroup group = matchByTopLevelEmailDomain(topLevelDomain,domain);
 
         if (group != null) {
