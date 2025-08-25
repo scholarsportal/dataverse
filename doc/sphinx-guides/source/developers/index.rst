@@ -9,6 +9,7 @@ Developer Guide
 **Contents:**
 
 .. toctree::
+   :maxdepth: 2
 
    intro
    dev-environment
@@ -45,4 +46,5 @@ Developer Guide
    workflows
    fontcustom
    classic-dev-env
+   search-services
    

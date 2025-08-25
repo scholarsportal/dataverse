@@ -24,6 +24,8 @@ import edu.harvard.iq.dataverse.util.StringUtil;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import edu.harvard.iq.dataverse.util.xml.XmlUtil;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -42,6 +44,9 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLInputFactory;
 
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -121,8 +126,7 @@ public class ImportDDIServiceBean {
     // TODO: stop passing the xml source as a string; (it could be huge!) -- L.A. 4.5
     // TODO: what L.A. Said.
     public DatasetDTO doImport(ImportType importType, String xmlToParse) throws XMLStreamException, ImportException {
-        xmlInputFactory = javax.xml.stream.XMLInputFactory.newInstance();
-        xmlInputFactory.setProperty("javax.xml.stream.isCoalescing", java.lang.Boolean.TRUE); DatasetDTO datasetDTO = this.initializeDataset();
+        DatasetDTO datasetDTO = this.initializeDataset();
 
         // Read docDescr and studyDesc into DTO objects.
         // TODO: the fileMap is likely not needed.
@@ -147,11 +151,16 @@ public class ImportDDIServiceBean {
         Map<String, String> filesMap = new HashMap<>();
         StringReader reader = new StringReader(xmlToParse);
         XMLStreamReader xmlr = null;
-        XMLInputFactory xmlFactory = javax.xml.stream.XMLInputFactory.newInstance();
-        xmlFactory.setProperty("javax.xml.stream.isCoalescing", true); // allows the parsing of a CDATA segment into a single event
+        XMLInputFactory xmlFactory = XmlUtil.getSecureXMLInputFactory();
         xmlr = xmlFactory.createXMLStreamReader(reader);
         processDDI(importType, xmlr, datasetDTO, filesMap);
-
+        if (xmlr != null) {
+            try {
+                xmlr.close();
+            } catch (XMLStreamException e) {
+                logger.warning("XMLStreamException closing XMLStreamReader in mapDDI()");
+            }
+        }
         return filesMap;
     }
 
@@ -223,7 +232,7 @@ public class ImportDDIServiceBean {
                 // study description section. we'll use the one we found in
                 // the codeBook entry:
                 FieldDTO otherIdValue = FieldDTO.createPrimitiveFieldDTO("otherIdValue", codeBookLevelId);
-                FieldDTO otherId = FieldDTO.createCompoundFieldDTO("otherId", otherIdValue);
+                FieldDTO otherId = FieldDTO.createMultipleCompoundFieldDTO("otherId", otherIdValue);
                 citationBlock.getFields().add(otherId);
 
             }

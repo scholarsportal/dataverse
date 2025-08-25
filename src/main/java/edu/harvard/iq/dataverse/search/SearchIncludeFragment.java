@@ -23,6 +23,7 @@ import edu.harvard.iq.dataverse.ThumbnailServiceWrapper;
 import edu.harvard.iq.dataverse.WidgetWrapper;
 import edu.harvard.iq.dataverse.authorization.users.GuestUser;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
+import edu.harvard.iq.dataverse.settings.JvmSettings;
 import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import java.time.LocalDate;
@@ -34,6 +35,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.MissingResourceException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
@@ -54,7 +56,7 @@ public class SearchIncludeFragment implements java.io.Serializable {
     private static final Logger logger = Logger.getLogger(SearchIncludeFragment.class.getCanonicalName());
 
     @EJB
-    SearchServiceBean searchService;
+    SearchServiceFactory searchServiceFactory;
     @EJB
     DataverseServiceBean dataverseService;
     @EJB
@@ -359,7 +361,7 @@ public class SearchIncludeFragment implements java.io.Serializable {
             DataverseRequest dataverseRequest = getDataverseRequest();
             List<Dataverse> dataverses = new ArrayList<>();
             dataverses.add(dataverse);
-            solrQueryResponse = searchService.search(dataverseRequest, dataverses, queryToPassToSolr, filterQueriesFinal, sortField, sortOrder.toString(), paginationStart, onlyDataRelatedToMe, numRows, false, null, null, !isFacetsDisabled(), true);
+            solrQueryResponse = searchServiceFactory.getDefaultSearchService().search(dataverseRequest, dataverses, queryToPassToSolr, filterQueriesFinal, sortField, sortOrder.toString(), paginationStart, onlyDataRelatedToMe, numRows, false, null, null, !isFacetsDisabled(), true);
             if (solrQueryResponse.hasError()){
                 logger.info(solrQueryResponse.getError());
                 setSolrErrorEncountered(true);
@@ -414,7 +416,7 @@ public class SearchIncludeFragment implements java.io.Serializable {
                 logger.fine("second pass query: " + queryToPassToSolr);
                 logger.fine("second pass filter query: "+filterQueriesFinalSecondPass.toString());
 
-                solrQueryResponseSecondPass = searchService.search(dataverseRequest, dataverses, queryToPassToSolr, filterQueriesFinalSecondPass, null, sortOrder.toString(), 0, onlyDataRelatedToMe, 1, false, null, null, false, false);
+                solrQueryResponseSecondPass = searchServiceFactory.getDefaultSearchService().search(dataverseRequest, dataverses, queryToPassToSolr, filterQueriesFinalSecondPass, null, sortOrder.toString(), 0, onlyDataRelatedToMe, 1, false, null, null, false, false);
 
                 if (solrQueryResponseSecondPass != null) {
 
@@ -1231,40 +1233,33 @@ public class SearchIncludeFragment implements java.io.Serializable {
     }
     
     public List<String> getFriendlyNamesFromFilterQuery(String filterQuery) {
-        
-        
-        if ((filterQuery == null)||
-            (datasetfieldFriendlyNamesBySolrField == null)||
-            (staticSolrFieldFriendlyNamesBySolrField==null)){
+
+        if ((filterQuery == null) ||
+                (datasetfieldFriendlyNamesBySolrField == null) ||
+                (staticSolrFieldFriendlyNamesBySolrField == null)) {
             return null;
         }
-        
-        if(!filterQuery.contains(":")) {
+
+        if (!filterQuery.contains(":")) {
             return null;
         }
-        
+
         int index = filterQuery.indexOf(":");
         String key = filterQuery.substring(0,index);
         String value = filterQuery.substring(index+1);
 
-        List<String> friendlyNames = new ArrayList<>();
+        // friendlyNames get 2 entries : key and value
+        List<String> friendlyNames = new ArrayList<>(2);
 
+        // Get dataset field friendly name from default ressource bundle file
         String datasetfieldFriendyName = datasetfieldFriendlyNamesBySolrField.get(key);
         if (datasetfieldFriendyName != null) {
             friendlyNames.add(datasetfieldFriendyName);
         } else {
+            // Get non dataset field friendly name from "staticSearchFields" resource bundle file
             String nonDatasetSolrField = staticSolrFieldFriendlyNamesBySolrField.get(key);
             if (nonDatasetSolrField != null) {
                 friendlyNames.add(nonDatasetSolrField);
-            } else if (key.equals(SearchFields.PUBLICATION_STATUS)) {
-                /**
-                 * @todo Refactor this quick fix for
-                 * https://github.com/IQSS/dataverse/issues/618 . We really need
-                 * to get rid of all the reflection that's happening with
-                 * solrQueryResponse.getStaticSolrFieldFriendlyNamesBySolrField()
-                 * and
-                 */
-                friendlyNames.add("Publication Status");
             } else {
                 // meh. better than nuthin'
                 friendlyNames.add(key);
@@ -1276,9 +1271,13 @@ public class SearchIncludeFragment implements java.io.Serializable {
         String valueWithoutQuotes = noTrailingQuote;
 
         if (key.equals(SearchFields.METADATA_TYPES) && getDataverse() != null && getDataverse().getMetadataBlockFacets() != null) {
-            Optional<String> friendlyName = getDataverse().getMetadataBlockFacets().stream().filter(block -> block.getMetadataBlock().getName().equals(valueWithoutQuotes)).findFirst().map(block -> block.getMetadataBlock().getLocaleDisplayFacet());
+            Optional<String> friendlyName = getDataverse().getMetadataBlockFacets()
+                    .stream()
+                    .filter(block -> block.getMetadataBlock().getName().equals(valueWithoutQuotes))
+                    .findFirst()
+                    .map(block -> block.getMetadataBlock().getLocaleDisplayFacet());
             logger.fine(String.format("action=getFriendlyNamesFromFilterQuery key=%s value=%s friendlyName=%s", key, value, friendlyName));
-            if(friendlyName.isPresent()) {
+            if (friendlyName.isPresent()) {
                 friendlyNames.add(friendlyName.get());
                 return friendlyNames;
             }
@@ -1290,7 +1289,15 @@ public class SearchIncludeFragment implements java.io.Serializable {
             }
         }
 
-        friendlyNames.add(valueWithoutQuotes);
+        // Get value friendly name from default ressource bundle file
+        String valueFriendlyName;
+        try {
+            valueFriendlyName = BundleUtil.getStringFromPropertyFile(noTrailingQuote, "Bundle");
+        } catch (MissingResourceException e) {
+            valueFriendlyName = noTrailingQuote;
+        }
+
+        friendlyNames.add(valueFriendlyName);
         return friendlyNames;
     }
     
@@ -1548,6 +1555,15 @@ public class SearchIncludeFragment implements java.io.Serializable {
             logger.fine("isValid called for dvObject that is null (or not a dataset), id: " + id + "This can occur if a dataset is deleted while a search is in progress");
             return true;
         });
+    }
+    
+    public boolean canSeeCurationStatus(Long datasetId) {
+        boolean creatorsCanSeeStatus = JvmSettings.UI_SHOW_CURATION_STATUS_TO_ALL.lookupOptional(Boolean.class).orElse(false);
+        if (creatorsCanSeeStatus) {
+            return permissionsWrapper.canViewUnpublishedDataset(getDataverseRequest(),(Dataset) dvObjectService.findDvObject(datasetId));
+        } else {
+            return canPublishDataset(datasetId);
+        }
     }
     
     public enum SortOrder {

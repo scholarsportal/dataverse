@@ -283,7 +283,7 @@ public class MailServiceBean implements java.io.Serializable {
            if (objectOfNotification != null){
                String messageText = getMessageTextBasedOnNotification(notification, objectOfNotification, comment, requestor);
                String subjectText = MailUtil.getSubjectTextBasedOnNotification(notification, objectOfNotification);
-               if (!(messageText.isEmpty() || subjectText.isEmpty())){
+               if (!(StringUtils.isEmpty(messageText) || StringUtils.isEmpty(subjectText))){
                    retval = sendSystemEmail(emailAddress, subjectText, messageText, isHtmlContent);
                } else {
                    logger.warning("Skipping " + notification.getType() +  " notification, because couldn't get valid message");
@@ -569,8 +569,25 @@ public class MailServiceBean implements java.io.Serializable {
             case STATUSUPDATED:
                 version =  (DatasetVersion) targetObject;
                 pattern = BundleUtil.getStringFromBundle("notification.email.status.change");
-                String[] paramArrayStatus = {version.getDataset().getDisplayName(), (version.getExternalStatusLabel()==null) ? "<none>" : DatasetUtil.getLocaleExternalStatus(version.getExternalStatusLabel())};
+                CurationStatus status = version.getCurationStatusAsOfDate(userNotification.getSendDateTimestamp());
+                String curationLabel = DatasetUtil.getLocaleCurationStatusLabel(status);
+                if(curationLabel == null) {
+                    curationLabel = BundleUtil.getStringFromBundle("dataset.curationstatus.none");
+                }
+                String[] paramArrayStatus = {
+                        version.getDataset().getDisplayName(),
+                        getDatasetLink(version.getDataset()),
+                        version.getDataset().getOwner().getDisplayName(),
+                        getDataverseLink(version.getDataset().getOwner()),
+                        curationLabel
+                    };
                 messageText += MessageFormat.format(pattern, paramArrayStatus);
+                  
+                return messageText;
+            case PIDRECONCILED:
+                version =  (DatasetVersion) targetObject;
+                pattern = BundleUtil.getStringFromBundle("notification.email.pid.reconciled");
+                messageText += MessageFormat.format(pattern, new String[] {version.getDataset().getDisplayName(), version.getDataset().getGlobalId().asString()});
                 return messageText;
             case CREATEACC:
                 String accountCreatedMessage = BundleUtil.getStringFromBundle("notification.email.welcome", Arrays.asList(
@@ -777,6 +794,7 @@ public class MailServiceBean implements java.io.Serializable {
             case RETURNEDDS:
             case WORKFLOW_SUCCESS:
             case WORKFLOW_FAILURE:
+            case PIDRECONCILED:
             case STATUSUPDATED:
                 return versionService.find(userNotification.getObjectId());
             case CREATEACC:

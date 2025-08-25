@@ -2,8 +2,10 @@ package edu.harvard.iq.dataverse;
 
 import edu.harvard.iq.dataverse.actionlogging.ActionLogRecord;
 import edu.harvard.iq.dataverse.actionlogging.ActionLogServiceBean;
+import edu.harvard.iq.dataverse.dataset.DatasetFieldsValidator;
 import edu.harvard.iq.dataverse.authorization.AuthenticationServiceBean;
 import edu.harvard.iq.dataverse.authorization.providers.builtin.BuiltinUserServiceBean;
+import edu.harvard.iq.dataverse.dataverse.featured.DataverseFeaturedItemServiceBean;
 import edu.harvard.iq.dataverse.util.cache.CacheFactoryBean;
 import edu.harvard.iq.dataverse.engine.DataverseEngine;
 import edu.harvard.iq.dataverse.authorization.Permission;
@@ -24,7 +26,8 @@ import edu.harvard.iq.dataverse.pidproviders.PidProviderFactoryBean;
 import edu.harvard.iq.dataverse.privateurl.PrivateUrlServiceBean;
 import edu.harvard.iq.dataverse.search.IndexBatchServiceBean;
 import edu.harvard.iq.dataverse.search.IndexServiceBean;
-import edu.harvard.iq.dataverse.search.SearchServiceBean;
+import edu.harvard.iq.dataverse.search.SearchServiceFactory;
+
 import java.util.Map;
 import java.util.Set;
 import jakarta.ejb.EJB;
@@ -85,7 +88,7 @@ public class EjbDataverseEngine {
     SolrIndexServiceBean solrIndexService;
 
     @EJB
-    SearchServiceBean searchService;
+    SearchServiceFactory searchServiceFactory;
     
     @EJB
     IngestServiceBean ingestService;
@@ -184,7 +187,13 @@ public class EjbDataverseEngine {
     ConfirmEmailServiceBean confirmEmailService;
     
     @EJB
-    StorageUseServiceBean storageUseService; 
+    StorageUseServiceBean storageUseService;
+
+    @EJB
+    DataverseFeaturedItemServiceBean dataverseFeaturedItemServiceBean;
+
+    @EJB
+    DatasetFieldsValidator datasetFieldsValidator;
     
     @EJB
     EjbDataverseEngineInner innerEngine;
@@ -433,8 +442,8 @@ public class EjbDataverseEngine {
                 }
 
                 @Override
-                public SearchServiceBean search() {
-                    return searchService;
+                public SearchServiceFactory search() {
+                    return searchServiceFactory;
                 }
 
                 @Override
@@ -520,6 +529,16 @@ public class EjbDataverseEngine {
                 @Override
                 public DatasetFieldServiceBean dsField() {
                     return dsField;
+                }
+
+                @Override
+                public DataverseFeaturedItemServiceBean dataverseFeaturedItems() {
+                    return dataverseFeaturedItemServiceBean;
+                }
+
+                @Override
+                public DatasetFieldsValidator datasetFieldsValidator() {
+                    return datasetFieldsValidator;
                 }
 
                 @Override

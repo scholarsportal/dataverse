@@ -420,4 +420,4 @@ public class MetricsIT {
                     .contentType(ContentType.JSON);
         }
 
-}
+    }

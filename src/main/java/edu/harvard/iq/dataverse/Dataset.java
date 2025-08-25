@@ -20,10 +20,12 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.ColumnResult;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.NamedNativeQuery;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.NamedStoredProcedureQuery;
@@ -31,6 +33,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.ParameterMode;
+import jakarta.persistence.SqlResultSetMapping;
 import jakarta.persistence.StoredProcedureParameter;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
@@ -68,7 +71,28 @@ import edu.harvard.iq.dataverse.util.SystemConfig;
                 query = "SELECT o FROM Dataset o WHERE o.creator.id=:creatorId"),
     @NamedQuery(name = "Dataset.findByReleaseUserId",
                 query = "SELECT o FROM Dataset o WHERE o.releaseUser.id=:releaseUserId"),
+    @NamedQuery(name = "Dataset.countAll",
+                query = "SELECT COUNT(ds) FROM Dataset ds"),
+    @NamedQuery(name = "Dataset.countFilesByOwnerId",
+                query = "SELECT COUNT(dvo) FROM DvObject dvo WHERE dvo.owner.id=:ownerId AND dvo.dtype='DataFile'")
 })
+@NamedNativeQuery(
+        name = "Dataset.findAllOrSubsetOrderByFilesOwned",
+        query = "SELECT DISTINCT CAST(o.id AS BIGINT) as id, COUNT(f.id) as numFiles " +
+                "FROM dvobject o " +
+                "LEFT JOIN dvobject f ON f.owner_id = o.id " +
+                "WHERE o.dtype = 'Dataset' " +
+                "AND (? = false OR o.indexTime IS NULL) " +
+                "GROUP BY o.id " +
+                "ORDER BY numfiles ASC, id",
+        resultSetMapping = "DatasetIdMapping"
+    )
+@SqlResultSetMapping(
+    name = "DatasetIdMapping",
+    columns = {
+        @ColumnResult(name = "id", type = Long.class)
+    }
+)
 
 /*
     Below is the database stored procedure for getting a string dataset id.
@@ -333,13 +357,18 @@ public class Dataset extends DvObjectContainer {
         return getVersions().get(0);
     }
 
-    public DatasetVersion getLatestVersionForCopy() {
+    public DatasetVersion getLatestVersionForCopy(boolean includeDeaccessioned) {
         for (DatasetVersion testDsv : getVersions()) {
-            if (testDsv.isReleased() || testDsv.isArchived()) {
+            if (testDsv.isReleased() || testDsv.isArchived() 
+                || (testDsv.isDeaccessioned() && includeDeaccessioned)) {
                 return testDsv;
             }
         }
         return getVersions().get(0);
+    }
+
+    public DatasetVersion getLatestVersionForCopy(){
+        return getLatestVersionForCopy(false);
     }
 
     public List<DatasetVersion> getVersions() {
@@ -478,8 +507,17 @@ public class Dataset extends DvObjectContainer {
         if (this.isHarvested()) {
             return getVersions().get(0).getReleaseTime();
         } else {
+            Long majorVersion = null;
             for (DatasetVersion version : this.getVersions()) {
-                if (version.isReleased() && version.getMinorVersionNumber().equals((long) 0)) {
+                if (version.isReleased()) {
+                    if (version.getMinorVersionNumber().equals((long) 0)) {
+                        return version.getReleaseTime();
+                    } else if (majorVersion == null) {
+                        majorVersion = version.getVersionNumber();
+                    }
+                } else if (version.isDeaccessioned() && majorVersion != null
+                        && majorVersion.longValue() == version.getVersionNumber().longValue()
+                        && version.getMinorVersionNumber().equals((long) 0)) {
                     return version.getReleaseTime();
                 }
             }

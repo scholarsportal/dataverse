@@ -156,6 +156,10 @@ public class AuthenticatedUser implements User, Serializable {
     @Min(value = 1, message = "Rate Limit Tier must be greater than 0.")
     private int rateLimitTier = 1;
 
+    //The user's ORCID - only populated if user has authenticated to ORCID to assure they own it
+    @Column(nullable=true, length=45)
+    private String authenticatedOrcid;
+
     @PrePersist
     void prePersist() {
         mutedNotifications = Type.toStringValue(mutedNotificationsSet);
@@ -242,7 +246,7 @@ public class AuthenticatedUser implements User, Serializable {
     
     @Override
     public AuthenticatedUserDisplayInfo getDisplayInfo() {
-        return new AuthenticatedUserDisplayInfo(firstName, lastName, email, affiliation, position);
+        return new AuthenticatedUserDisplayInfo(firstName, lastName, email, affiliation, position, authenticatedOrcid);
     }
     
     /**
@@ -260,6 +264,9 @@ public class AuthenticatedUser implements User, Serializable {
         }
         if ( nonEmpty(inf.getPosition()) ) {
             setPosition( inf.getPosition());
+        }
+        if ( nonEmpty(inf.getOrcid()) ) {
+            setAuthenticatedOrcid(inf.getOrcid());
         }
     }
 
@@ -559,14 +566,6 @@ public class AuthenticatedUser implements User, Serializable {
         return this.lastApiUseTime;
     }
 
-    public String getOrcidId() {
-        String authProviderId = getAuthenticatedUserLookup().getAuthenticationProviderId();
-        if (OrcidOAuth2AP.PROVIDER_ID_PRODUCTION.equals(authProviderId)) {
-            return getAuthenticatedUserLookup().getPersistentUserId();
-        }
-        return null;
-    }
-    
     public Cart getCart() {
         if (cart == null){
             cart = new Cart();
@@ -608,6 +607,14 @@ public class AuthenticatedUser implements User, Serializable {
             return false;
         }
         return this.mutedNotificationsSet.contains(type);
+    }
+
+    public String getAuthenticatedOrcid() {
+        return authenticatedOrcid;
+    }
+
+    public void setAuthenticatedOrcid(String orcid) {
+        this.authenticatedOrcid = orcid;
     }
 
     public String getLocalizedAffiliation() {

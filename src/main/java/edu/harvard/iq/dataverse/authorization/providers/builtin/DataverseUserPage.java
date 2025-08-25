@@ -42,8 +42,12 @@ import edu.harvard.iq.dataverse.settings.SettingsServiceBean;
 import edu.harvard.iq.dataverse.util.BundleUtil;
 import edu.harvard.iq.dataverse.util.JsfHelper;
 import static edu.harvard.iq.dataverse.util.JsfHelper.JH;
+import static edu.harvard.iq.dataverse.util.StringUtil.toOption;
+
 import edu.harvard.iq.dataverse.util.SystemConfig;
 import edu.harvard.iq.dataverse.validation.PasswordValidatorServiceBean;
+
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.sql.Timestamp;
@@ -61,12 +65,18 @@ import jakarta.ejb.EJB;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.component.UIComponent;
 import jakarta.faces.component.UIInput;
+import jakarta.faces.context.ExternalContext;
+import jakarta.faces.context.ExternalContext;
 import jakarta.faces.context.FacesContext;
 import jakarta.faces.event.ActionEvent;
 import jakarta.faces.view.ViewScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Named;
-
+import jakarta.validation.constraints.NotBlank;
+import edu.harvard.iq.dataverse.authorization.providers.oauth2.AbstractOAuth2AuthenticationProvider;
+import edu.harvard.iq.dataverse.authorization.providers.oauth2.OAuth2LoginBackingBean;
+import edu.harvard.iq.dataverse.authorization.providers.oauth2.impl.OrcidOAuth2AP;
+import java.io.IOException;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.validator.constraints.NotBlank;
 import org.primefaces.event.TabChangeEvent;
@@ -138,6 +148,10 @@ public class DataverseUserPage implements java.io.Serializable {
     @Inject
     SendFeedbackDialog sendFeedbackDialog;
 
+    @Inject
+    private OAuth2LoginBackingBean oauth2LoginBackingBean;
+
+
     private AuthenticatedUser currentUser;
     private BuiltinUser builtinUser;
     private AuthenticatedUserDisplayInfo userDisplayInfo;
@@ -145,6 +159,8 @@ public class DataverseUserPage implements java.io.Serializable {
     private EditMode editMode;
     private String redirectPage = "dataverse.xhtml";
     private List<String> affiliationList = new ArrayList<String>();
+
+    private final String accountInfoTab = "dataverseuser.xhtml?selectTab=accountInfo";
 
     @NotBlank(message = "{password.retype}")
     private String inputPassword;
@@ -494,10 +510,12 @@ public class DataverseUserPage implements java.io.Serializable {
         if (event.getTab().getId().equals("notifications")) {
             displayNotification();
         }
+
         if (event.getTab().getId().equals("dataRelatedToMe")){
             mydatapage.init();
         }
     }
+
 
     private String getRoleStringFromUser(AuthenticatedUser au, DvObject dvObj) {
         // Find user's role(s) for given dataverse/dataset
@@ -566,6 +584,7 @@ public class DataverseUserPage implements java.io.Serializable {
                 case RETURNEDDS:
                 case WORKFLOW_SUCCESS:
                 case WORKFLOW_FAILURE:
+                case PIDRECONCILED:
                 case STATUSUPDATED:
                     userNotification.setTheObject(datasetVersionService.find(userNotification.getObjectId()));
                     break;
@@ -775,7 +794,7 @@ public class DataverseUserPage implements java.io.Serializable {
     }
 
     public boolean isNonLocalLoginEnabled() {
-        return AuthUtil.isNonLocalLoginEnabled(authenticationService.getAuthenticationProviders());
+        return AuthUtil.isNonLocalSignupEnabled(authenticationService.getAuthenticationProviders(), systemConfig);
     }
 
     public String getReasonForReturn(DatasetVersion datasetVersion) {
@@ -899,4 +918,46 @@ public class DataverseUserPage implements java.io.Serializable {
         this.emailField = emailField;
     }
 
+    public boolean isOrcidEnabled() {
+        return authenticationService.getOrcidAuthenticationProvider() != null;
+    }
+
+    public void startOrcidAuthentication() {
+        OrcidOAuth2AP orcidProvider = authenticationService.getOrcidAuthenticationProvider();
+
+        if (orcidProvider == null) {
+            JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("auth.orcid.notConfigured"));
+            return;
+        }
+
+        try {
+            // Use the appropriate method to get the authorization URL
+            String state = oauth2LoginBackingBean.createState(orcidProvider, toOption(accountInfoTab));
+            String authorizationUrl = orcidProvider.buildAuthzUrl(state,
+                    systemConfig.getDataverseSiteUrl() + "/oauth2/orcidConfirm.xhtml");
+            ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
+            externalContext.redirect(authorizationUrl);
+        } catch (IOException ex) {
+            logger.log(Level.SEVERE, "Error starting ORCID authentication", ex);
+            JsfHelper.addErrorMessage(BundleUtil.getStringFromBundle("auth.orcid.error"));
+        }
+    }
+
+    public void removeOrcid() {
+        currentUser.setAuthenticatedOrcid(null);
+        userService.save(currentUser);
+    }
+
+    public String getOrcidForDisplay() {
+        if (currentUser == null || currentUser.getAuthenticatedOrcid() == null) {
+            return "";
+        }
+        String orcidUrl = currentUser.getAuthenticatedOrcid();
+        int index = orcidUrl.lastIndexOf('/');
+        if (index > 0) {
+            return orcidUrl.substring(index + 1);
+        } else {
+            return orcidUrl;
+        }
+    }
 }
