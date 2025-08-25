@@ -78,7 +78,6 @@ import edu.harvard.iq.dataverse.authorization.providers.oauth2.OAuth2LoginBackin
 import edu.harvard.iq.dataverse.authorization.providers.oauth2.impl.OrcidOAuth2AP;
 import java.io.IOException;
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.validator.constraints.NotBlank;
 import org.primefaces.event.TabChangeEvent;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
