@@ -49,8 +49,8 @@ public final class AllUsers implements Group {
 
     @Override
     public String getIdentifier() {
-        return BundleUtil.getStringFromBundle("permission.allUsers.identifier");
-        //return identifier;
+        //return BundleUtil.getStringFromBundle("permission.allUsers.identifier");
+        return identifier;
     }
 
     @Override

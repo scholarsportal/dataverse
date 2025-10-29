@@ -33,8 +33,8 @@ public class AuthenticatedUsers implements Group {
 
     @Override
     public String getIdentifier() {
-        return BundleUtil.getStringFromBundle("permission.authenticatedUsers.identifier");
-        //return ":authenticated-users";
+        //return BundleUtil.getStringFromBundle("permission.authenticatedUsers.identifier");
+        return ":authenticated-users";
     }
 
     @Override
