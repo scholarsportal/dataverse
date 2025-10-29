@@ -55,7 +55,7 @@ public final class AllUsers implements Group {
 
     @Override
     public RoleAssigneeDisplayInfo getDisplayInfo() {
-        return new RoleAssigneeDisplayInfo( BundleUtil.getStringFromBundle("permission.everyoneIncludingGuests.displayInfo"), null);
+        return new RoleAssigneeDisplayInfo( BundleUtil.getStringFromBundle("permission.everyoneIncludingGuests"), null);
         //return new RoleAssigneeDisplayInfo(displayInfo, null);
     }
 
