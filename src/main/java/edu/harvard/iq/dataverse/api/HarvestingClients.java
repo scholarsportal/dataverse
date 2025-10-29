@@ -206,7 +206,7 @@ public class HarvestingClients extends AbstractApiBean {
             
             // Populate the description field, if none is supplied: 
             if (harvestingClient.getArchiveDescription() == null) {
-                harvestingClient.setArchiveDescription(BundleUtil.getStringFromBundle("harvestclients.viewEditDialog.archiveDescription.default.generic"));
+                harvestingClient.setArchiveDescription(BundleUtil.getStringFromBundle("harvestclients.viewEditDialog.archiveDescription.default.generic", BundleUtil.getCurrentLocale()));
             }
             
             if (StringUtil.isEmpty(harvestingClient.getArchiveUrl())
