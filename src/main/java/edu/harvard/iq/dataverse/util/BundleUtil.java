@@ -30,7 +30,7 @@ public class BundleUtil {
         return getStringFromBundle(key, null, locale);
     }
 
-    private static String getStringFromBundle(String key, List<String> arguments, Locale locale) {
+    public static String getStringFromBundle(String key, List<String> arguments, Locale locale) {
         ResourceBundle bundle = getResourceBundle(defaultBundleFile, locale);
         if (bundle == null) {
             return null;

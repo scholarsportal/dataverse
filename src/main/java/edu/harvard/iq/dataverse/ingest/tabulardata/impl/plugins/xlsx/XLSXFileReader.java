@@ -139,7 +139,7 @@ public class XLSXFileReader extends TabularDataFileReader {
             }
 
             if (valueTokens.length != varQnty) {
-                throw new IOException(BundleUtil.getStringFromBundle("xlsxfilereader.ioexception.mismatch" , Arrays.asList(Integer.toString(lineCounter + 1),Integer.toString(varQnty),Integer.toString(valueTokens.length))));
+                throw new IOException(BundleUtil.getStringFromBundle("xlsxfilereader.ioexception.mismatch" , Arrays.asList(Integer.toString(lineCounter + 1),Integer.toString(varQnty),Integer.toString(valueTokens.length)), BundleUtil.getCurrentLocale()));
             }
         
             for (int i = 0; i < varQnty; i++) {
