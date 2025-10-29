@@ -6,6 +6,7 @@ import edu.harvard.iq.dataverse.authorization.groups.Group;
 import edu.harvard.iq.dataverse.authorization.groups.GroupProvider;
 import edu.harvard.iq.dataverse.authorization.users.User;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
+import edu.harvard.iq.dataverse.util.BundleUtil;
 
 /**
  * A group containing all the users in the system - including the guest user.
@@ -21,7 +22,7 @@ public final class AllUsers implements Group {
     public static final AllUsers instance = new AllUsers();
        
     private final String identifier = ":AllUsers";
-    
+
     private final String displayInfo = "Everyone (including guests)";
     
     public static final AllUsers get() { return instance; }
@@ -48,12 +49,14 @@ public final class AllUsers implements Group {
 
     @Override
     public String getIdentifier() {
-        return identifier;
+        return BundleUtil.getStringFromBundle("permission.allUsers.identifier");
+        //return identifier;
     }
 
     @Override
     public RoleAssigneeDisplayInfo getDisplayInfo() {
-        return new RoleAssigneeDisplayInfo(displayInfo, null);
+        return new RoleAssigneeDisplayInfo( BundleUtil.getStringFromBundle("permission.everyoneIncludingGuests.displayInfo"), null);
+        //return new RoleAssigneeDisplayInfo(displayInfo, null);
     }
 
     @Override
@@ -63,12 +66,14 @@ public final class AllUsers implements Group {
 
     @Override
     public String getDisplayName() {
-        return "All Users";
+        return BundleUtil.getStringFromBundle("permission.allUsers.displayname");
+        //return "All Users";
     }
 
     @Override
     public String getDescription() {
-        return "All users, including guests";
+        return BundleUtil.getStringFromBundle("permission.allUsers.description");
+        //return "All users, including guests";
     }
     
     @Override

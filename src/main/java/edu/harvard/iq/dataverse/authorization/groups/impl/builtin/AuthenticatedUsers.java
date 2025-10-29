@@ -33,7 +33,8 @@ public class AuthenticatedUsers implements Group {
 
     @Override
     public String getIdentifier() {
-        return ":authenticated-users";
+        return BundleUtil.getStringFromBundle("permission.authenticatedUsers.identifier");
+        //return ":authenticated-users";
     }
 
     @Override
@@ -48,12 +49,14 @@ public class AuthenticatedUsers implements Group {
 
     @Override
     public String getDisplayName() {
-        return "Authenticated Users";
+        return BundleUtil.getStringFromBundle("permission.authenticatedUsers.displayname");
+        //return "Authenticated Users";
     }
 
     @Override
     public String getDescription() {
-        return "All users, except for guests";
+        return BundleUtil.getStringFromBundle("permission.authenticatedUsers.description");
+        //return "All users, except for guests";
     }
     
     @Override
