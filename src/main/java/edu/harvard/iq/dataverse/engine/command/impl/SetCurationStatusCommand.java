@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Future;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -49,38 +50,53 @@ public class SetCurationStatusCommand extends AbstractDatasetCommand<Dataset> {
 
     @Override
     public Dataset execute(CommandContext ctxt) throws CommandException {
+        logger.log(Level.INFO, "Step 1 : SetCurationStatusCommand : started for dataset id=" + getDataset().getId() + " with label=" + label);
+
         DatasetVersion version = getDataset().getLatestVersion();
         if (version.isReleased()) {
             throw new IllegalCommandException(BundleUtil.getStringFromBundle("dataset.curationstatus.failure.isReleased"), this);
         }
         CurationStatus currentStatus = version.getCurrentCurationStatus();
+        logger.log(Level.INFO, "Step 2 : SetCurationStatusCommand :  currentStatus = " + (currentStatus != null ? currentStatus.getLabel() : "null"));
 
         CurationStatus status = null;
         if (((currentStatus == null || Strings.isBlank(currentStatus.getLabel())) && Strings.isNotBlank(label)) ||
                 (currentStatus != null && !currentStatus.getLabel().equals(label))) {
+
             status = new CurationStatus(label, version, getRequest().getAuthenticatedUser());
+            logger.log(Level.INFO, "Step 3 : SetCurationStatusCommand :  status = " + status);
+
         }
 
         String setName = getDataset().getEffectiveCurationLabelSetName();
+        logger.log(Level.INFO, "Step 4 : SetCurationStatusCommand :  setName = " + setName);
         if (setName.equals(SystemConfig.CURATIONLABELSDISABLED)) {
             throw new IllegalCommandException(BundleUtil.getStringFromBundle("dataset.curationstatus.failure.disabled"), this);
         }
+
+
         if (status != null) {
             boolean found = false;
             if (status.getLabel() != null) {
                 String[] labelArray = ctxt.systemConfig().getCurationLabels().get(setName);
+                logger.log(Level.INFO, "Step 5 : SetCurationStatusCommand :  ");
                 for (String name : labelArray) {
+                    logger.log(Level.INFO, "Step 6 : name :  "+name);
                     if (name.equals(label)) {
                         found = true;
+                        logger.log(Level.INFO, "Step 7 : found true :  "+status);
                         version.addCurationStatus(status);
                         break;
                     }
                 }
             } else {
+                logger.log(Level.INFO, "Step 7 :  ");
                 //
                 found = true;
                 version.addCurationStatus(status);
             }
+
+
             if (!found) {
                 logger.fine("Label not found: " + label + " in set " + setName);
                 throw new IllegalCommandException(BundleUtil.getStringFromBundle("dataset.curationstatus.failure.notallowed"), this);
@@ -89,12 +105,15 @@ public class SetCurationStatusCommand extends AbstractDatasetCommand<Dataset> {
             logger.fine("Attempt to reset with the same label : " + label);
             throw new IllegalCommandException(BundleUtil.getStringFromBundle("dataset.curationstatus.failure.noChange"), this);
         }
+
+        logger.log(Level.INFO, "Step 8 : Before save  ");
         Dataset updatedDataset = save(ctxt);
         return updatedDataset;
     }
 
     public Dataset save(CommandContext ctxt) throws CommandException {
 
+        logger.log(Level.INFO, "Step 1 :  save  ");
         getDataset().getOrCreateEditVersion().setLastUpdateTime(getTimestamp());
         getDataset().setModificationTime(getTimestamp());
 
@@ -114,7 +133,8 @@ public class SetCurationStatusCommand extends AbstractDatasetCommand<Dataset> {
             authUsers = ctxt.permissions().getUsersWithPermissionOn(Permission.PublishDataset, savedDataset);
         }
         for (AuthenticatedUser au : authUsers) {
-            ctxt.notifications().sendNotification(au, new Timestamp(new Date().getTime()), UserNotification.Type.STATUSUPDATED, savedDataset.getLatestVersion().getId(), "", requestor, false);
+            // jc comment and check the curation status notification
+            //ctxt.notifications().sendNotification(au, new Timestamp(new Date().getTime()), UserNotification.Type.STATUSUPDATED, savedDataset.getLatestVersion().getId(), "", requestor, false);
         }
 
         // TODO: What should we do with the indexing result? Print it to the log?
