@@ -25,23 +25,23 @@
 	spatialResolution	Spatial Resolution	Factor which provides a general understanding of the density of spatial data in the resource or describes the range of resolutions in which a digital resource may be used. NOTE: This element should be repeated when describing upper and lower range.		none	21		FALSE	FALSE	TRUE	FALSE	FALSE	FALSE		geospatial
 	spatialResolutionValue	Value	Level of detail expressed as a scale factor, a distance or an angle	Level of detail expressed as a scale factor, a distance or an angle	text	22	#VALUE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	spatialResolution	geospatial
 	spatialResolutionType	Type	distance, vertical, angularDistance, levelOfDetail	distance, vertical, angularDistance, levelOfDetail	text	23	(#VALUE)	FALSE	TRUE	FALSE	TRUE	FALSE	FALSE	spatialResolution	geospatial
-	spatialResolutionUnitOfMeasure	Spatial Resolution Unit of Measure	Spatial resolution unit of measure (e.g. 'cm', 'm', 'km', etc.)	Resolution unit of measure (e.g. 'm', 'km', etc.)	text	40	(#VALUE)	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	spatialResolution	geospatial
-	spatialRepresentationType	Spatial Representation Type	Object(s) used to represent the geographic (spatial) information.		text	24	#VALUE	TRUE	TRUE	FALSE	TRUE	FALSE	FALSE		geospatial
-	vectorSpatialRepresentation	Vector Spatial Representation	Information about vector spatial objects in the resource.		none	25		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE		geospatial
-	geometricObjectCount	Geometric Object Count	Total number of point or vector objects in the dataset.	Number of point or vector objects in the dataset	int	26	#VALUE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE		geospatial
-	geometricObjectType	Geometric Object Type	Name of point or vector objects to locate zero, one, two or three dimensional locations on the dataset.	Name of point or vector objects to locate zero, one, two or three dimensional locations on the dataset.	text	27	(#VALUE)	FALSE	TRUE	FALSE	TRUE	FALSE	FALSE		geospatial
-	gridSpatialRepresentation	Raster Spatial Representation	Information about grid (raster) spatial objects in the resource.		none	28		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE		geospatial
-	numberOfDimensions	Number of Dimensions	The number of independent spatio-temporal axes.	The number of independent spatio-temporal axes.	int	29		TRUE	FALSE	FALSE	FALSE	FALSE	FALSE		geospatial
-	cellGeometry	Cell Geometry	Identification of grid data as point or cell.	Identification of grid data as point or cell.	text	30	#VALUE	TRUE	TRUE	FALSE	TRUE	FALSE	FALSE		geospatial
-	axisDimensionProperties	Axis Dimension Properties	Information about spatial-temporal axis properties (dimensions).		none	31		FALSE	FALSE	TRUE	FALSE	FALSE	FALSE		geospatial
-	dimensionNameType	Name Type	Axis name.	Axis name.	text	32	#VALUE	FALSE	TRUE	FALSE	FALSE	FALSE	FALSE	axisDimensionProperties	geospatial
-	dimensionSize	Size	Number of elements along the axis.	Number of elements along the axis.	int	33		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	axisDimensionProperties	geospatial
-	resolution	Resolution	Degree of detail in the grid dataset.	Degree of detail in the grid dataset.	float	34	#VALUE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	axisDimensionProperties	geospatial
-	resolutionUnitOfMeasure	Resolution Unit of Measure	Resolution unit of measure (e.g. 'cm', 'm', 'km', etc.)	Resolution unit of measure (e.g. 'm', 'km', etc.)	text	35	(#VALUE)	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	axisDimensionProperties	geospatial
-	distribution	Distribution Link	Distribution Links		none	36		TRUE	FALSE	TRUE	FALSE	FALSE	FALSE		geospatial
-	distributionLinkLabel	Label	A descriptive label for the distribution link	A descriptive label for the distribution link	text	37	#VALUE	TRUE	FALSE	FALSE	FALSE	FALSE	FALSE	distribution	geospatial
-	distributionLink	URL	URL to access the dataset (e.g. via a geospatial web service)	URL to access the dataset (e.g. via a geospatial web service)	text	38	#VALUE	TRUE	FALSE	FALSE	FALSE	FALSE	FALSE	distribution	geospatial
-	protocol	Protocol	The service or transfer protocol associated with the distribution link URL	The service or transfer protocol associated with the distribution link URL	text	39	(#VALUE)	TRUE	FALSE	FALSE	FALSE	FALSE	FALSE	distribution	geospatial
+	spatialResolutionUnitOfMeasure	Spatial Resolution Unit of Measure	Spatial resolution unit of measure (e.g. 'cm', 'm', 'km', etc.)	Resolution unit of measure (e.g. 'm', 'km', etc.)	text	24	(#VALUE)	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	spatialResolution	geospatial
+	spatialRepresentationType	Spatial Representation Type	Object(s) used to represent the geographic (spatial) information.		text	25	#VALUE	TRUE	TRUE	FALSE	TRUE	FALSE	FALSE		geospatial
+	vectorSpatialRepresentation	Vector Spatial Representation	Information about vector spatial objects in the resource.		none	26		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE		geospatial
+	geometricObjectCount	Geometric Object Count	Total number of point or vector objects in the dataset.	Number of point or vector objects in the dataset	int	27	#VALUE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE		geospatial
+	geometricObjectType	Geometric Object Type	Name of point or vector objects to locate zero, one, two or three dimensional locations on the dataset.	Name of point or vector objects to locate zero, one, two or three dimensional locations on the dataset.	text	28	(#VALUE)	FALSE	TRUE	FALSE	TRUE	FALSE	FALSE		geospatial
+	gridSpatialRepresentation	Raster Spatial Representation	Information about grid (raster) spatial objects in the resource.		none	29		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE		geospatial
+	numberOfDimensions	Number of Dimensions	The number of independent spatio-temporal axes.	The number of independent spatio-temporal axes.	int	30		TRUE	FALSE	FALSE	FALSE	FALSE	FALSE		geospatial
+	cellGeometry	Cell Geometry	Identification of grid data as point or cell.	Identification of grid data as point or cell.	text	31	#VALUE	TRUE	TRUE	FALSE	TRUE	FALSE	FALSE		geospatial
+	axisDimensionProperties	Axis Dimension Properties	Information about spatial-temporal axis properties (dimensions).		none	32		FALSE	FALSE	TRUE	FALSE	FALSE	FALSE		geospatial
+	dimensionNameType	Name Type	Axis name.	Axis name.	text	33	#VALUE	FALSE	TRUE	FALSE	FALSE	FALSE	FALSE	axisDimensionProperties	geospatial
+	dimensionSize	Size	Number of elements along the axis.	Number of elements along the axis.	int	34		FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	axisDimensionProperties	geospatial
+	resolution	Resolution	Degree of detail in the grid dataset.	Degree of detail in the grid dataset.	float	35	#VALUE	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	axisDimensionProperties	geospatial
+	resolutionUnitOfMeasure	Resolution Unit of Measure	Resolution unit of measure (e.g. 'cm', 'm', 'km', etc.)	Resolution unit of measure (e.g. 'm', 'km', etc.)	text	36	(#VALUE)	FALSE	FALSE	FALSE	FALSE	FALSE	FALSE	axisDimensionProperties	geospatial
+	distribution	Distribution Link	Distribution Links		none	37		TRUE	FALSE	TRUE	FALSE	FALSE	FALSE		geospatial
+	distributionLinkLabel	Label	A descriptive label for the distribution link	A descriptive label for the distribution link	text	38	#VALUE	TRUE	FALSE	FALSE	FALSE	FALSE	FALSE	distribution	geospatial
+	distributionLink	URL	URL to access the dataset (e.g. via a geospatial web service)	URL to access the dataset (e.g. via a geospatial web service)	text	39	#VALUE	TRUE	FALSE	FALSE	FALSE	FALSE	FALSE	distribution	geospatial
+	protocol	Protocol	The service or transfer protocol associated with the distribution link URL	The service or transfer protocol associated with the distribution link URL	text	40	(#VALUE)	TRUE	FALSE	FALSE	FALSE	FALSE	FALSE	distribution	geospatial
 #controlledVocabulary	DatasetField	Value	identifier	displayOrder											
 	country	Afghanistan		0											
 	country	Albania		1											
