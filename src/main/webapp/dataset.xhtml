@@ -2115,7 +2115,7 @@
                         <p:dataTable value="#{version.curationStatuses}" var="status"
                                  styleClass="margin-bottom-half" rowIndexVar="index">
                             <p:column headerText="#{bundle['dataset.curationStatus']}">
-                                <h:outputText value="#{status.label}"/>
+                                <h:outputText value="#{DatasetUtil:getLocaleCurationStatusLabelFromString(status.label)}"/>
                             </p:column>
                             <p:column headerText="#{bundle['dataset.curationDate']}">
                                 <h:outputText value="#{status.createTime}">
