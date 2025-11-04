@@ -114,8 +114,7 @@ public class SetCurationStatusCommand extends AbstractDatasetCommand<Dataset> {
             authUsers = ctxt.permissions().getUsersWithPermissionOn(Permission.PublishDataset, savedDataset);
         }
         for (AuthenticatedUser au : authUsers) {
-            // jc comment and check the curation status notification
-            //ctxt.notifications().sendNotification(au, new Timestamp(new Date().getTime()), UserNotification.Type.STATUSUPDATED, savedDataset.getLatestVersion().getId(), "", requestor, false);
+            ctxt.notifications().sendNotification(au, new Timestamp(new Date().getTime()), UserNotification.Type.STATUSUPDATED, savedDataset.getLatestVersion().getId(), "", requestor, false);
         }
 
         // TODO: What should we do with the indexing result? Print it to the log?
