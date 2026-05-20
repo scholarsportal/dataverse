@@ -67,14 +67,18 @@ import org.apache.commons.lang3.StringUtils;
  */
 
 @NamedQueries({
-        @NamedQuery(name = "DatasetVersion.findUnarchivedReleasedVersion",
-                query = "SELECT OBJECT(o) FROM DatasetVersion AS o WHERE o.dataset.harvestedFrom IS NULL and o.releaseTime IS NOT NULL and o.archivalCopyLocation IS NULL"
-        ),
-        @NamedQuery(name = "DatasetVersion.findById",
-                query = "SELECT o FROM DatasetVersion o LEFT JOIN FETCH o.fileMetadatas WHERE o.id=:id"),
-        @NamedQuery(name = "DatasetVersion.findByDataset",
+    @NamedQuery(name = "DatasetVersion.findUnarchivedReleasedVersion",
+               query = "SELECT OBJECT(o) FROM DatasetVersion AS o WHERE o.dataset.harvestedFrom IS NULL and o.releaseTime IS NOT NULL and o.archivalCopyLocation IS NULL"
+    ), 
+    @NamedQuery(name = "DatasetVersion.findById", 
+                query = "SELECT o FROM DatasetVersion o LEFT JOIN FETCH o.fileMetadatas WHERE o.id=:id"), 
+    @NamedQuery(name = "DatasetVersion.findByDataset",
                 query = "SELECT o FROM DatasetVersion o WHERE o.dataset.id=:datasetId ORDER BY o.versionNumber DESC, o.minorVersionNumber DESC"),
-        @NamedQuery(name = "DatasetVersion.findReleasedByDataset",
+    @NamedQuery(name = "DatasetVersion.findByDesiredStatesAndDataset",
+            query = "SELECT o FROM DatasetVersion o " +
+                    "WHERE o.dataset.id = :datasetId AND o.versionState IN :states " +
+                    "ORDER BY o.versionNumber DESC, o.minorVersionNumber DESC"),
+    @NamedQuery(name = "DatasetVersion.findReleasedByDataset",
                 query = "SELECT o FROM DatasetVersion o WHERE o.dataset.id=:datasetId AND o.versionState=edu.harvard.iq.dataverse.DatasetVersion.VersionState.RELEASED ORDER BY o.versionNumber DESC, o.minorVersionNumber DESC")/*,
     @NamedQuery(name = "DatasetVersion.findVersionElements",
                 query = "SELECT o.id, o.versionState, o.versionNumber, o.minorVersionNumber FROM DatasetVersion o WHERE o.dataset.id=:datasetId ORDER BY o.versionNumber DESC, o.minorVersionNumber DESC")*/})
@@ -155,7 +159,7 @@ public class DatasetVersion implements Serializable {
      * @todo versionState should never be null so when we are ready, uncomment
      * the `nullable = false` below.
      */
-//    @Column(nullable = false)
+    @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private VersionState versionState;
 
