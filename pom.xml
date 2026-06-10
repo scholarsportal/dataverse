@@ -336,7 +336,7 @@
             <artifactId>yasson</artifactId>
             <scope>test</scope>
         </dependency>
-
+        
         <!-- Jakarta Faces & related -->
         <dependency>
             <groupId>org.glassfish</groupId>
@@ -600,7 +600,40 @@
             <artifactId>commons-compress</artifactId>
             <!-- no version here as managed by <dependencyManagement> above! -->
         </dependency>
-
+        <dependency>
+            <groupId>org.duracloud</groupId>
+            <artifactId>common</artifactId>
+            <version>8.0.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>log4j-over-slf4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.duracloud</groupId>
+            <artifactId>storeclient</artifactId>
+            <version>8.0.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>log4j-over-slf4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.amazonaws</groupId>
+                    <artifactId>aws-java-sdk-sqs</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>ch.qos.logback</groupId>
+                    <artifactId>logback-classic</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <!--  Full text indexing -->
         <dependency>
             <groupId>org.apache.tika</groupId>
