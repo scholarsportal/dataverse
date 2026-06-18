@@ -1207,6 +1207,15 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
         } else {
             // Create a builder for the S3AsyncClient
             S3AsyncClientBuilder s3CB = S3AsyncClient.builder().requestChecksumCalculation(RequestChecksumCalculation.WHEN_REQUIRED);
+              
+            // Enable multipart uploads on the async client. The S3TransferManager built from
+            // this client (see getTransferManager / savePath) only performs multipart uploads
+            // when the underlying client is CRT-based OR has multipart explicitly enabled.
+            // Without this line, TransferManager.uploadFile() falls back to a single PutObject,
+            // which S3 (and Swift's S3 emulation) reject above 5 GiB with "Your proposed upload
+            // exceeds the maximum allowed object size". Required for server-side and tabular
+            // ingest uploads of files larger than 5 GiB.
+            s3CB.multipartEnabled(true);
 
             // Create a custom HTTP client with the desired pool size
             Integer poolSize = Integer.getInteger("dataverse.files." + driverId + ".connection-pool-size", 256);
