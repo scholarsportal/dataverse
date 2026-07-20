@@ -12,7 +12,9 @@ import edu.harvard.iq.dataverse.util.SystemConfig;
 import java.util.*;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.CollectionTable;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -101,7 +103,40 @@ public class Dataverse extends DvObjectContainer {
     @NotNull(message = "{dataverse.category}")
     @Column( nullable = false )
     private DataverseType dataverseType;
-       
+      
+    
+    @ElementCollection
+    @CollectionTable(name = "dataverse_locallyfairassignees",
+        joinColumns = @JoinColumn(name = "dataverse_id"))
+    @Column(name = "assigneeidentifier")
+    private Set<String> locallyFAIRRoleAssigneeIdentifiers = new HashSet<>();
+
+    @Override
+    public Set<String> getLocallyFAIRRoleAssigneeIdentifiers() {
+        return locallyFAIRRoleAssigneeIdentifiers;
+    }
+
+    public void setLocallyFAIRRoleAssigneeIdentifiers(Set<String> roleAssigneeIdentifiers) {
+        this.locallyFAIRRoleAssigneeIdentifiers = roleAssigneeIdentifiers;
+    }
+
+    public void addLocallyFAIRRoleAssignee(String assigneeIdentifier) {
+        if (locallyFAIRRoleAssigneeIdentifiers == null) {
+            locallyFAIRRoleAssigneeIdentifiers = new HashSet<>();
+        }
+        locallyFAIRRoleAssigneeIdentifiers.add(assigneeIdentifier);
+    }
+
+    public void removeLocallyFAIRRoleAssignee(String assigneeIdentifier) {
+        if (locallyFAIRRoleAssigneeIdentifiers != null) {
+            locallyFAIRRoleAssigneeIdentifiers.remove(assigneeIdentifier);
+        }
+    }
+
+    public boolean LocallyFAIR(String assigneeIdentifier) {
+        return locallyFAIRRoleAssigneeIdentifiers != null && locallyFAIRRoleAssigneeIdentifiers.contains(assigneeIdentifier);
+    }
+    
     /**
      * When {@code true}, users are not granted permissions the got for parent
      * dataverses.
@@ -938,7 +973,7 @@ public class Dataverse extends DvObjectContainer {
         }
         return false;
     }
-    
+
     public String getLocalURL() {
         return  SystemConfig.getDataverseSiteUrlStatic() + "/dataverse/" + this.getAlias();
     }
@@ -955,4 +990,10 @@ public class Dataverse extends DvObjectContainer {
     private boolean hasMetadataBlock(MetadataBlock metadataBlock) {
         return metadataBlocks.stream().anyMatch(block -> block.getId().equals(metadataBlock.getId()));
     }
+
+    @Override
+    public boolean isLocallyFAIR() {
+        return !locallyFAIRRoleAssigneeIdentifiers.isEmpty();
+    }
+
 }
