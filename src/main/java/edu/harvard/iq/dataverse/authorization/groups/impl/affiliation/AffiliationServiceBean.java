@@ -133,13 +133,13 @@ public class AffiliationServiceBean implements Serializable {
                 }
             }
         }
-        logger.log(Level.WARNING, "IPAddress not found. {0}");
+        //logger.log(Level.WARNING, "IPAddress not found. {0}");
         return bundle.getString("affiliation.other");
     }
 
     public String getLocalizedAffiliation(String affiliation) {
         String localeCode = session.getLocaleCode();
-        logger.log(Level.INFO, "getLocalizedAffiliation() Locale. {0}", localeCode);
+        //logger.log(Level.INFO, "getLocalizedAffiliation() Locale. {0}", localeCode);
         if (!localeCode.equalsIgnoreCase("en")) {
             ResourceBundle bundle = BundleUtil.getResourceBundle("affiliation", new Locale(localeCode));
             ResourceBundle enBundle = BundleUtil.getResourceBundle("affiliation", new Locale("en"));
