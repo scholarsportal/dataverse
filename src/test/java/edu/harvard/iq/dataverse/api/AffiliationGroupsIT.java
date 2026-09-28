@@ -4,7 +4,7 @@ import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
-import jakarta.json.Json;
+import edu.harvard.iq.dataverse.util.json.JsonUtil;
 import jakarta.json.JsonObjectBuilder;
 import jakarta.json.JsonArrayBuilder;
 import jakarta.json.JsonObject;
@@ -20,8 +20,8 @@ public class AffiliationGroupsIT {
 
     @Test
     public void testAffiliationCrudOperations() {
-        JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
-        JsonObjectBuilder objectBuilder = Json.createObjectBuilder();
+        JsonArrayBuilder arrayBuilder = JsonUtil.createArrayBuilder();
+        JsonObjectBuilder objectBuilder = JsonUtil.createObjectBuilder();
 
         String uniqueAlias1 = "affGroup" + UtilIT.getRandomIdentifier();
         objectBuilder.add("alias", uniqueAlias1)
@@ -38,7 +38,7 @@ public class AffiliationGroupsIT {
         arrayBuilder.add(objectBuilder);
 
         // POST
-        JsonObjectBuilder objectbuilder2 = Json.createObjectBuilder();
+        JsonObjectBuilder objectbuilder2 = JsonUtil.createObjectBuilder();
         objectbuilder2.add("affiliations", arrayBuilder);
         JsonObject jsonObject2 = objectbuilder2.build();
         Response response = UtilIT.createAffiliationGroup(jsonObject2);
@@ -46,7 +46,7 @@ public class AffiliationGroupsIT {
         response.then().assertThat().statusCode(OK.getStatusCode());
 
         // PUT
-        JsonObjectBuilder updateBuilder = Json.createObjectBuilder()
+        JsonObjectBuilder updateBuilder = JsonUtil.createObjectBuilder()
                 .add("alias", uniqueAlias2)
                 .add("name", "display name "+uniqueAlias2)
                 .add("description", "description "+uniqueAlias2)

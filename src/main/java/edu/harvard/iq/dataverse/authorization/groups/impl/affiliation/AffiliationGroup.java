@@ -4,7 +4,7 @@ import edu.harvard.iq.dataverse.authorization.groups.GroupProvider;
 import edu.harvard.iq.dataverse.authorization.groups.impl.PersistedGlobalGroup;
 import edu.harvard.iq.dataverse.authorization.users.AuthenticatedUser;
 import edu.harvard.iq.dataverse.engine.command.DataverseRequest;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.NamedQueries;

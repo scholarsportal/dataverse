@@ -11,6 +11,7 @@ import edu.harvard.iq.dataverse.authorization.groups.impl.shib.ShibGroupProvider
 import edu.harvard.iq.dataverse.util.json.JsonParseException;
 import edu.harvard.iq.dataverse.util.json.JsonParser;
 
+import edu.harvard.iq.dataverse.util.json.JsonUtil;
 import jakarta.ejb.Stateless;
 import jakarta.interceptor.Interceptors;
 import jakarta.ws.rs.GET;
@@ -38,6 +39,10 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.PathParam;
 import static org.apache.commons.lang3.StringUtils.isNumeric;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
+import org.eclipse.microprofile.openapi.annotations.parameters.RequestBody;
+import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
 import static edu.harvard.iq.dataverse.util.json.JsonPrinter.json;
 import static edu.harvard.iq.dataverse.util.json.JsonPrinter.toJsonArray;
@@ -48,6 +53,7 @@ import static edu.harvard.iq.dataverse.util.json.JsonPrinter.toJsonArray;
  */
 @Path("admin/groups")
 @Stateless
+@Tag(name = "Admin", description = "Administrative Dataverse operations.")
 public class Groups extends AbstractApiBean {
     private static final Logger logger = Logger.getLogger(Groups.class.getName());
 
@@ -75,7 +81,11 @@ public class Groups extends AbstractApiBean {
      */
     @POST
     @Path("ip")
-    public Response postIpGroup( JsonObject dto ){
+    @Operation(summary = "Creates an IP group",
+            description = "Creates a global IP group from the supplied JSON and assigns an available persisted group alias.")
+    public Response postIpGroup(
+            @RequestBody(description = "IP group definition with alias and IP address ranges.")
+            JsonObject dto){
         try {
            IpGroup grp = new JsonParser().parseIpGroup(dto);
             grp.setGroupProvider( ipGroupPrv );
@@ -102,7 +112,13 @@ public class Groups extends AbstractApiBean {
      */
     @PUT
     @Path("ip/{group}")
-    public Response putIpGroups( @PathParam("group") String groupName, JsonObject dto ){
+    @Operation(summary = "Creates or replaces an IP group",
+            description = "Creates or replaces a global IP group with the specified group alias.")
+    public Response putIpGroups(
+            @Parameter(description = "IP group alias to create or replace.", required = true)
+            @PathParam("group") String groupName,
+            @RequestBody(description = "IP group definition with IP address ranges.")
+            JsonObject dto){
         try {
             if ( groupName == null || groupName.trim().isEmpty() ) {
                 return badRequest("Group name cannot be empty");
@@ -125,6 +141,8 @@ public class Groups extends AbstractApiBean {
 
     @GET
     @Path("ip")
+    @Operation(summary = "Lists IP groups",
+            description = "Returns all global IP groups as JSON.")
     public Response listIpGroups() {
         return ok( ipGroupPrv.findGlobalGroups()
                              .stream().map(g->json(g)).collect(toJsonArray()) );
@@ -132,7 +150,11 @@ public class Groups extends AbstractApiBean {
 
     @GET
     @Path("ip/{group}")
-    public Response getIpGroup( @PathParam("group") String groupIdtf ) {
+    @Operation(summary = "Returns an IP group",
+            description = "Returns a global IP group identified by numeric id or alias.")
+    public Response getIpGroup(
+            @Parameter(description = "IP group numeric id or alias.", required = true)
+            @PathParam("group") String groupIdtf) {
         IpGroup grp;
         if ( isNumeric(groupIdtf) ) {
             grp = ipGroupPrv.get( Long.parseLong(groupIdtf) );
@@ -145,7 +167,11 @@ public class Groups extends AbstractApiBean {
 
     @DELETE
     @Path("ip/{group}")
-    public Response deleteIpGroup( @PathParam("group") String groupIdtf ) {
+    @Operation(summary = "Deletes an IP group",
+            description = "Deletes a global IP group identified by numeric id or alias.")
+    public Response deleteIpGroup(
+            @Parameter(description = "IP group numeric id or alias.", required = true)
+            @PathParam("group") String groupIdtf) {
         IpGroup grp;
         if ( isNumeric(groupIdtf) ) {
             grp = ipGroupPrv.get( Long.parseLong(groupIdtf) );
@@ -175,8 +201,10 @@ public class Groups extends AbstractApiBean {
 
     @GET
     @Path("shib")
+    @Operation(summary = "Lists Shibboleth groups",
+            description = "Returns all global Shibboleth groups as JSON.")
     public Response listShibGroups() {
-        JsonArrayBuilder arrBld = Json.createArrayBuilder();
+        JsonArrayBuilder arrBld = JsonUtil.createArrayBuilder();
         for (ShibGroup g : shibGroupPrv.findGlobalGroups()) {
             arrBld.add(json(g));
         }
@@ -185,7 +213,11 @@ public class Groups extends AbstractApiBean {
 
     @POST
     @Path("shib")
-    public Response createShibGroup(JsonObject shibGroupInput) {
+    @Operation(summary = "Creates a Shibboleth group",
+            description = "Creates a Shibboleth group from name, attribute, and pattern values in the supplied JSON.")
+    public Response createShibGroup(
+            @RequestBody(description = "Shibboleth group JSON containing name, attribute, and pattern.")
+            JsonObject shibGroupInput) {
         String expectedNameKey = "name";
         JsonString name = shibGroupInput.getJsonString(expectedNameKey);
         if (name == null) {
@@ -212,7 +244,11 @@ public class Groups extends AbstractApiBean {
 
     @DELETE
     @Path("shib/{primaryKey}")
-    public Response deleteShibGroup( @PathParam("primaryKey") String id ) {
+    @Operation(summary = "Deletes a Shibboleth group",
+            description = "Deletes the Shibboleth group with the specified primary key.")
+    public Response deleteShibGroup(
+            @Parameter(description = "Primary key of the Shibboleth group to delete.", required = true)
+            @PathParam("primaryKey") String id) {
         ShibGroup doomed = shibGroupPrv.get(id);
         if (doomed != null) {
             boolean deleted;
@@ -241,7 +277,11 @@ public class Groups extends AbstractApiBean {
      */
     @POST
     @Path("domain")
-    public Response createMailDomainGroup(JsonObject dto) throws JsonParseException {
+    @Operation(summary = "Creates a mail-domain group",
+            description = "Creates a global mail-domain group from the supplied JSON and refreshes mail-domain group membership.")
+    public Response createMailDomainGroup(
+            @RequestBody(description = "Mail-domain group definition with alias and domain matching rules.")
+            JsonObject dto) throws JsonParseException {
         MailDomainGroup grp = new JsonParser().parseMailDomainGroup(dto);
         mailDomainGroupPrv.saveOrUpdate(Optional.empty(), grp);
         mailDomainGroupPrv.updateGroups();
@@ -258,7 +298,13 @@ public class Groups extends AbstractApiBean {
      */
     @PUT
     @Path("domain/{groupAlias}")
-    public Response updateMailDomainGroups(@PathParam("groupAlias") String groupAlias, JsonObject dto) throws JsonParseException {
+    @Operation(summary = "Creates or replaces a mail-domain group",
+            description = "Creates or replaces a global mail-domain group with the specified alias and refreshes mail-domain group membership.")
+    public Response updateMailDomainGroups(
+            @Parameter(description = "Mail-domain group alias to create or replace.", required = true)
+            @PathParam("groupAlias") String groupAlias,
+            @RequestBody(description = "Mail-domain group definition with domain matching rules.")
+            JsonObject dto) throws JsonParseException {
         if ( groupAlias == null || groupAlias.trim().isEmpty() ) {
             return badRequest("Group name cannot be empty");
         }
@@ -275,6 +321,8 @@ public class Groups extends AbstractApiBean {
     
     @GET
     @Path("domain")
+    @Operation(summary = "Lists mail-domain groups",
+            description = "Returns all global mail-domain groups as JSON.")
     public Response listMailDomainGroups() {
         return ok( mailDomainGroupPrv.findGlobalGroups()
             .stream().map(g->json(g)).collect(toJsonArray()) );
@@ -282,14 +330,22 @@ public class Groups extends AbstractApiBean {
     
     @GET
     @Path("domain/{groupAlias}")
-    public Response getMailDomainGroup(@PathParam("groupAlias") String groupAlias) {
+    @Operation(summary = "Returns a mail-domain group",
+            description = "Returns the global mail-domain group with the specified alias.")
+    public Response getMailDomainGroup(
+            @Parameter(description = "Mail-domain group alias to return.", required = true)
+            @PathParam("groupAlias") String groupAlias) {
         MailDomainGroup grp = mailDomainGroupPrv.get(groupAlias);
         return (grp == null) ? notFound( "Group " + groupAlias + " not found") : ok(json(grp));
     }
     
     @DELETE
     @Path("domain/{groupAlias}")
-    public Response deleteMailDomainGroup(@PathParam("groupAlias") String groupAlias) {
+    @Operation(summary = "Deletes a mail-domain group",
+            description = "Deletes the global mail-domain group with the specified alias and refreshes mail-domain group membership.")
+    public Response deleteMailDomainGroup(
+            @Parameter(description = "Mail-domain group alias to delete.", required = true)
+            @PathParam("groupAlias") String groupAlias) {
         mailDomainGroupPrv.delete(groupAlias);
         mailDomainGroupPrv.updateGroups();
         return ok("Group " + groupAlias + " deleted.");

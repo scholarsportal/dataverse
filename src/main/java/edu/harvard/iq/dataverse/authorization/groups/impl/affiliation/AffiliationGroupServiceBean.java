@@ -3,7 +3,7 @@ package edu.harvard.iq.dataverse.authorization.groups.impl.affiliation;
 import edu.harvard.iq.dataverse.RoleAssigneeServiceBean;
 import edu.harvard.iq.dataverse.actionlogging.ActionLogRecord;
 import edu.harvard.iq.dataverse.actionlogging.ActionLogServiceBean;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import jakarta.ejb.EJB;
 import jakarta.ejb.Stateless;

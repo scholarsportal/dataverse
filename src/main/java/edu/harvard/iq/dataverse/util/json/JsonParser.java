@@ -52,6 +52,7 @@ public class JsonParser {
     SettingsServiceBean settingsService;
     LicenseServiceBean licenseService;
     DatasetTypeServiceBean datasetTypeService;
+    TemplateServiceBean templateService;
     HarvestingClient harvestingClient = null;
     boolean allowHarvestingMissingCVV = false;
 
@@ -67,17 +68,18 @@ public class JsonParser {
         this.settingsService = settingsService;
     }
 
-    public JsonParser(DatasetFieldServiceBean datasetFieldSvc, MetadataBlockServiceBean blockService, SettingsServiceBean settingsService, LicenseServiceBean licenseService, DatasetTypeServiceBean datasetTypeService) {
-        this(datasetFieldSvc, blockService, settingsService, licenseService, datasetTypeService, null);
+    public JsonParser(DatasetFieldServiceBean datasetFieldSvc, MetadataBlockServiceBean blockService, SettingsServiceBean settingsService, LicenseServiceBean licenseService, DatasetTypeServiceBean datasetTypeService, TemplateServiceBean templateService) {
+        this(datasetFieldSvc, blockService, settingsService, licenseService, datasetTypeService, null, templateService);
     }
 
-    public JsonParser(DatasetFieldServiceBean datasetFieldSvc, MetadataBlockServiceBean blockService, SettingsServiceBean settingsService, LicenseServiceBean licenseService, DatasetTypeServiceBean datasetTypeService, HarvestingClient harvestingClient) {
+    public JsonParser(DatasetFieldServiceBean datasetFieldSvc, MetadataBlockServiceBean blockService, SettingsServiceBean settingsService, LicenseServiceBean licenseService, DatasetTypeServiceBean datasetTypeService, HarvestingClient harvestingClient, TemplateServiceBean templateService) {
         this.datasetFieldSvc = datasetFieldSvc;
         this.blockService = blockService;
         this.settingsService = settingsService;
         this.licenseService = licenseService;
         this.datasetTypeService = datasetTypeService;
         this.harvestingClient = harvestingClient;
+        this.templateService = templateService;
         this.allowHarvestingMissingCVV = harvestingClient != null && harvestingClient.getAllowHarvestingMissingCVV();
     }
 
@@ -147,6 +149,9 @@ public class JsonParser {
         if (jobj.containsKey("requireFilesToPublishDataset")) {
             dv.setRequireFilesToPublishDataset(jobj.getBoolean("requireFilesToPublishDataset"));
         }
+        if (jobj.containsKey("guestbookRoot")) {
+            dv.setGuestbookRoot(jobj.getBoolean("guestbookRoot"));
+        }
 
         /*  We decided that subject is not user set, but gotten from the subject of the dataverse's
             datasets - leavig this code in for now, in case we need to go back to it at some point
@@ -207,6 +212,9 @@ public class JsonParser {
         }
         if (jsonObject.containsKey("datasetFileCountLimit")) {
             dataverseDTO.setDatasetFileCountLimit(Integer.valueOf(jsonObject.getInt("datasetFileCountLimit")));
+        }
+        if (jsonObject.containsKey("guestbookRoot")) {
+            dataverseDTO.setGuestbookRoot(jsonObject.getBoolean("guestbookRoot"));
         }
 
         return dataverseDTO;
@@ -327,7 +335,7 @@ public class JsonParser {
         if ( obj.containsKey("domains") ) {
             List<String> domains =
                 Optional.ofNullable(obj.getJsonArray("domains"))
-                    .orElse(Json.createArrayBuilder().build())
+                    .orElse(JsonUtil.createArrayBuilder().build())
                     .getValuesAs(JsonString.class)
                     .stream()
                     .map(JsonString::getString)
@@ -417,9 +425,9 @@ public class JsonParser {
         return parseDatasetVersion(obj, new DatasetVersion());
     }
 
-    public Dataset parseDataset(JsonObject obj) throws JsonParseException {
+    public Dataset parseDataset(JsonObject obj, Dataverse owner) throws JsonParseException {
         Dataset dataset = new Dataset();
-
+        dataset.setOwner(owner);
         dataset.setAuthority(obj.getString("authority", null));
         dataset.setProtocol(obj.getString("protocol", null));
         dataset.setIdentifier(obj.getString("identifier",null));
@@ -437,6 +445,16 @@ public class JsonParser {
             dataset.setDatasetType(datasetType);
         } else {
             throw new JsonParseException("Invalid dataset type: " + datasetTypeIn);
+        }
+
+        if (obj.containsKey("templateId")) {
+            int templateId = obj.getInt("templateId", -1);
+            Template template = templateService.find(Long.valueOf(templateId));
+            if (templateService.isTemplateValid(dataset.getOwner(), template)) {
+                dataset.setTemplate(template);
+            } else {
+                throw new JsonParseException("Invalid template id: " + templateId);
+            }
         }
 
         DatasetVersion dsv = new DatasetVersion();
@@ -478,7 +496,13 @@ public class JsonParser {
             if (versionStateStr != null) {
                 dsv.setVersionState(DatasetVersion.VersionState.valueOf(versionStateStr));
             }
-            dsv.setReleaseTime(parseDate(obj.getString("releaseDate", null)));
+            // Checking "releaseTime" to be consistent with JsonPrinter which outputs this field as 'releaseTime' with full timestamp
+            if (obj.containsKey("releaseTime")) {
+                dsv.setReleaseTime(parseTime(obj.getString("releaseTime", null)));
+            } else {
+                // Accept 'releaseDate' to remain backward compatible. This truncates to date only!
+                dsv.setReleaseTime(parseDate(obj.getString("releaseDate", null)));
+            }
             dsv.setLastUpdateTime(parseTime(obj.getString("lastUpdateTime", null)));
             dsv.setCreateTime(parseTime(obj.getString("createTime", null)));
             dsv.setArchiveTime(parseTime(obj.getString("archiveTime", null)));
@@ -488,23 +512,53 @@ public class JsonParser {
 
             License license = null;
 
-            try {
-                // This method will attempt to parse the license in the format
-                // in which it appears in our json exports, as a compound
-                // field, for ex.:
-                // "license": {
-                //    "name": "CC0 1.0",
-                //    "uri": "http://creativecommons.org/publicdomain/zero/1.0"
-                // }
-                license = parseLicense(obj.getJsonObject("license"));
-            } catch (ClassCastException cce) {
-                logger.fine("class cast exception parsing the license section (will try parsing as a string)");
-                // attempt to parse as string:
-                // i.e. this is for backward compatibility, after the bug in #9155
-                // was fixed, with the old style of encoding the license info
-                // in input json, for ex.:
-                // "license" : "CC0 1.0"
-                license = parseLicense(obj.getString("license", null));
+            if (obj.containsKey("license")) {
+                try {
+                    // This method will attempt to parse the license in the format 
+                    // in which it appears in our json exports, as a compound
+                    // field, for ex.:
+                    // "license": {
+                    //    "name": "CC0 1.0",
+                    //    "uri": "http://creativecommons.org/publicdomain/zero/1.0"
+                    // }
+                    license = parseLicense(obj.getJsonObject("license"));
+                } catch (ClassCastException cce) {
+                    logger.fine("class cast exception parsing the license section (will try parsing as a string)");
+                    // attempt to parse as string: 
+                    // i.e. this is for backward compatibility, after the bug in #9155
+                    // was fixed, with the old style of encoding the license info 
+                    // in input json, for ex.: 
+                    // "license" : "CC0 1.0"
+                    license = parseLicense(obj.getString("license", null));
+                }
+            }
+
+            terms.setTermsOfUse(obj.getString("termsOfUse", null));
+            terms.setConfidentialityDeclaration(obj.getString("confidentialityDeclaration", null));
+            terms.setSpecialPermissions(obj.getString("specialPermissions", null));
+            terms.setRestrictions(obj.getString("restrictions", null));
+            terms.setCitationRequirements(obj.getString("citationRequirements", null));
+            terms.setDepositorRequirements(obj.getString("depositorRequirements", null));
+            terms.setConditions(obj.getString("conditions", null));
+            terms.setDisclaimer(obj.getString("disclaimer", null));
+
+            if (license == null) {
+                // If no license was provided or the provided license was invalid,
+                // we check if terms were provided.
+                boolean termsProvided = terms.getTermsOfUse() != null
+                        || terms.getConfidentialityDeclaration() != null
+                        || terms.getSpecialPermissions() != null
+                        || terms.getRestrictions() != null
+                        || terms.getCitationRequirements() != null
+                        || terms.getDepositorRequirements() != null
+                        || terms.getConditions() != null
+                        || terms.getDisclaimer() != null;
+
+                if (!FeatureFlags.DO_NOT_ASSUME_DEFAULT_LICENSE.enabled()) {
+                    if (!termsProvided) {
+                        license = licenseService.getDefault();
+                    }
+                }
             }
 
             //test to see if license exists in dataset type
@@ -525,19 +579,7 @@ public class JsonParser {
                 }
             }
 
-            if (license == null) {
-                terms.setLicense(license);
-                terms.setTermsOfUse(obj.getString("termsOfUse", null));
-                terms.setConfidentialityDeclaration(obj.getString("confidentialityDeclaration", null));
-                terms.setSpecialPermissions(obj.getString("specialPermissions", null));
-                terms.setRestrictions(obj.getString("restrictions", null));
-                terms.setCitationRequirements(obj.getString("citationRequirements", null));
-                terms.setDepositorRequirements(obj.getString("depositorRequirements", null));
-                terms.setConditions(obj.getString("conditions", null));
-                terms.setDisclaimer(obj.getString("disclaimer", null));
-            } else {
-                terms.setLicense(license);
-            }
+            terms.setLicense(license);
             terms.setTermsOfAccess(obj.getString("termsOfAccess", null));
             terms.setDataAccessPlace(obj.getString("dataAccessPlace", null));
             terms.setOriginalArchive(obj.getString("originalArchive", null));
@@ -548,6 +590,7 @@ public class JsonParser {
             terms.setFileAccessRequest(obj.getBoolean("fileAccessRequest", false));
             dsv.setTermsOfUseAndAccess(terms);
             terms.setDatasetVersion(dsv);
+
             JsonObject metadataBlocks = obj.getJsonObject("metadataBlocks");
             if (metadataBlocks == null){
                 throw new JsonParseException(BundleUtil.getStringFromBundle("jsonparser.error.metadatablocks.not.found"));
@@ -718,12 +761,7 @@ public class JsonParser {
 
     private edu.harvard.iq.dataverse.license.License parseLicense(String licenseNameOrUri) throws JsonParseException {
         if (licenseNameOrUri == null){
-            boolean safeDefaultIfKeyNotFound = true;
-            if (settingsService.isTrueForKey(SettingsServiceBean.Key.AllowCustomTermsOfUse, safeDefaultIfKeyNotFound)){
-                return null;
-            } else {
-                return licenseService.getDefault();
-            }
+            return null;
         }
         License license = licenseService.getByNameOrUri(licenseNameOrUri);
         if (license == null) throw new JsonParseException("Invalid license: " + licenseNameOrUri);
@@ -732,12 +770,7 @@ public class JsonParser {
 
     private edu.harvard.iq.dataverse.license.License parseLicense(JsonObject licenseObj) throws JsonParseException {
         if (licenseObj == null){
-            boolean safeDefaultIfKeyNotFound = true;
-            if (settingsService.isTrueForKey(SettingsServiceBean.Key.AllowCustomTermsOfUse, safeDefaultIfKeyNotFound)){
-                return null;
-            } else {
-                return licenseService.getDefault();
-            }
+            return null;
         }
 
         String licenseName = licenseObj.getString("name", null);
@@ -748,9 +781,9 @@ public class JsonParser {
         // If uri is provided, we'll try that first. This is an easier lookup
         // method; the uri is always the same. The name may have been customized
         // (translated) on this instance, so we may be dealing with such translated
-        // name, if this is exported json that we are processing. Meaning, unlike
+        // name, if this is exported json that we are processing. Meaning, unlike 
         // the uri, we cannot simply check it against the name in the License
-        // database table.
+        // database table. 
         if (licenseUri != null) {
             license = licenseService.getByNameOrUri(licenseUri);
         }
@@ -900,8 +933,8 @@ public class JsonParser {
         }
         String storageIdentifier = null;
         /**
-         * When harvesting from other Dataverses using this json format, we
-         * don't want to import their storageidentifiers verbatim. Instead, we
+         * When harvesting from other Dataverses using this json format, we 
+         * don't want to import their storageidentifiers verbatim. Instead, we 
          * will modify them to point to the access API location on the remote
          * archive side.
          */
@@ -911,11 +944,11 @@ public class JsonParser {
                     + "/api/access/datafile/"
                     + remoteId;
             /**
-             * Note that we don't have any practical use for these urls as
+             * Note that we don't have any practical use for these urls as 
              * of now. We used to, in the past, perform some tasks on harvested
              * content that involved trying to access the files. In any event, it
-             * makes more sense to collect these urls, than the storage
-             * identifiers imported as is, which become completely meaningless
+             * makes more sense to collect these urls, than the storage 
+             * identifiers imported as is, which become completely meaningless 
              * on the local system.
              */
         } else {
@@ -1310,7 +1343,7 @@ public class JsonParser {
         harvestingClient.setAllowHarvestingMissingCVV(obj.getBoolean("allowHarvestingMissingCVV", false));
         harvestingClient.setUseListrecords(obj.getBoolean("useListRecords", false));
         harvestingClient.setUseOaiIdentifiersAsPids(obj.getBoolean("useOaiIdentifiersAsPids", false));
-
+        
         harvestingClient.readScheduleDescription(obj.getString("schedule", null));
 
         return dataverseAlias;
