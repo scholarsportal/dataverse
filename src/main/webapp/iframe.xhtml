@@ -82,7 +82,7 @@
                 <h:graphicImage value="/resources/images/ajax-loading.gif" alt="#{bundle['loading']}" />
             </f:facet>
             <f:facet name="complete">
-                <!-- DO NOTHING -->
+                <h:outputText value=""/>
             </f:facet>
         </p:ajaxStatus>
         <script defer="defer" src="#{resource['bs/js/bootstrap.min.js']}?version=#{systemConfig.getVersion()}"></script>
