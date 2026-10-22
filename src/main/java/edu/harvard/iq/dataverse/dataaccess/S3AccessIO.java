@@ -1276,13 +1276,12 @@ public class S3AccessIO<T extends DvObject> extends StorageIO<T> {
             s3CB.httpClientBuilder(httpClientBuilder);
 
             if (upload) {
-                s3CB.multipartEnabled(false);
                 // Enable multipart and configure it to be used if the file is larger than minPartSize.
-                //s3CB.multipartEnabled(true);
-                //long minPartSize = getMinPartSize(id);
-                //s3CB.multipartConfiguration(MultipartConfiguration.builder()
-                //   .thresholdInBytes(minPartSize)
-                //   .minimumPartSizeInBytes(minPartSize).build());
+                s3CB.multipartEnabled(true);
+                long minPartSize = getMinPartSize(id);
+                s3CB.multipartConfiguration(MultipartConfiguration.builder()
+                   .thresholdInBytes(minPartSize)
+                   .minimumPartSizeInBytes(minPartSize).build());
             }
             else {
                 s3CB.multipartEnabled(false);
